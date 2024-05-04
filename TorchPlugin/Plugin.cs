@@ -13,7 +13,6 @@ using Shared.Patches;
 using Shared.Plugin;
 using Torch;
 using Torch.API;
-using Torch.API.Managers;
 using Torch.API.Plugins;
 using Torch.API.Session;
 using Torch.Session;

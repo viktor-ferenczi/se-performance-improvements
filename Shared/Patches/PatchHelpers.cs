@@ -108,6 +108,7 @@ namespace Shared.Patches
             MySessionComponentSafeZonesPatch.Update();
             MyWindTurbinePatch.Update();
             MyGridConveyorSystemPatch.Update();
+            MyGridGasSystemPatch.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
             // MyGridTerminalSystemPatch.Update();

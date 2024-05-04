@@ -97,6 +97,15 @@
     <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySession.Unload.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySimpleProfiler.LogPerformanceTestResults.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySimpleProfiler.LogPerformanceTestResults.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\GetRoomBlocks.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\GetRoomBlocks.patched.il" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Airtight\MyGridGasSystemPatch.cs" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\RefreshRoomBlocks.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\RefreshRoomBlocks.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\RemoveBlock.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\RemoveBlock.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\ShrinkData.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Airtight\ShrinkData.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Character\RigidBody_ContactPointCallback.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Character\RigidBody_ContactPointCallback.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\GetBlueprintDefinition.original.il" />
