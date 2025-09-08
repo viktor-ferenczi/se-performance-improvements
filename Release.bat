@@ -8,7 +8,7 @@ SET p7z="C:\Program Files\7-Zip\7z.exe"
 SET harmony_dll=Torch\Plugins\%name%\0Harmony.dll
 SET unsafe_dll=Torch\Plugins\%name%\System.Runtime.CompilerServices.Unsafe.dll
 
-SET client_bin=Bin64\Plugins\Local\%name%.dll
+SET client_bin=Bin64\Pulsar\Legacy\Local\%name%.dll
 SET ds_bin=Torch\DedicatedServer64\Plugins\%name%.dll
 SET torch_dir=Torch\Plugins\%name%
 
