@@ -37,7 +37,7 @@ Please note, that the plugin is using Harmony to patch the game code. Once Keen 
 these patches are expected to be removed anyway, so I did not bother using Torch's patching mechanism.
 
 ### Dedicated Server plugin
-1. Download the latest ZIP from [Releases](https://github.com/viktor-ferenczi/performance-improvements/releases).
+1. Download the latest ZIP from [Releases](https://github.com/viktor-ferenczi/se-performance-improvements/releases).
 2. Open the `Bin64` folder of your Dedicated Server installation.
 3. Create a `Plugins` folder if it does not exists.
 4. Extract the ZIP file into the `Bin64/Plugins` folder.
