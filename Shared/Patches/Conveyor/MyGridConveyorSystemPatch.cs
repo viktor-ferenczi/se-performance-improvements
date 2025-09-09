@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using HarmonyLib;
-using Sandbox.Game;
 using Sandbox.Game.Entities;
 using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.Conveyors;
@@ -13,7 +10,6 @@ using Shared.Config;
 using Shared.Logging;
 using Shared.Plugin;
 using Shared.Tools;
-using VRage;
 using VRage.Game;
 using TLogicalGroup = VRage.Groups.MyGroups<Sandbox.Game.Entities.MyCubeGrid, Sandbox.Game.Entities.MyGridLogicalGroupData>.Group;
 
@@ -182,26 +178,29 @@ namespace Shared.Patches
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("Reachable", typeof(IMyConveyorEndpoint), typeof(IMyConveyorEndpoint), typeof(long), typeof(MyDefinitionId), typeof(Predicate<IMyConveyorEndpoint>))]
+        [HarmonyPatch("Reachable", typeof(IMyConveyorEndpointBlock), typeof(IMyConveyorEndpointBlock), typeof(long), typeof(MyDefinitionId), typeof(Predicate<IMyConveyorEndpoint>))]
         [EnsureCode("b3bebe51")]
         private static bool ReachableByPlayerPrefix(
-            IMyConveyorEndpoint source,
-            IMyConveyorEndpoint endPoint,
+            IMyConveyorEndpointBlock source,
+            IMyConveyorEndpointBlock endPoint,
             ref bool __result)
         {
+            var sourceEndpoint = source.ConveyorEndpoint;
+            var endPointEndpoint = endPoint.ConveyorEndpoint;
+            
             if (!Config.FixConveyor)
                 return true;
 
             try
             {
-                var cache = GetCache(source, endPoint);
+                var cache = GetCache(sourceEndpoint, endPointEndpoint);
                 if (cache == null)
                 {
                     __result = false;
                     return false;
                 }
 
-                var key = (ulong)(source?.CubeBlock.EntityId ?? 0) ^ (ulong)(endPoint?.CubeBlock.EntityId ?? 0);
+                var key = (ulong)(sourceEndpoint?.CubeBlock.EntityId ?? 0) ^ (ulong)(endPointEndpoint?.CubeBlock.EntityId ?? 0);
 
                 if (cache.TryGetValue(key, out var value) && value == 0)
                 {
@@ -213,7 +212,7 @@ namespace Shared.Patches
                 }
             } catch (ArgumentNullException)
             {
-                Log.Warning("Safely suppressed a crash in MyGridConveyorSystemPatch.ReachableByPlayerPrefix (source={0}, endPoint={1})", source?.CubeBlock.EntityId ?? 0, endPoint?.CubeBlock.EntityId ?? 0);
+                Log.Warning("Safely suppressed a crash in MyGridConveyorSystemPatch.ReachableByPlayerPrefix (source={0}, endPoint={1})", sourceEndpoint?.CubeBlock.EntityId ?? 0, endPointEndpoint?.CubeBlock.EntityId ?? 0);
             }
 
             return true;
