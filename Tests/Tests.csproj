@@ -369,7 +369,7 @@
       <None Include="App.config" />
     </ItemGroup>
     <ItemGroup>
-      <PackageReference Include="Lib.Harmony" Version="2.3.3" />
+      <PackageReference Include="Lib.Harmony" Version="2.3.6" />
       <PackageReference Include="NUnit" Version="3.5.0" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <PluginData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="GitHubPlugin">
-  <Id>viktor-ferenczi/performance-improvements</Id>
-  <GroupId>viktor-ferenczi/performance-improvements</GroupId>
+  <Id>viktor-ferenczi/se-performance-improvements</Id>
+  <GroupId>viktor-ferenczi/se-performance-improvements</GroupId>
   <FriendlyName>Performance Improvements</FriendlyName>
   <Author>Viktor</Author>
   <Commit>596ed22d69dbb5b8f2fe505b0ed8b1dfb56ff858</Commit>

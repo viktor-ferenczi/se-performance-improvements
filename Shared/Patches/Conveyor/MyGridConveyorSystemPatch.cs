@@ -182,26 +182,29 @@ namespace Shared.Patches
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("Reachable", typeof(IMyConveyorEndpoint), typeof(IMyConveyorEndpoint), typeof(long), typeof(MyDefinitionId), typeof(Predicate<IMyConveyorEndpoint>))]
-        [EnsureCode("b3bebe51")]
+        [HarmonyPatch("Reachable", typeof(IMyConveyorEndpointBlock), typeof(IMyConveyorEndpointBlock), typeof(long), typeof(MyDefinitionId), typeof(Predicate<IMyConveyorEndpoint>))]
+        [EnsureCode("6b927222")]
         private static bool ReachableByPlayerPrefix(
-            IMyConveyorEndpoint source,
-            IMyConveyorEndpoint endPoint,
+            IMyConveyorEndpointBlock source,
+            IMyConveyorEndpointBlock endPoint,
             ref bool __result)
         {
+            var sourceEndpoint = source.ConveyorEndpoint;
+            var endPointEndpoint = endPoint.ConveyorEndpoint;
+            
             if (!Config.FixConveyor)
                 return true;
 
             try
             {
-                var cache = GetCache(source, endPoint);
+                var cache = GetCache(sourceEndpoint, endPointEndpoint);
                 if (cache == null)
                 {
                     __result = false;
                     return false;
                 }
 
-                var key = (ulong)(source?.CubeBlock.EntityId ?? 0) ^ (ulong)(endPoint?.CubeBlock.EntityId ?? 0);
+                var key = (ulong)(sourceEndpoint?.CubeBlock.EntityId ?? 0) ^ (ulong)(endPointEndpoint?.CubeBlock.EntityId ?? 0);
 
                 if (cache.TryGetValue(key, out var value) && value == 0)
                 {
@@ -213,7 +216,7 @@ namespace Shared.Patches
                 }
             } catch (ArgumentNullException)
             {
-                Log.Warning("Safely suppressed a crash in MyGridConveyorSystemPatch.ReachableByPlayerPrefix (source={0}, endPoint={1})", source?.CubeBlock.EntityId ?? 0, endPoint?.CubeBlock.EntityId ?? 0);
+                Log.Warning("Safely suppressed a crash in MyGridConveyorSystemPatch.ReachableByPlayerPrefix (source={0}, endPoint={1})", sourceEndpoint?.CubeBlock.EntityId ?? 0, endPointEndpoint?.CubeBlock.EntityId ?? 0);
             }
 
             return true;

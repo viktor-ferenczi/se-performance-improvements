@@ -6,7 +6,7 @@ echo Parameters: %*
 set SRC=%~p1
 set NAME=%~2
 
-set TARGET=..\..\..\Bin64\Plugins\Local
+set TARGET=..\..\..\Bin64\Pulsar\Legacy\Local
 mkdir %TARGET% >NUL 2>&1
 
 echo.
