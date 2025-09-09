@@ -20,7 +20,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("AddCubeBlock")]
         [HarmonyPostfix]
-        [EnsureCode("3c5e9e27")]
+        [EnsureCode("e5e7aa08")]
         private static void AddCubeBlockPostfix(MyCubeGrid __instance, MySlimBlock __result)
         {
             if (Config.FixConveyor && __result?.FatBlock is IMyConveyorEndpointBlock)
@@ -53,7 +53,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("MergeGridInternal")]
         [HarmonyPostfix]
-        [EnsureCode("a2674a04")]
+        [EnsureCode("801d57b2")]
         private static void MergeGridInternalPostfix(MyCubeGrid __instance, MyCubeGrid gridToMerge)
         {
             if (Config.FixConveyor)

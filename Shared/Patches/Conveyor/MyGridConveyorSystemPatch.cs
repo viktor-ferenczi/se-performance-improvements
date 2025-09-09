@@ -179,7 +179,7 @@ namespace Shared.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch("Reachable", typeof(IMyConveyorEndpointBlock), typeof(IMyConveyorEndpointBlock), typeof(long), typeof(MyDefinitionId), typeof(Predicate<IMyConveyorEndpoint>))]
-        [EnsureCode("b3bebe51")]
+        [EnsureCode("6b927222")]
         private static bool ReachableByPlayerPrefix(
             IMyConveyorEndpointBlock source,
             IMyConveyorEndpointBlock endPoint,

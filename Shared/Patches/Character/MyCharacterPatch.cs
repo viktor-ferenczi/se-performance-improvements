@@ -25,7 +25,7 @@ namespace Shared.Patches
         // ReSharper disable once UnusedMember.Local
         [HarmonyTranspiler]
         [HarmonyPatch("RigidBody_ContactPointCallback")]
-        [EnsureCode("c1e4183d")]
+        [EnsureCode("cfafc352")]
         private static IEnumerable<CodeInstruction> RigidBody_ContactPointCallbackTranspiler(IEnumerable<CodeInstruction> instructions)
         {
             if (!enabled)
