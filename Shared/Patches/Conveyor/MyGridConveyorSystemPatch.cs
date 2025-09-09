@@ -236,7 +236,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
         [HarmonyPrefix]
-        [EnsureCode("abdb997f")]
+        [EnsureCode("43dc9172")]
         private static bool PullItemPrefix(
             MyGridConveyorSystem __instance,
             MyDefinitionId itemId,
@@ -256,7 +256,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
         [HarmonyPostfix]
-        [EnsureCode("abdb997f")]
+        [EnsureCode("43dc9172")]
         private static void PullItemPostfix(
             ref MyFixedPoint __result
         )
@@ -267,7 +267,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("PullItems")]
         [HarmonyPrefix]
-        [EnsureCode("bbcd0ba0")]
+        [EnsureCode("85a4df5f")]
         private static bool PullItemsPrefix(
             MyGridConveyorSystem __instance,
             MyInventoryConstraint inventoryConstraint,
@@ -288,7 +288,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("PullItems")]
         [HarmonyPostfix]
-        [EnsureCode("bbcd0ba0")]
+        [EnsureCode("85a4df5f")]
         private static void PullItemsPostfix(
             ref MyFixedPoint __result)
         {
