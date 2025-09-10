@@ -41,7 +41,7 @@ namespace Shared.Patches
         private static IEnumerable<CodeInstruction> GetBlueprintDefinitionTranspiler(
             IEnumerable<CodeInstruction> instructions)
         {
-            if (!Config.Enabled)
+            if (!Config.Enabled || !Config.FixMemory)
                 return instructions;
 
             var il = instructions.ToList();
