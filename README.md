@@ -13,19 +13,19 @@ Please consider supporting my work on [Patreon](https://www.patreon.com/semods) 
 
 ## Available for
 
-- [Space Engineers](https://store.steampowered.com/app/244850/Space_Engineers/) with [Plugin Loader](https://steamcommunity.com/sharedfiles/filedetails/?id=2407984968)
+- [Space Engineers](https://store.steampowered.com/app/244850/Space_Engineers/) with [Pulsar](https://github.com/SpaceGT/Pulsar)
 - [Torch Server](https://torchapi.net/)
 - [Dedicated Server](https://www.spaceengineersgame.com/dedicated-servers/)
 
-## Want to know more?
+## Want help or to know more?
 
 - [SE Mods Discord](https://discord.gg/PYPFPGf3Ca) FAQ, Troubleshooting, Support, Bug Reports, Discussion
-- [Plugin Loader Discord](https://discord.gg/6ETGRU3CzR) Everything about plugins
+- [Pulsar Discord]([https://discord.gg/6ETGRU3CzR](https://discord.gg/z8ZczP2YZY)) Community of plugin users
 
 ## Installation
 
 ### Client plugin
-1. Install [Plugin Loader](https://steamcommunity.com/sharedfiles/filedetails/?id=2407984968) into Space Engineers (add launch option)
+1. Install [Pulsar](https://github.com/SpaceGT/Pulsar), there is a link to an Installer in the README
 2. Enable the **Performance Improvements** plugin from the **Plugins** dialog
 3. Apply, restart the game
 
@@ -70,7 +70,8 @@ these patches are expected to be removed anyway, so I did not bother using Torch
 - Raidfire
 
 ### Developers
-- Avaness: client side Plugin Loader
+- SpaceGT: client side Pulsar
+- Avaness: client side Plugin Loader (legacy)
 - Bishbash77: testing and keeping Torch alive
 - mkaito: testing and design discussions
 - zznty: contributed patches
