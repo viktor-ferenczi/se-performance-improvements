@@ -40,7 +40,7 @@ these patches are expected to be removed anyway, so I did not bother using Torch
 1. Download the latest ZIP from [Releases](https://github.com/viktor-ferenczi/se-performance-improvements/releases).
 2. Open the `Bin64` folder of your Dedicated Server installation.
 3. Create a `Plugins` folder if it does not exists.
-4. Extract the ZIP file into the `Bin64/Plugins` folder.
+4. Extract the ZIP file into the `DedicatedServer64/Plugins` folder.
 5. Right click on all the DLLs extracted and select **Unblock** from the file's **Properties** dialog.
 6. Start the Dedicated Server.
 7. Add the `PerformanceImprovements.dll` from the `Bin64/Plugins` folder to the Plugins list.
