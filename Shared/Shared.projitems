@@ -80,6 +80,20 @@
     <Content Include="$(MSBuildThisFileDirectory)..\README.md">
       <Link>README.md</Link>
     </Content>
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.HkBaseSystem.Quit.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.HkBaseSystem.Quit.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MyPlanetTextureMapProvider.GetDetailMap.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MyPlanetTextureMapProvider.GetDetailMap.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MyPlanetTextureMapProvider.GetHeightmap.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MyPlanetTextureMapProvider.GetHeightmap.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MyPlanetTextureMapProvider.GetMaps.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MyPlanetTextureMapProvider.GetMaps.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySession.MySession.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySession.MySession.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySession.Unload.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySession.Unload.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySimpleProfiler.LogPerformanceTestResults.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySimpleProfiler.LogPerformanceTestResults.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Character\RigidBody_ContactPointCallback.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Character\RigidBody_ContactPointCallback.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\GetBlueprintDefinition.original.il" />
