@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Emit;
+using ClientPlugin.Shared.Tools;
 using HarmonyLib;
 using Sandbox.Definitions;
 using Shared.Config;
@@ -50,10 +51,14 @@ namespace Shared.Patches
             var i = il.FindIndex(ci => ci.opcode == OpCodes.Ldarg_1);
             il.RemoveRange(i + 1, il.Count - i - 1);
 
+            // See #81: Fallback on Linux (Mono)
             var getValueOrDefault =
-                AccessTools.Method(typeof(Dictionary<MyDefinitionId, MyDefinitionBase>), "GetValueOrDefault");
+                // Windows
+                AccessTools.Method(typeof(Dictionary<MyDefinitionId, MyDefinitionBase>), "GetValueOrDefault") ??
+                // Linux (Mono)
+                AccessTools.Method(typeof(Workarounds), "GetValueOrDefault");
+            
             il.Add(new CodeInstruction(OpCodes.Call, getValueOrDefault));
-
             il.Add(new CodeInstruction(OpCodes.Ret));
 
             il.RecordPatchedCode();
