@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
@@ -11,6 +12,7 @@ using Sandbox.Game.World;
 using Shared.Config;
 using Shared.Logging;
 using Shared.Plugin;
+using Shared.Tools;
 using VRage;
 
 namespace Shared.Patches
@@ -30,6 +32,9 @@ namespace Shared.Patches
         // These methods freeze for seconds due to forcing a full GC
         static IEnumerable<MethodBase> TargetMethods()
         {
+            if (!Config.FixGarbageCollection)
+                yield break;
+            
             yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetHeightmap));
             yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetDetailMap));
             yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetMaps));
@@ -41,120 +46,64 @@ namespace Shared.Patches
 
         // Remove all GC calls from the bytecode of the above methods
         [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> CollectRemovalTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> CollectRemovalTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase originalMethod)
         {
-            foreach (var instruction in instructions)
+            var original = instructions.ToList();
+            var patched = new List<CodeInstruction>(original.Count + 16);
+
+            var replaced = 0;
+            foreach (var instruction in original)
             {
-                if (instruction.opcode == OpCodes.Call &&
-                    instruction.operand is MethodInfo operand &&
-                    operand.DeclaringType == typeof(GC) &&
-                    operand.Name == "Collect")
+                var isGcCollect = instruction.opcode == OpCodes.Call &&
+                        instruction.operand is MethodInfo o1 &&
+                        o1.DeclaringType == typeof(GC) && 
+                        o1.Name == "Collect";
+                
+                var isCollectGc = instruction.opcode == OpCodes.Callvirt &&
+                        instruction.operand is MethodInfo o2 &&
+                        o2.DeclaringType == typeof(IVRageSystem) && 
+                        o2.Name == "CollectGC";
+                
+                if (isGcCollect || isCollectGc)
                 {
-                    var parameterInfos = operand.GetParameters();
-                    CodeInstruction replacement;
-                    switch (parameterInfos.Length)
+                    var nop = new CodeInstruction(OpCodes.Nop);
+                    nop.labels.AddRange(instruction.labels);
+                    patched.Add(nop);
+                    
+                    var methodInfo = (MethodInfo)instruction.operand;
+                    var parameterCount = methodInfo.GetParameters().Length;
+                    for (var i = methodInfo.IsStatic ? 1 : 0; i <= parameterCount; i++)
                     {
-                        case 0:
-                            replacement = instruction.Clone(Replacement0Info);
-                            break;
-
-                        case 1:
-                            replacement = instruction.Clone(Replacement1Info);
-                            break;
-
-                        case 2:
-                            replacement = instruction.Clone(Replacement2Info);
-                            break;
-
-                        case 3:
-                            replacement = instruction.Clone(Replacement3Info);
-                            break;
-
-                        default:
-                            throw new Exception($"Encountered an unknown overload of GC.Collect() with {parameterInfos.Length} parameters");
+                        var pop = new CodeInstruction(OpCodes.Pop);
+                        patched.Add(pop);
                     }
-
-                    replacement.labels.AddRange(instruction.labels);
-
-                    yield return replacement;
+                    
+                    replaced += 1;
                     continue;
                 }
 
+                patched.Add(instruction);
+            }
+
+            var typeName = originalMethod.DeclaringType?.Name ?? "<N/A>";
+            var methodName = originalMethod.Name;
+            if (methodName == ".ctor")
+            {
+                methodName = typeName;
+            }
+            
+            original.RecordCustomCode($"{typeName}.{methodName}.original");
+            patched.RecordCustomCode($"{typeName}.{methodName}.patched");
+
+            if (replaced == 0)
+            {
+                Log.Warning($"GcCollectPatch(): No GC Collect calls found in method: {originalMethod.FullDescription()}");
+            }
+            
+            foreach(var instruction in patched)
+            {
                 yield return instruction;
             }
-        }
-
-        private static readonly MethodInfo Replacement0Info = AccessTools.DeclaredMethod(typeof(GcCollectPatch), nameof(Replacement0));
-        private static readonly MethodInfo Replacement1Info = AccessTools.DeclaredMethod(typeof(GcCollectPatch), nameof(Replacement1));
-        private static readonly MethodInfo Replacement2Info = AccessTools.DeclaredMethod(typeof(GcCollectPatch), nameof(Replacement2));
-        private static readonly MethodInfo Replacement3Info = AccessTools.DeclaredMethod(typeof(GcCollectPatch), nameof(Replacement3));
-
-        public static void Replacement0()
-        {
-            if (Config.Enabled && Config.FixGarbageCollection)
-            {
-#if DEBUG
-                Log.Debug("Skipping GC.Collect()");
-#endif
-                return;
-            }
-
-#if DEBUG
-            Log.Debug("Calling GC.Collect()");
-#endif
-
-            GC.Collect();
-        }
-
-        public static void Replacement1(int generation)
-        {
-            if (Config.Enabled && Config.FixGarbageCollection)
-            {
-#if DEBUG
-                Log.Debug("Skipping GC.Collect()");
-#endif
-                return;
-            }
-
-#if DEBUG
-            Log.Debug("Calling GC.Collect()");
-#endif
-
-            GC.Collect(generation);
-        }
-
-        public static void Replacement2(int generation, GCCollectionMode mode)
-        {
-            if (Config.Enabled && Config.FixGarbageCollection)
-            {
-#if DEBUG
-                Log.Debug("Skipping GC.Collect()");
-#endif
-                return;
-            }
-
-#if DEBUG
-            Log.Debug("Calling GC.Collect()");
-#endif
-
-            GC.Collect(generation, mode);
-        }
-
-        public static void Replacement3(int generation, GCCollectionMode mode, bool blocking)
-        {
-            if (Config.Enabled && Config.FixGarbageCollection)
-            {
-#if DEBUG
-                Log.Debug("Skipping GC.Collect()");
-#endif
-                return;
-            }
-
-#if DEBUG
-            Log.Debug("Calling GC.Collect()");
-#endif
-
-            GC.Collect(generation, mode, blocking);
         }
     }
 }

@@ -6,7 +6,7 @@ echo Parameters: %*
 set SRC=%~p1
 set NAME=%~2
 
-set TARGET=..\..\..\Torch\DedicatedServer64\Plugins
+set TARGET=..\..\..\..\..\..\..\..\..\Torch\DedicatedServer64\Plugins
 mkdir %TARGET% >NUL 2>&1
 
 echo.

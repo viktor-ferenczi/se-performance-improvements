@@ -169,6 +169,11 @@ namespace Shared.Tools
             RecordCode(il, callerFilePath, callerMemberName, "patched");
         }
 
+        public static void RecordCustomCode(this List<CodeInstruction> il, string suffix, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string callerMemberName = "")
+        {
+            RecordCode(il, callerFilePath, callerMemberName, suffix);
+        }
+        
         private static void RecordCode(List<CodeInstruction> il, string callerFilePath, string callerMemberName, string suffix)
         {
             Debug.Assert(callerFilePath.Length > 0);
