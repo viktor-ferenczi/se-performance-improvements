@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -248,12 +249,18 @@ namespace Shared.Patches
 
             using (var sha1 = SHA1.Create())
             {
+                // Include .NET version in the hash to prevent loading assemblies compiled on different .NET versions
+                var frameworkVersion = RuntimeInformation.FrameworkDescription;
+                var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(frameworkVersion));
+                for (var i = 0; i < size; i++)
+                    hash[i] ^= result[i];
+                
                 var conditionalCompilationSymbols = (HashSet<string>)ConditionalCompilationSymbolsField.GetValue(myScriptCompiler); 
                 if (conditionalCompilationSymbols != null)
                 {
                     foreach (var symbol in conditionalCompilationSymbols)
                     {
-                        var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(symbol));
+                        result = sha1.ComputeHash(Encoding.UTF8.GetBytes(symbol));
                         for (var i = 0; i < size; i++)
                             hash[i] ^= result[i];
                     }
@@ -261,7 +268,7 @@ namespace Shared.Patches
 
                 foreach (var script in scripts)
                 {
-                    var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(script.Code));
+                    result = sha1.ComputeHash(Encoding.UTF8.GetBytes(script.Code));
                     for (var i = 0; i < size; i++)
                         hash[i] ^= result[i];
                 }
