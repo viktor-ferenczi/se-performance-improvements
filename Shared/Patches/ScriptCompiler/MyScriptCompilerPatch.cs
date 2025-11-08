@@ -242,6 +242,12 @@ namespace Shared.Patches
             return true;
         }
 
+        private static void XorHashIntoAccumulator(byte[] accumulator, byte[] hash)
+        {
+            for (var i = 0; i < accumulator.Length; i++)
+                accumulator[i] ^= hash[i];
+        }
+
         private static string GetScriptsHash(MyScriptCompiler myScriptCompiler, IEnumerable<Script> scripts)
         {
             const int size = 20;
@@ -252,8 +258,7 @@ namespace Shared.Patches
                 // Include .NET version in the hash to prevent loading assemblies compiled on different .NET versions
                 var frameworkVersion = RuntimeInformation.FrameworkDescription;
                 var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(frameworkVersion));
-                for (var i = 0; i < size; i++)
-                    hash[i] ^= result[i];
+                XorHashIntoAccumulator(hash, result);
                 
                 var conditionalCompilationSymbols = (HashSet<string>)ConditionalCompilationSymbolsField.GetValue(myScriptCompiler); 
                 if (conditionalCompilationSymbols != null)
@@ -261,16 +266,14 @@ namespace Shared.Patches
                     foreach (var symbol in conditionalCompilationSymbols)
                     {
                         result = sha1.ComputeHash(Encoding.UTF8.GetBytes(symbol));
-                        for (var i = 0; i < size; i++)
-                            hash[i] ^= result[i];
+                        XorHashIntoAccumulator(hash, result);
                     }
                 }
 
                 foreach (var script in scripts)
                 {
                     result = sha1.ComputeHash(Encoding.UTF8.GetBytes(script.Code));
-                    for (var i = 0; i < size; i++)
-                        hash[i] ^= result[i];
+                    XorHashIntoAccumulator(hash, result);
                 }
             }
 
