@@ -195,11 +195,11 @@ namespace Shared.Tools
 #endif
 
             const string expectedMemberNameSuffix = "Transpiler";
-            Debug.Assert(callerMemberName.Length > expectedMemberNameSuffix.Length);
+            Debug.Assert(callerMemberName.Length >= expectedMemberNameSuffix.Length);
             Debug.Assert(callerMemberName.EndsWith(expectedMemberNameSuffix));
             var name = callerMemberName.Substring(0, callerMemberName.Length - expectedMemberNameSuffix.Length);
 
-            var path = Path.Combine(dir, $"{prefix}{name}.{suffix}.il");
+            var path = Path.Combine(dir, $"{prefix}{name}.{suffix}.il".TrimStart('.'));
             
 #if !DEBUG
             if (File.Exists(path))

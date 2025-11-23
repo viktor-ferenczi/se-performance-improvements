@@ -26,6 +26,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Projection\MyEntityPatchForProjection.cs" />
+    <None Include="$(MSBuildThisFileDirectory)Patches\SwitchOptimizer\DevHistory\LongSerializer.cs" />
+    <None Include="$(MSBuildThisFileDirectory)Patches\SwitchOptimizer\DevHistory\LongSerializer_split.cs" />
+    <None Include="$(MSBuildThisFileDirectory)Patches\SwitchOptimizer\DevHistory\RuntimeOptimizer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\SwitchOptimizer\SwitchOptimizer.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TextPanel\MyLcdSurfaceComponentPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Wheel\MyWheelPatch.cs" />
@@ -111,6 +115,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\SwitchOptimizer\Write138_Object.original.il" />
+    <None Include="$(MSBuildThisFileDirectory)Patches\SwitchOptimizer\DevHistory\find_classes.py" />
+    <None Include="$(MSBuildThisFileDirectory)Patches\SwitchOptimizer\DevHistory\split_method.py" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\SortTargetRoots.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\SortTargetRoots.patched.il" />
   </ItemGroup>

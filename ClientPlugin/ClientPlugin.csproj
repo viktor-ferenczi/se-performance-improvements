@@ -50,6 +50,9 @@
     <Reference Include="Sandbox.Game, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Bin64\Sandbox.Game.dll</HintPath>
     </Reference>
+    <Reference Include="Sandbox.Game.XmlSerializers">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Steam\steamapps\common\SpaceEngineers\Bin64\Sandbox.Game.XmlSerializers.dll</HintPath>
+    </Reference>
     <Reference Include="Sandbox.Graphics, Version=0.1.1.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>..\Bin64\Sandbox.Graphics.dll</HintPath>
     </Reference>
