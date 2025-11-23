@@ -116,6 +116,7 @@ namespace Shared.Patches
             const int period = 10 * 60; // Ticks
             if (Common.Plugin.Tick % period == 0)
             {
+                SwitchOptimizer.LogCount();
                 var log = Common.Plugin.Log;
                 log.Info("Cache hit rates:");
                 log.Info($"- MySafeZonePatch IsSafe: {MySafeZonePatch.IsSafeCacheReport}");
