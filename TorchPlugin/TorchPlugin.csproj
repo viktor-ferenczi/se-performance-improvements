@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TORCH;DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TORCH;TRACE;DEV_BUILD</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -27,7 +27,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TORCH;TRACE</DefineConstants>
+    <DefineConstants>TORCH;TRACE;DEV_BUILD</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -391,7 +391,21 @@
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.3.6" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <!-- Uncomment to enable publicizer support  
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    -->
   </ItemGroup>
+
+  <!-- Uncomment to enable publicizer support
+  <PropertyGroup>
+    <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
+    <PublicizerRuntimeStrategies>Unsafe;IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
+    <PublicizerLogFilePath>$(SolutionDir)/Krafs.Publicizer.log</PublicizerLogFilePath>
+  </PropertyGroup>
+  -->
 
   <Target Name="DeployPlugin" AfterTargets="Build">
     <Exec Command='call "$(MSBuildThisFileDirectory)deploy.bat" "$(TargetDir)$(TargetFileName)" "$(SolutionName)"' />
