@@ -12,6 +12,14 @@ using VRage.FileSystem;
 using VRage.Game;
 using VRage.Plugins;
 
+// Set the assembly version manually if compiled by Pulsar (it won't create what was in AssemblyInfo.cs before)
+#if !DEV_BUILD
+using System.Reflection;
+
+[assembly: AssemblyVersion("1.11.18.0")]
+[assembly: AssemblyFileVersion("1.11.18.0")]
+#endif
+
 namespace ClientPlugin
 {
     // ReSharper disable once UnusedType.Global

@@ -1,4 +1,4 @@
-// 7b3c2079
+// b72c73e4
 ldarg.0
 newobj System.Void VRage.Collections.CachingDictionary`2<System.Type, VRage.Game.Components.MySessionComponentBase>::.ctor()
 stfld VRage.Collections.CachingDictionary`2<System.Type, VRage.Game.Components.MySessionComponentBase> Sandbox.Game.World.MySession::m_sessionComponents
@@ -73,8 +73,23 @@ ldarg.0
 newobj System.Void System.Collections.Generic.Dictionary`2<System.String, VRage.MyFixedPoint>::.ctor()
 stfld System.Collections.Generic.Dictionary`2<System.String, VRage.MyFixedPoint> Sandbox.Game.World.MySession::AmountMined
 ldarg.0
+newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32>::.ctor()
+stfld System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32> Sandbox.Game.World.MySession::NumberFoodConsumed
+ldarg.0
 newobj System.Void System.Collections.Generic.HashSet`1<VRage.Game.MyEncounterId>::.ctor()
 stfld System.Collections.Generic.HashSet`1<VRage.Game.MyEncounterId> Sandbox.Game.World.MySession::LocallyInvokedEncounters
+ldarg.0
+newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32>::.ctor()
+stfld System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32> Sandbox.Game.World.MySession::NumberHarvestedItems
+ldarg.0
+newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32>::.ctor()
+stfld System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32> Sandbox.Game.World.MySession::NumberCollectorHarvestedItems
+ldarg.0
+newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32>::.ctor()
+stfld System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32> Sandbox.Game.World.MySession::NumberForagedItems
+ldarg.0
+newobj System.Void System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32>::.ctor()
+stfld System.Collections.Generic.Dictionary`2<System.UInt64, System.Int32> Sandbox.Game.World.MySession::NumberCollectorForagedItems
 ldarg.0
 ldsfld Sandbox.Engine.Utils.MySpectatorCameraController Sandbox.Engine.Utils.MySpectatorCameraController::Static
 stfld VRage.Game.ModAPI.Interfaces.IMyCameraController Sandbox.Game.World.MySession::m_cameraController

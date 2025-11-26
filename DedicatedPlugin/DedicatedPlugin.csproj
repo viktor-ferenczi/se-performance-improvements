@@ -7,8 +7,8 @@
     <AssemblyName>PerformanceImprovements</AssemblyName>
     <LangVersion>7.3</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AssemblyVersion>1.11.17</AssemblyVersion>
-    <FileVersion>1.11.17</FileVersion>
+    <AssemblyVersion>1.11.18</AssemblyVersion>
+    <FileVersion>1.11.18</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,7 +17,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEDICATED;DEBUG;TRACE</DefineConstants>
+    <DefineConstants>DEDICATED;TRACE;DEV_BUILD</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -26,7 +26,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEDICATED;TRACE</DefineConstants>
+    <DefineConstants>DEDICATED;TRACE;DEV_BUILD</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -367,7 +367,21 @@
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.3.6" />
     <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <!-- Uncomment to enable publicizer support  
+    <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    -->
   </ItemGroup>
+
+  <!-- Uncomment to enable publicizer support
+  <PropertyGroup>
+    <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
+    <PublicizerRuntimeStrategies>Unsafe;IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
+    <PublicizerLogFilePath>$(SolutionDir)/Krafs.Publicizer.log</PublicizerLogFilePath>
+  </PropertyGroup>
+  -->
 
   <Target Name="DeployPlugin" AfterTargets="Build">
     <Exec Command='call "$(MSBuildThisFileDirectory)deploy.bat" "$(TargetDir)$(TargetFileName)" "$(SolutionName)"' />
