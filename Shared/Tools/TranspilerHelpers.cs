@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -153,7 +154,13 @@ namespace Shared.Tools
 
                 case string s:
                     return s.ToLiteral();
-
+                
+                case float f:
+                    return f.ToString(CultureInfo.InvariantCulture);
+                
+                case double d:
+                    return d.ToString(CultureInfo.InvariantCulture);
+                
                 default:
                     return argument.ToString().Trim();
             }
