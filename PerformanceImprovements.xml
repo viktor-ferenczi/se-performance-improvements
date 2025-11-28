@@ -1,21 +1,29 @@
 <?xml version="1.0"?>
 <PluginData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="GitHubPlugin">
   <Id>viktor-ferenczi/se-performance-improvements</Id>
-  <GroupId>viktor-ferenczi/se-performance-improvements</GroupId>
+   
   <FriendlyName>Performance Improvements</FriendlyName>
   <Author>Viktor</Author>
-  <Commit>596ed22d69dbb5b8f2fe505b0ed8b1dfb56ff858</Commit>
+
   <SourceDirectories>
     <Directory>Shared</Directory>
     <Directory>ClientPlugin</Directory>
   </SourceDirectories>
   <Tooltip>Various performance improvements to let the game run smoother.</Tooltip>
-  <Description>Please see the GitHub page for the features, technical details and the Keen bug tickets to vote on.
+  <Description>Please see the GitHub page for the features, technical details and the Keen bug tickets to vote on. This plugin is available for Torch and Dedicated Server as well.
 
-    This plugin is available for Torch and Dedicated Server as well.
+For support join the SE Mods Discord:
+https://discord.gg/PYPFPGf3Ca
 
-    For support join the SE Mods Discord: https://discord.gg/PYPFPGf3Ca
+Please consider supporting my work on Patreon:
+https://www.patreon.com/semods
 
-    Thank you for supporting my work.
+One-time support via PayPal:
+https://www.paypal.com/paypalme/vferenczi/
+
+Thank you!
   </Description>
+
+  <Commit>defd1619968f58cd95869e5ed82e1ed71555f3d6</Commit>
+
 </PluginData>

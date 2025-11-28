@@ -361,7 +361,6 @@
 
   <ItemGroup>
     <Content Include="deploy.bat" />
-    <Content Include="PluginHub.xml" />
   </ItemGroup>
 
   <ItemGroup>
