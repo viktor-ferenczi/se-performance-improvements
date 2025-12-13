@@ -8,8 +8,8 @@
     <LangVersion>7.3</LangVersion>
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AssemblyVersion>1.11.18</AssemblyVersion>
-    <FileVersion>1.11.18</FileVersion>
+    <AssemblyVersion>1.11.19</AssemblyVersion>
+    <FileVersion>1.11.19</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
