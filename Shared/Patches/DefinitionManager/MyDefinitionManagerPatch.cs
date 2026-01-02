@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using ClientPlugin.Shared.Tools;
 using HarmonyLib;
@@ -39,14 +40,13 @@ namespace Shared.Patches
         [HarmonyPatch(nameof(MyDefinitionManager.GetBlueprintDefinition))]
         [EnsureCode("c4168dc7")]
         // ReSharper disable once UnusedMember.Local
-        private static IEnumerable<CodeInstruction> GetBlueprintDefinitionTranspiler(
-            IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> GetBlueprintDefinitionTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!Config.Enabled || !Config.FixMemory)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             var i = il.FindIndex(ci => ci.opcode == OpCodes.Ldarg_1);
             il.RemoveRange(i + 1, il.Count - i - 1);
@@ -61,7 +61,7 @@ namespace Shared.Patches
             il.Add(new CodeInstruction(OpCodes.Call, getValueOrDefault));
             il.Add(new CodeInstruction(OpCodes.Ret));
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
     }

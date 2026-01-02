@@ -8,6 +8,7 @@
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AssemblyVersion>1.11.19</AssemblyVersion>
     <FileVersion>1.11.19</FileVersion>
+    <LangVersion>13</LangVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

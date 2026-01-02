@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Reflection.Emit;
 using HarmonyLib;
 using Sandbox.Engine.Physics;
@@ -24,13 +25,13 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MyPhysicsBody.RigidBody), MethodType.Getter)]
         [EnsureCode("fc347f5d")]
-        private static IEnumerable<CodeInstruction> RigidBodyGetterTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> RigidBodyGetterTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             var i = il.FindIndex(ci => ci.opcode == OpCodes.Brtrue_S);
             var parentIsNotNullLabel = (Label)il[i].operand;
@@ -41,7 +42,7 @@ namespace Shared.Patches
             il.RemoveRange(j, 3);
             il[j].labels.Add(parentIsNotNullLabel);
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
     }

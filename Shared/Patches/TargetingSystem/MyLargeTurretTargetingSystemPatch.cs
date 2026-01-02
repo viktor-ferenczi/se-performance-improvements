@@ -52,13 +52,13 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch("SortTargetRoots")]
         [EnsureCode("bf397282")]
-        private static IEnumerable<CodeInstruction> SortTargetRootsTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> SortTargetRootsTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             var targetReceiver = il.GetField(fi => fi.Name.Contains("m_targetReceiver"));
             var distanceEntityKeys = il.GetField(fi => fi.Name.Contains("m_distanceEntityKeys"));
@@ -76,7 +76,7 @@ namespace Shared.Patches
             var k = il.FindIndex(ci => ci.opcode == OpCodes.Call && ci.operand is MethodInfo mi && mi.Name.Contains("EnsureCapacity"));
             il.RemoveRange(k - 6, 9);
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
 
@@ -144,13 +144,13 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch(MethodType.Constructor, typeof(IMyTargetingReceiver), typeof(MyLargeTurretTargetingSystem.MyTargetingOption))]
         [EnsureCode("8dfc8ab5")]
-        private static IEnumerable<CodeInstruction> ConstructorTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> ConstructorTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             // Do not create the ConcurrentDictionary instances, they won't be used
             il.RemoveFieldInitialization("m_notVisibleTargets");
@@ -158,7 +158,7 @@ namespace Shared.Patches
             il.RemoveFieldInitialization("m_visibleTargets");
             il.RemoveFieldInitialization("m_lastVisibleTargets");
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
 
@@ -212,13 +212,13 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch("IsTargetVisible", typeof(MyEntity), typeof(Vector3D?), typeof(bool))]
         [EnsureCode("af0e9b1d")]
-        private static IEnumerable<CodeInstruction> IsTargetVisibleTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> IsTargetVisibleTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             var continueLabel = il.GetLabel(oc => oc == OpCodes.Ble_S);
             var targetReceiver = AccessTools.DeclaredField(typeof(MyLargeTurretTargetingSystem), "m_targetReceiver");
@@ -238,7 +238,7 @@ namespace Shared.Patches
             il.Insert(k++, new CodeInstruction(OpCodes.Ldarg_1));
             il.Insert(k, new CodeInstruction(OpCodes.Call, AccessTools.DeclaredMethod(typeof(MyLargeTurretTargetingSystemPatch), nameof(IsTargetCachedAsVisible))));
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
 
@@ -246,13 +246,13 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch("TestPotentialTarget")]
         [EnsureCode("ab1ec6a6")]
-        private static IEnumerable<CodeInstruction> TestPotentialTargetTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> TestPotentialTargetTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             var continueLabel = il.GetLabel(oc => oc == OpCodes.Ble_S);
             var targetReceiver = AccessTools.DeclaredField(typeof(MyLargeTurretTargetingSystem), "m_targetReceiver");
@@ -265,7 +265,7 @@ namespace Shared.Patches
             il.Insert(j++, new CodeInstruction(OpCodes.Call, AccessTools.DeclaredMethod(typeof(MyLargeTurretTargetingSystemPatch), nameof(IsTargetCachedAsNotVisible))));
             il.Insert(j, new CodeInstruction(OpCodes.Brfalse, continueLabel));
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
 
@@ -273,13 +273,13 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch("TestTarget")]
         [EnsureCode("5061cc1b")]
-        private static IEnumerable<CodeInstruction> TestTargetTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> TestTargetTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             var continueLabel = il.GetLabel(oc => oc == OpCodes.Ble_S);
             var targetReceiver = AccessTools.DeclaredField(typeof(MyLargeTurretTargetingSystem), "m_targetReceiver");
@@ -292,7 +292,7 @@ namespace Shared.Patches
             il.Insert(j++, new CodeInstruction(OpCodes.Call, AccessTools.DeclaredMethod(typeof(MyLargeTurretTargetingSystemPatch), nameof(IsTargetCachedAsNotVisible))));
             il.Insert(j, new CodeInstruction(OpCodes.Brfalse, continueLabel));
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
 

@@ -5,7 +5,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>TorchPlugin</RootNamespace>
     <AssemblyName>PerformanceImprovements</AssemblyName>
-    <LangVersion>7.3</LangVersion>
+    <LangVersion>13</LangVersion>
     <UseWPF>true</UseWPF>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <AssemblyVersion>1.11.19</AssemblyVersion>
@@ -390,7 +390,7 @@
 
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.3.6" />
-    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.1.2" />
     <!-- Uncomment to enable publicizer support  
     <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
