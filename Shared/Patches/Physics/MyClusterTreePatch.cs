@@ -59,13 +59,13 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MyClusterTree.ReorderClusters))]
         [EnsureCode("a129d62a")]
-        private static IEnumerable<CodeInstruction> ReorderClustersTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> ReorderClustersTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
                 return instructions;
 
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(patchedMethod);
 
             // Find the nested loop
             var i = il.FindAllIndex(ci => ci.opcode == OpCodes.Ldloc_2)[1];
@@ -89,7 +89,7 @@ namespace Shared.Patches
             il.Insert(i++, new CodeInstruction(OpCodes.Ldloca_S, (byte)1)); // ref inflated1
             il.Insert(i, new CodeInstruction(OpCodes.Call, OptimizedImplementationMethodInfo));
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(patchedMethod);
             return il;
         }
 

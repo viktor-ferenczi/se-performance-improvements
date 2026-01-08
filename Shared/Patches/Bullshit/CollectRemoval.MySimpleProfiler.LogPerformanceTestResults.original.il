@@ -1,4 +1,4 @@
-// 245f0ba5
+// fd9e361b
 ldsfld System.Boolean VRage.MySimpleProfiler::m_performanceTestEnabled
 brtrue.s L0
 ret

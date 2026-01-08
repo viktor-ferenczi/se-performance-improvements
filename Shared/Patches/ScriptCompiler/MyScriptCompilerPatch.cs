@@ -59,6 +59,8 @@ namespace Shared.Patches
             var ntl = typeof(MyScriptCompiler).GetNestedTypes(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             var nt = ntl.First(st => st.Name.Contains("<Compile>"));
             var m = AccessTools.DeclaredMethod(nt, "MoveNext");
+            if(m == null)
+                throw new Exception("Could not find MoveNext method used in an iteration inside MyScriptCompiler.Compile");
             return m;
         }
 
@@ -72,7 +74,7 @@ namespace Shared.Patches
         {
             // See MyScriptCompiler.Compile.il
             var il = instructions.ToList();
-            il.RecordOriginalCode();
+            il.RecordOriginalCode(); // The class is generic, do not pass patchedMethod here!
 
             // Access to fields of the state object which stores the local variables from the original async method
             var target = il.GetField(fi => fi.Name.Contains("target"));
@@ -107,7 +109,7 @@ namespace Shared.Patches
             il.Insert(k++, new CodeInstruction(OpCodes.Stloc_2));
             il.Insert(k, new CodeInstruction(OpCodes.Brtrue_S, exit));
 
-            il.RecordPatchedCode();
+            il.RecordPatchedCode(); // The class is generic, do not pass patchedMethod here!
             return il;
         }
 

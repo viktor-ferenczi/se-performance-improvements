@@ -1,4 +1,4 @@
-// b72c73e4
+// 27862b32
 ldarg.0
 newobj System.Void VRage.Collections.CachingDictionary`2<System.Type, VRage.Game.Components.MySessionComponentBase>::.ctor()
 stfld VRage.Collections.CachingDictionary`2<System.Type, VRage.Game.Components.MySessionComponentBase> Sandbox.Game.World.MySession::m_sessionComponents
