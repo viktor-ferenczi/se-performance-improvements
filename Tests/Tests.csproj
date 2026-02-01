@@ -6,8 +6,8 @@
     <RootNamespace>Tests</RootNamespace>
     <AssemblyName>Tests</AssemblyName>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AssemblyVersion>1.11.19</AssemblyVersion>
-    <FileVersion>1.11.19</FileVersion>
+    <AssemblyVersion>1.11.20</AssemblyVersion>
+    <FileVersion>1.11.20</FileVersion>
     <LangVersion>13</LangVersion>
   </PropertyGroup>
 
