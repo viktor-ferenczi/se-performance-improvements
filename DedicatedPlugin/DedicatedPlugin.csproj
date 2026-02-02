@@ -7,8 +7,8 @@
     <AssemblyName>PerformanceImprovements</AssemblyName>
     <LangVersion>13</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AssemblyVersion>1.11.19</AssemblyVersion>
-    <FileVersion>1.11.19</FileVersion>
+    <AssemblyVersion>1.11.20</AssemblyVersion>
+    <FileVersion>1.11.20</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
