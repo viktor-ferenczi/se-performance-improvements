@@ -19,7 +19,7 @@ namespace Shared.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch("UpdateVisibility")]
-        [EnsureCode("795f89ce")]
+        [EnsureCode("83495656")]
         private static bool UpdateVisibilityPrefix()
         {
             if (!Sync.IsDedicated)
