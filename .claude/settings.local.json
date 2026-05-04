@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(dotnet build:*)",
-      "Bash(python:*)",
-      "Bash(uv run:*)"
-    ]
-  }
-}
