@@ -1,78 +1,78 @@
 using System;
 using System.IO;
+using System.Reflection;
 using Shared.Config;
 using Shared.Logging;
 using Shared.Patches;
 
-namespace Shared.Plugin
+namespace Shared.Plugin;
+
+public static class Common
 {
-    public static class Common
+    private const int CacheExpirationDays = 90;
+
+    public static ICommonPlugin Plugin { get; private set; }
+    public static IPluginLogger Logger { get; private set; }
+    public static IPluginConfig Config { get; private set; }
+
+    public static string GameVersion { get; private set; }
+    public const string PluginVersion = "1.11.22";
+
+    public static string DataDir { get; private set; }
+    public static string CacheDir { get; private set; }
+    public static string DebugDir { get; private set; }
+
+    private static string CacheGameVersionPath => Path.Combine(CacheDir, "GameVersion.txt");
+    private static string PluginVersionPath => Path.Combine(DebugDir, "PluginVersion.txt");
+
+    public static void SetPlugin(ICommonPlugin plugin, string gameVersion, string storageDir)
     {
-        private const int CacheExpirationDays = 90;
+        Plugin = plugin;
+        Logger = plugin.Log;
+        Config = plugin.Config;
 
-        public static ICommonPlugin Plugin { get; private set; }
-        public static IPluginLogger Logger { get; private set; }
-        public static IPluginConfig Config { get; private set; }
+        GameVersion = gameVersion;
 
-        public static string GameVersion { get; private set; }
-        public const string PluginVersion = "1.11.21.0";
+        DataDir = Path.Combine(storageDir, "Performance");
+        CacheDir = Path.Combine(DataDir, "Cache");
+        DebugDir = Path.Combine(DataDir, "Debug");
 
-        public static string DataDir { get; private set; }
-        public static string CacheDir { get; private set; }
-        public static string DebugDir { get; private set; }
+        var hasGameVersionChanged = !File.Exists(CacheGameVersionPath) || File.ReadAllText(CacheGameVersionPath) != GameVersion;
+        var hasPluginVersionChanged = !File.Exists(PluginVersionPath) || File.ReadAllText(PluginVersionPath) != PluginVersion;
 
-        private static string CacheGameVersionPath => Path.Combine(CacheDir, "GameVersion.txt");
-        private static string PluginVersionPath => Path.Combine(DebugDir, "PluginVersion.txt");
+        CleanupCache(hasGameVersionChanged);
+        CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
 
-        public static void SetPlugin(ICommonPlugin plugin, string gameVersion, string storageDir)
+        PatchHelpers.Configure();
+    }
+
+    private static void CleanupCache(bool clear)
+    {
+        Directory.CreateDirectory(CacheDir);
+
+        var now = DateTime.UtcNow;
+        foreach (var path in Directory.EnumerateFiles(CacheDir, "*.cache", SearchOption.AllDirectories))
         {
-            Plugin = plugin;
-            Logger = plugin.Log;
-            Config = plugin.Config;
-
-            GameVersion = gameVersion;
-
-            DataDir = Path.Combine(storageDir, "PerformanceImprovements");
-            CacheDir = Path.Combine(DataDir, "Cache");
-            DebugDir = Path.Combine(DataDir, "Debug");
-
-            var hasGameVersionChanged = !File.Exists(CacheGameVersionPath) || File.ReadAllText(CacheGameVersionPath) != GameVersion;
-            var hasPluginVersionChanged = !File.Exists(PluginVersionPath) || File.ReadAllText(PluginVersionPath) != PluginVersion;
-
-            CleanupCache(hasGameVersionChanged);
-            CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
-
-            PatchHelpers.Configure();
-        }
-
-        private static void CleanupCache(bool clear)
-        {
-            Directory.CreateDirectory(CacheDir);
-
-            var now = DateTime.UtcNow;
-            foreach (var path in Directory.EnumerateFiles(CacheDir, "*.cache", SearchOption.AllDirectories))
-            {
-                if (clear || (now - File.GetCreationTimeUtc(path)).TotalDays >= CacheExpirationDays)
-                    File.Delete(path);
-            }
-
-            if (clear)
-                File.WriteAllText(CacheGameVersionPath, GameVersion);
-        }
-
-        private static void CleanupDebug(bool clear)
-        {
-            Directory.CreateDirectory(DebugDir);
-
-            if (!clear)
-                return;
-
-            foreach (var path in Directory.EnumerateFiles(DebugDir, "*.il", SearchOption.AllDirectories))
-            {
+            if (clear || (now - File.GetCreationTimeUtc(path)).TotalDays >= CacheExpirationDays)
                 File.Delete(path);
-            }
-
-            File.WriteAllText(PluginVersionPath, PluginVersion);
         }
+
+        if (clear)
+            File.WriteAllText(CacheGameVersionPath, GameVersion);
+    }
+
+    private static void CleanupDebug(bool clear)
+    {
+        Directory.CreateDirectory(DebugDir);
+
+        if (!clear)
+            return;
+
+        foreach (var path in Directory.EnumerateFiles(DebugDir, "*.il", SearchOption.AllDirectories))
+        {
+            File.Delete(path);
+        }
+
+        File.WriteAllText(PluginVersionPath, PluginVersion);
     }
 }

@@ -1,5 +1,3 @@
-// #define LIST_ALL_TYPES
-
 using System;
 using System.Linq;
 using System.Reflection;
@@ -15,54 +13,35 @@ namespace Shared.Patches
     {
         public static bool HarmonyPatchAll(IPluginLogger log, Harmony harmony, bool handleExceptions = true)
         {
-#if DEBUG && LIST_ALL_TYPES
-            log.Info("All types:");
-            foreach (var typ in AccessTools.AllTypes())
+            log.Debug("Scanning for conflicting code changes");
+            var throwOnFailedVerification = !handleExceptions || Environment.GetEnvironmentVariable("SE_PLUGIN_THROW_ON_FAILED_METHOD_VERIFICATION") != null;
+            try
             {
-                log.Info(typ.FullName);
-            }
-#endif
-
-            var isOldDotNetFramework = Environment.Version.Major < 5;
-            if (isOldDotNetFramework &&
-                Common.Plugin.Config.DetectCodeChanges &&
-                Environment.GetEnvironmentVariable("SE_PLUGIN_DISABLE_METHOD_VERIFICATION") == null &&
-                !WineDetector.IsRunningInWineOrProton())
-            {
-                log.Debug("Scanning for conflicting code changes");
-                var throwOnFailedVerification = !handleExceptions || Environment.GetEnvironmentVariable("SE_PLUGIN_THROW_ON_FAILED_METHOD_VERIFICATION") != null;
-                try
+                var codeChanges = EnsureCode.Verify().ToList();
+                if (codeChanges.Count != 0)
                 {
-                    var codeChanges = EnsureCode.Verify().ToList();
-                    if (codeChanges.Count != 0)
-                    {
-                        log.Critical("Detected conflicting code changes:");
-                        foreach (var codeChange in codeChanges)
-                            log.Info(codeChange.ToString());
-                        
-                        if (throwOnFailedVerification)
-                        {
-                            throw new Exception("Detected conflicting code changes");
-                        }
-                        
-                        return false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    log.Error(ex, "Failed to scan for conflicting code changes");
+                    log.Critical("Detected conflicting code changes:");
+                    foreach (var codeChange in codeChanges)
+                        log.Info(codeChange.ToString());
                     
                     if (throwOnFailedVerification)
                     {
-                        throw;
+                        throw new Exception("Detected conflicting code changes");
                     }
                     
                     return false;
                 }
             }
-            else
+            catch (Exception ex)
             {
-                log.Warning("Conflicting code change detection is disabled in plugin configuration");
+                log.Error(ex, "Failed to scan for conflicting code changes");
+                
+                if (throwOnFailedVerification)
+                {
+                    throw;
+                }
+                
+                return false;
             }
 
             log.Debug("Applying Harmony patches");

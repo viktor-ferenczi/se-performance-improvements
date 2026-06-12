@@ -15,8 +15,6 @@ namespace Shared.Tools;
 
 public static class TranspilerHelpers
 {
-    private static readonly bool DisableCodeValidations = (Environment.GetEnvironmentVariable("SE_PLUGIN_DISABLE_METHOD_VERIFICATION") ?? "0") != "0";
-
     public delegate bool OpcodePredicate(OpCode opcode);
 
     public delegate bool CodeInstructionPredicate(CodeInstruction ci);
@@ -87,7 +85,7 @@ public static class TranspilerHelpers
     public static void VerifyCodeHash(this List<CodeInstruction> il, MethodBase patchedMethod, string expected)
     {
         var actual = il.Hash();
-        if (actual != expected && !DisableCodeValidations)
+        if (actual != expected)
         {
             throw new Exception($"Detected code change in {patchedMethod.Name}: expected {expected}, actual {actual}");
         }
@@ -175,7 +173,11 @@ public static class TranspilerHelpers
                 return d.ToString(CultureInfo.InvariantCulture);
 
             default:
+#if NETCOREAPP
+                return argument.ToString()?.Trim() ?? "null";
+#else
                 return argument.ToString().Trim();
+#endif
         }
     }
 
@@ -211,6 +213,16 @@ public static class TranspilerHelpers
                 ? callerMemberName.Substring(0, callerMemberName.Length - "Transpiler".Length)
                 : callerMemberName
             : (patchedMethod.DeclaringType?.Name ?? "NA").Split('`')[0] + "." + patchedMethod.Name.Replace(".ctor", "Constructor").Replace(".cctor", "StaticConstructor");
+
+        // For compiler-generated methods (containing non-alphanumeric chars other than _),
+        // extract just the local function name, e.g., "<LoadFromFile>g__PerformLoad|0" -> "PerformLoad"
+        if (name.Any(c => !char.IsLetterOrDigit(c) && c != '_' && c != '.'))
+        {
+            var match = System.Text.RegularExpressions.Regex.Match(name, @"g__(\w+)");
+            name = match.Success
+                ? match.Groups[1].Value
+                : new string(name.Where(c => char.IsLetterOrDigit(c) || c == '_' || c == '.').ToArray());
+        }
 
         var path = Path.Combine(dir, $"{name}.{suffix}.il");
 

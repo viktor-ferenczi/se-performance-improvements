@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 
 namespace Shared.Tools
 {
@@ -29,10 +28,6 @@ namespace Shared.Tools
         }
 
         public RwLockDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) : base(dictionary, comparer)
-        {
-        }
-
-        protected RwLockDictionary(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
@@ -9,77 +9,72 @@
     <Import_RootNamespace>Shared</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Config\IPluginConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logging\IPluginLogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logging\LogFormatter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Logging\PluginLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Block\MyCubeBlockPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Block\MyTerminalBlockPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\GcCollectPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\MyP2PQoSAdapterPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\PerfCountingRewriterPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Character\MyCharacterPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Connector\MyShipConnectorPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyAssemblerPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyCubeBlockPatchForConveyor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyCubeGridPatchForConveyor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyGridConveyorSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyPathfindingDataPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyPathFindingSystemEnumeratorPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyPathFindingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyShipConnectorPatchForConveyor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\PullItemStats.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\MyDefinitionManagerPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Memory\MyDefinitionIdToStringPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Memory\MyPlayerCollectionPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTreePatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Projection\MyEntityPatchForProjection.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\TextPanel\MyLcdSurfaceComponentPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Wheel\MyWheelPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\Cache.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\CacheStat.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\GameAssembliesToPublicize.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\IgnoresAccessChecksToAttribute.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\MySessionExtensions.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Config\IPluginConfig.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Config\PersistentConfig.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Config\PluginConfig.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Logging\IPluginLogger.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Logging\LogFormatter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Logging\PluginLogger.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\GcCollectPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\MyP2PQoSAdapterPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\PerfCountingRewriterPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Character\MyCharacterPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyPathFindingSystemEnumeratorPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyPathFindingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\MergeAndPaste\MyConveyorLinePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\MergeAndPaste\MyCubeGridPatchForMergeAndPaste.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\MergeAndPaste\MyGroupsPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\MergeAndPaste\MyResourceDistributorComponentPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\PatchHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTreePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBodyPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\PhysicsFixes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Projection\MyEntityPatchForProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySafeZonePatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\TextPanel\MyLcdSurfaceComponentPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MyStorageExtensionsPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Wheel\MyWheelPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\WindTurbine\MyWindTurbinePatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Plugin\ICommonPlugin.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin\Common.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\ObjectPools.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\RateLimiter.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockHashSet.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\ConveyorStat.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\TwoLayerCache.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\UintCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Plugin\ICommonPlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\Cache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\CacheStat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\CodeChange.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\ConveyorStat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\EnsureCode.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\GameAssembliesToPublicize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\Hashing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\IgnoresAccessChecksToAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\MySessionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\ObjectPools.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloaderHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\RateLimiter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockHashSet.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\TranspilerHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\TwoLayerCache.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\UintCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\WineDetector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\Workarounds.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="$(MSBuildThisFileDirectory)..\CodeGenerator.py">
-      <Link>CodeGenerator.py</Link>
-    </Content>
-    <Content Include="$(MSBuildThisFileDirectory)..\Edit-and-run-before-opening-solution.bat">
-      <Link>Edit-and-run-before-opening-solution.bat</Link>
-    </Content>
     <Content Include="$(MSBuildThisFileDirectory)..\README.md">
       <Link>README.md</Link>
     </Content>
@@ -97,21 +92,17 @@
     <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySession.Unload.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySimpleProfiler.LogPerformanceTestResults.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Bullshit\CollectRemoval.MySimpleProfiler.LogPerformanceTestResults.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Character\RigidBody_ContactPointCallback.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Character\RigidBody_ContactPointCallback.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\GetBlueprintDefinition.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\GetBlueprintDefinition.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\LoadData.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\LoadData.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\ReorderClusters.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\ReorderClusters.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\RigidBodyGetter.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\RigidBodyGetter.patched.il" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Character\MyCharacter.RigidBody_ContactPointCallback.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Character\MyCharacter.RigidBody_ContactPointCallback.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\MyDefinitionManager.GetBlueprintDefinition.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\MyDefinitionManager.GetBlueprintDefinition.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTree.ReorderClusters.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTree.ReorderClusters.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBody.get_RigidBody.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBody.get_RigidBody.patched.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysics.LoadData.original.il" />
+    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysics.LoadData.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\SortTargetRoots.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\SortTargetRoots.patched.il" />
   </ItemGroup>
 </Project>

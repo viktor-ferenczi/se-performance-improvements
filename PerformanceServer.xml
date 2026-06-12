@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<PluginData xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="GitHubPlugin">
+
+    <!-- The ID of your plugin, never change this -->
+    <Id>454B0F55-C727-4DAB-B1A9-5AE6050A0932</Id>
+
+    <!-- GitHub repository ID -->
+    <RepoId>viktor-ferenczi/se-performance</RepoId>
+
+    <!-- The name of your plugin that will appear in the plugin list -->
+    <FriendlyName>Performance</FriendlyName>
+
+    <!-- The author name that you want to appear in the plugin list -->
+    <Author>Viktor</Author>
+
+    <!-- Optional tooltip for the plugin in the plugin list -->
+    <Tooltip>Various performance improvements to let the server run smoother.</Tooltip>
+
+    <!-- Optional plugin description. If omitted, this will be the same as the Tooltip. 1000 characters max. -->
+    <Description>Various performance improvements to let the server run smoother.
+
+See the GitHub page for the list of fixes and technical details.
+
+For support please join the Pulsar Discord: https://discord.gg/z8ZczP2YZY
+
+Please consider supporting my work on Patreon: https://www.patreon.com/semods
+    </Description>
+
+    <!-- Only source code in the Directory entries listed in SourceDirectories is compiled. Exclude any test projects or similar. -->
+    <SourceDirectories>
+        <Directory>ServerPlugin</Directory>
+        <Directory>Shared</Directory>
+    </SourceDirectories>
+
+    <!-- The current plugin version's commit hash -->
+    <Commit>TODO Git commit hash</Commit>
+
+</PluginData>

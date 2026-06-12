@@ -1,12 +1,11 @@
 using Shared.Config;
 using Shared.Logging;
 
-namespace Shared.Plugin
+namespace Shared.Plugin;
+
+public interface ICommonPlugin
 {
-    public interface ICommonPlugin
-    {
-        IPluginLogger Log { get; }
-        IPluginConfig Config { get; }
-        long Tick { get; }
-    }
+    IPluginLogger Log { get; }
+    IPluginConfig Config { get; }
+    long Tick { get; }
 }
