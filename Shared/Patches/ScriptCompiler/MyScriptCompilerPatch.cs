@@ -16,7 +16,6 @@ using Shared.Config;
 using Shared.Logging;
 using Shared.Plugin;
 using Shared.Tools;
-using VRage.Collections;
 using VRage.Scripting;
 
 namespace Shared.Patches
@@ -261,7 +260,17 @@ namespace Shared.Patches
                 var frameworkVersion = RuntimeInformation.FrameworkDescription;
                 var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(frameworkVersion));
                 XorHashIntoAccumulator(hash, result);
-                
+
+                // Include the game's build version (the client build version on the client,
+                // the server build version on the dedicated server) to prevent loading assemblies
+                // compiled against a different game build after the game has been updated
+                var gameVersion = Common.GameVersion;
+                if (gameVersion != null)
+                {
+                    result = sha1.ComputeHash(Encoding.UTF8.GetBytes(gameVersion));
+                    XorHashIntoAccumulator(hash, result);
+                }
+
                 var conditionalCompilationSymbols = (HashSet<string>)ConditionalCompilationSymbolsField.GetValue(myScriptCompiler); 
                 if (conditionalCompilationSymbols != null)
                 {

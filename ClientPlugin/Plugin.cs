@@ -51,7 +51,8 @@ public class Plugin : IPlugin, ICommonPlugin
 
         Log.Info("Loading");
 
-        var gameVersion = MyFinalBuildConstants.APP_VERSION_STRING.ToString();
+        var clientBuildNumber = Sandbox.Game.MyPerGameSettings.BasicGameInfo.ClientBuildNumber.GetValueOrDefault();
+        var gameVersion = $"{MyFinalBuildConstants.APP_VERSION_STRING_DOTS} b{clientBuildNumber}";
         Common.SetPlugin(this, gameVersion, MyFileSystem.UserDataPath);
 
         if (!PatchHelpers.HarmonyPatchAll(Log, new Harmony(Name)))

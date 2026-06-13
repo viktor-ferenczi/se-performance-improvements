@@ -79,7 +79,8 @@ public class Plugin : IPlugin, ICommonPlugin
         // Re-persist whenever the live config changes (e.g. pushed by Quasar).
         config.PropertyChanged += OnConfigChanged;
 
-        var gameVersion = MyFinalBuildConstants.APP_VERSION_STRING.ToString();
+        var serverBuildNumber = Sandbox.Game.MyPerGameSettings.BasicGameInfo.ServerBuildNumber.GetValueOrDefault();
+        var gameVersion = $"{MyFinalBuildConstants.APP_VERSION_STRING_DOTS} b{serverBuildNumber}";
         Common.SetPlugin(this, gameVersion, MyFileSystem.UserDataPath);
 
         if (!PatchHelpers.HarmonyPatchAll(Log, new Harmony(Name)))
