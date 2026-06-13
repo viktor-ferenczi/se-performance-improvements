@@ -293,15 +293,12 @@
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.4.2" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
-    <!-- Uncomment to enable publicizer support
     <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    -->
   </ItemGroup>
 
-  <!-- Uncomment to enable publicizer support
   <PropertyGroup>
     <PublicizerClearCacheOnClean>true</PublicizerClearCacheOnClean>
     <PublicizerRuntimeStrategies>Unsafe;IgnoresAccessChecksTo</PublicizerRuntimeStrategies>
@@ -311,11 +308,12 @@
   <ItemGroup>
     <Publicize Include="Sandbox.Game"/>
     <Publicize Include="SpaceEngineers.Game"/>
+    <Publicize Include="VRage.Math"/>
+    <Publicize Include="VRage.Scripting"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyEntities.OnEntityAdd"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyEntities.OnEntityRemove"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyCubeGrid.OnStaticChanged"/>
   </ItemGroup>
-  -->
 
   <PropertyGroup Condition=" $([MSBuild]::IsOSPlatform('Windows')) ">
     <PreBuildEvent>call "$(SolutionDir)\verify_props.bat" "$(Dedicated64)" "$(MagnetarBin)"</PreBuildEvent>

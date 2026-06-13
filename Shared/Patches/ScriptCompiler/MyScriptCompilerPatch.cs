@@ -25,8 +25,6 @@ namespace Shared.Patches
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static class MyScriptCompilerPatch
     {
-        private static readonly FieldInfo ConditionalCompilationSymbolsField = AccessTools.DeclaredField(typeof(MyScriptCompiler), "m_conditionalCompilationSymbols"); 
-        
         private static readonly MethodInfo RecallFromCacheInfo = AccessTools.DeclaredMethod(typeof(MyScriptCompilerPatch), nameof(RecallFromCache));
         private static readonly MethodInfo StoreIntoCacheInfo = AccessTools.DeclaredMethod(typeof(MyScriptCompilerPatch), nameof(StoreIntoCache));
 
@@ -41,8 +39,7 @@ namespace Shared.Patches
 
         public static void Configure()
         {
-            if (ConditionalCompilationSymbolsField == null ||
-                RecallFromCacheInfo == null ||
+            if (RecallFromCacheInfo == null ||
                 StoreIntoCacheInfo == null)
             {
                 throw new Exception("MyScriptCompilerPatch: Reflection error");
@@ -271,7 +268,7 @@ namespace Shared.Patches
                     XorHashIntoAccumulator(hash, result);
                 }
 
-                var conditionalCompilationSymbols = (HashSet<string>)ConditionalCompilationSymbolsField.GetValue(myScriptCompiler); 
+                var conditionalCompilationSymbols = myScriptCompiler.m_conditionalCompilationSymbols;
                 if (conditionalCompilationSymbols != null)
                 {
                     foreach (var symbol in conditionalCompilationSymbols)
