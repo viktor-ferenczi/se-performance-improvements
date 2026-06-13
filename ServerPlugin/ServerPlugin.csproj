@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEDICATED;DEBUG;TRACE;DEV_BUILD</DefineConstants>
+    <DefineConstants>DEBUG;TRACE;DEV_BUILD</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 
@@ -27,7 +27,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEDICATED;TRACE;DEV_BUILD</DefineConstants>
+    <DefineConstants>TRACE;DEV_BUILD</DefineConstants>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
 

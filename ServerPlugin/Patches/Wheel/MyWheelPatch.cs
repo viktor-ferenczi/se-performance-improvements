@@ -1,6 +1,4 @@
-﻿#if TORCH || DEDICATED
-
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using HarmonyLib;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.Multiplayer;
@@ -29,5 +27,3 @@ namespace Shared.Patches
         }
     }
 }
-
-#endif

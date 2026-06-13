@@ -47,9 +47,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\TextPanel\MyLcdSurfaceComponentPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MyStorageExtensionsPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Wheel\MyWheelPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\WindTurbine\MyWindTurbinePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin\Common.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin\ICommonPlugin.cs" />
@@ -71,7 +69,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\TranspilerHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\TwoLayerCache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\UintCache.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Tools\WineDetector.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\Workarounds.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -18,230 +18,187 @@ namespace ClientPlugin;
 // no "off by default" qualifier on the Optional section here.
 public class Config : IPluginConfig
 {
-    #region Options
-
-    // Core
-    private bool enabled = true;
-
-    // World load & networking
-    private bool fixGridMerge = true;
-    private bool fixGridPaste = true;
-    private bool fixP2PUpdateStats = true;
-    private bool fixGarbageCollection = true;
-    private bool fixGridGroups = true;
-    private bool cacheMods = true;
-    private bool cacheScripts = true;
-    private bool disableModApiStatistics = true;
-
-    // Simulation
-    private bool fixSafeZone = true;
-    private bool fixWindTurbine = true;
-    private bool fixVoxel = true;
-    private bool fixMemory = true;
-    private bool fixBlockLimit = true;
-    private bool fixSafeAction = true;
-    private bool fixWheelTrail = true;
-
-    // Requires server restart
-    private bool fixTargeting = true;
-    private bool fixPhysics = true;
-    private bool fixCharacter = true;
-
-    // Optional
-    private bool fixAccess = true;
-    private bool fixTerminal = true;
-    private bool fixTextPanel = true;
-    private bool fixConveyor = true;
-    private bool fixLogFlooding = true;
-    private bool fixProjection = true;
-
-    #endregion
-
-    #region User interface
-
     public readonly string Title = "Performance";
 
     [Separator("Core")]
     [Checkbox(description: "Enable the plugin (all fixes)")]
     public bool Enabled
     {
-        get => enabled;
-        set => SetField(ref enabled, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Separator("World load & networking")]
     [Checkbox(label: "Fix grid merge", description: "Disable conveyor updates during grid merge (MyCubeGrid.MergeGridInternal)")]
     public bool FixGridMerge
     {
-        get => fixGridMerge;
-        set => SetField(ref fixGridMerge, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix grid paste", description: "Disable updates during grid paste (MyCubeGrid.PasteBlocksServer)")]
     public bool FixGridPaste
     {
-        get => fixGridPaste;
-        set => SetField(ref fixGridPaste, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix P2P update stats", description: "Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)")]
     public bool FixP2PUpdateStats
     {
-        get => fixP2PUpdateStats;
-        set => SetField(ref fixP2PUpdateStats, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix garbage collection", description: "Eliminate long pauses on starting and stopping large worlds by disabling selected GC.Collect calls")]
     public bool FixGarbageCollection
     {
-        get => fixGarbageCollection;
-        set => SetField(ref fixGarbageCollection, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix grid groups", description: "Disable resource updates while grids are being moved between groups")]
     public bool FixGridGroups
     {
-        get => fixGridGroups;
-        set => SetField(ref fixGridGroups, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Cache compiled mods", description: "Caches compiled mods for faster world load")]
     public bool CacheMods
     {
-        get => cacheMods;
-        set => SetField(ref cacheMods, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Cache compiled scripts", description: "Caches compiled in-game scripts (PB programs) to reduce lag")]
     public bool CacheScripts
     {
-        get => cacheScripts;
-        set => SetField(ref cacheScripts, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Disable Mod API statistics", description: "Disable the collection of Mod API call statistics to eliminate the overhead")]
     public bool DisableModApiStatistics
     {
-        get => disableModApiStatistics;
-        set => SetField(ref disableModApiStatistics, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Separator("Simulation")]
     [Checkbox(label: "Lower safe zone CPU load", description: "Caches frequent recalculations in safe zones")]
     public bool FixSafeZone
     {
-        get => fixSafeZone;
-        set => SetField(ref fixSafeZone, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix wind turbine performance", description: "Caches the result of MyWindTurbine.IsInAtmosphere")]
     public bool FixWindTurbine
     {
-        get => fixWindTurbine;
-        set => SetField(ref fixWindTurbine, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix voxel performance", description: "Reduces memory allocations in IMyStorageExtensions.GetMaterialAt")]
     public bool FixVoxel
     {
-        get => fixVoxel;
-        set => SetField(ref fixVoxel, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix frequent memory allocations", description: "Optimizes frequent memory allocations in various parts of the game")]
     public bool FixMemory
     {
-        get => fixMemory;
-        set => SetField(ref fixMemory, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Less frequent sync of block counts", description: "Suppresses frequent calls to MyPlayerCollection.SendDirtyBlockLimits")]
     public bool FixBlockLimit
     {
-        get => fixBlockLimit;
-        set => SetField(ref fixBlockLimit, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Cache actions allowed by the safe zone", description: "Caches the result of MySafeZone.IsActionAllowed and MySessionComponentSafeZones.IsActionAllowedForSafezone for 2 seconds")]
     public bool FixSafeAction
     {
-        get => fixSafeAction;
-        set => SetField(ref fixSafeAction, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
-    [Checkbox(label: "Disable tracking of wheel trails on server", description: "Disable the tracking of wheel trails on server, where they are not needed at all (trails are only visual elements)")]
+    // Server only
     public bool FixWheelTrail
     {
-        get => fixWheelTrail;
-        set => SetField(ref fixWheelTrail, value);
+        get => false;
+        set { }
     }
 
     [Separator("Requires server restart")]
     [Checkbox(label: "Fix targeting allocations (needs restart)", description: "Reduces memory allocations in the turret targeting system (needs restart)")]
     public bool FixTargeting
     {
-        get => fixTargeting;
-        set => SetField(ref fixTargeting, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix physics performance (needs restart)", description: "Optimizes the MyPhysicsBody.RigidBody getter (needs restart)")]
     public bool FixPhysics
     {
-        get => fixPhysics;
-        set => SetField(ref fixPhysics, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix character performance (needs restart)", description: "Disables character footprint logic on server side (needs restart)")]
     public bool FixCharacter
     {
-        get => fixCharacter;
-        set => SetField(ref fixCharacter, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Separator("Optional")]
     [Checkbox(label: "Less frequent update of block access rights", description: "Caches the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason")]
     public bool FixAccess
     {
-        get => fixAccess;
-        set => SetField(ref fixAccess, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Less frequent update of PB access to blocks", description: "Suppresses frequent calls to MyGridTerminalSystem.UpdateGridBlocksOwnership updating IsAccessibleForProgrammableBlock unnecessarily often")]
     public bool FixTerminal
     {
-        get => fixTerminal;
-        set => SetField(ref fixTerminal, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
-    [Checkbox(label: "Text panel performance fixes", description: "Disables UpdateVisibility of LCD surfaces on multiplayer servers (disable this if LCDs flicker on clients)")]
+    // Server only
     public bool FixTextPanel
     {
-        get => fixTextPanel;
-        set => SetField(ref fixTextPanel, value);
+        get => false;
+        set { }
     }
 
     [Checkbox(label: "Conveyor network performance fixes", description: "Caches conveyor network lookups")]
     public bool FixConveyor
     {
-        get => fixConveyor;
-        set => SetField(ref fixConveyor, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Rate limit logs with flooding potential", description: "Rate limited excessive logging from MyDefinitionManager.GetBlueprintDefinition")]
     public bool FixLogFlooding
     {
-        get => fixLogFlooding;
-        set => SetField(ref fixLogFlooding, value);
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Disable functional blocks in projected grids", description: "Disable functional blocks in projected grids without affecting the blocks built from the projection")]
     public bool FixProjection
     {
-        get => fixProjection;
-        set => SetField(ref fixProjection, value);
-    }
-
-    #endregion
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     #region Property change notification boilerplate
 

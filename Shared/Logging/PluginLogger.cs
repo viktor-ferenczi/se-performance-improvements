@@ -1,4 +1,3 @@
-#if !TORCH
 using System;
 using System.Runtime.CompilerServices;
 using VRage.Utils;
@@ -109,5 +108,3 @@ public class PluginLogger : LogFormatter, IPluginLogger
         Critical(null, message, data);
     }
 }
-
-#endif

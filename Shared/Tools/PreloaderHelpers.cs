@@ -22,7 +22,8 @@ public static class PreloaderHelpers
         return il.Select((instruction, index) => new { Instruction = instruction, Index = index })
             .Where(pair => predicate(pair.Instruction))
             .Select(pair => pair.Index)
-            .FirstOrDefault(i => i == -1); // Do NOT simplify this call on .NET 10, because that won't build on .Net Framework 4.8
+            .DefaultIfEmpty(-1) // Returns -1 when no instruction matches. Do NOT use .FirstOrDefault(-1), it won't build on .NET Framework 4.8
+            .First();
     }
 
     public static int FindLastIndex(this Collection<Instruction> il, CodeInstructionPredicate predicate)
@@ -30,7 +31,8 @@ public static class PreloaderHelpers
         return il.Select((instruction, index) => new { Instruction = instruction, Index = index })
             .Where(pair => predicate(pair.Instruction))
             .Select(pair => pair.Index)
-            .LastOrDefault(i => i == -1); // Do NOT simplify this call on .NET 10, because that won't build on .Net Framework 4.8
+            .DefaultIfEmpty(-1) // Returns -1 when no instruction matches. Do NOT use .LastOrDefault(-1), it won't build on .NET Framework 4.8
+            .Last();
     }
 
     public static List<int> FindAllIndex(this Collection<Instruction> il, CodeInstructionPredicate predicate)
