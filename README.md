@@ -20,7 +20,8 @@ Please consider supporting my work on [Patreon](https://www.patreon.com/semods) 
 <summary>Details</summary>
 
 See [Docs/PerformanceFixes.md](Docs/PerformanceFixes.md) for the detailed technical description of
-each fix and the related Keen support tickets.
+each fix and the related Keen support tickets, and the [Developer Handbook](Docs/TOC.md) for how
+the code that implements them is organized.
 
 **Grid operations**
 - Faster grid merge and paste (skips redundant conveyor/world updates)
@@ -44,6 +45,18 @@ each fix and the related Keen support tickets.
 - Rate limit log flooding from `GetBlueprintDefinition`
 
 </details>
+
+## Documentation
+
+| Document | What it covers |
+| --- | --- |
+| [Developer Handbook (TOC)](Docs/TOC.md) | Top-down tour of the codebase: architecture, modules and how the pieces fit together. **Start here** to understand or modify the plugin. |
+| [Performance Fixes — Technical Details](Docs/PerformanceFixes.md) | The rationale for every individual fix: the symptom, the mechanism and the Keen support ticket. |
+| [File Index](Docs/Index.md) | A flat, searchable list of every source file with a one-line summary and a link to its detailed page. |
+
+The handbook is a generated, cross-referenced reference for the whole `ClientPlugin`,
+`ServerPlugin` and `Shared` source tree; see [How this handbook is maintained](Docs/TOC.md#how-this-handbook-is-maintained)
+to regenerate it after changing the code.
 
 ## Installation
 

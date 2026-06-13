@@ -7,6 +7,8 @@ options during the game; the ones that say **needs restart** only take effect
 after restarting the game or the server.
 
 For the focused overview and installation instructions see the [README](../README.md).
+For how the code implementing these fixes is organized — module by module, file by
+file — see the [Developer Handbook](TOC.md).
 
 ## Conveyor updates while merging grids
 
