@@ -154,6 +154,12 @@ This is a pair of client and server plugins built based on the
 [Space Engineers server plugin template](https://github.com/viktor-ferenczi/se-server-plugin-template).
 For development guidance see [se-dev-skills](https://github.com/viktor-ferenczi/se-dev-skills/).
 
+### Plugin version
+
+The plugin version lives in `Version.Build.props`, which **is** committed and imported by
+`Directory.Build.props`. Keeping the version separate from the local path overrides means it
+is shared by all contributors and stays under version control. Bump the version there.
+
 ### Folder path overrides
 
 `Directory.Build.props.template` is a template for `Directory.Build.props`. The latter is a

@@ -5,8 +5,8 @@
     <AssemblyName>Performance</AssemblyName>
     <LangVersion>14</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <AssemblyVersion>1.11.22</AssemblyVersion>
-    <FileVersion>1.11.22</FileVersion>
+
+    <!-- Version is centralized in Version.Build.props (imported via Directory.Build.props) -->
 
     <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('Windows'))">net48;net10.0</TargetFrameworks>
     <TargetFramework Condition="!$([MSBuild]::IsOSPlatform('Windows'))">net10.0</TargetFramework>

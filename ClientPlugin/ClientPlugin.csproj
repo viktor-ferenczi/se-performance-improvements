@@ -12,9 +12,7 @@
     <!-- Ensure SDK generates assembly attributes (no need for AssemblyInfo) -->
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
 
-    <!-- Default versions; override in Directory.Build.props  -->
-    <AssemblyVersion>1.11.22</AssemblyVersion>
-    <FileVersion>1.11.22</FileVersion>
+    <!-- Version is centralized in Version.Build.props (imported via Directory.Build.props) -->
 
     <!-- Default configuration if none supplied -->
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
