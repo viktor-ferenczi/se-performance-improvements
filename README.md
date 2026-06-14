@@ -153,3 +153,18 @@ The server uses conservative defaults and does not enable any recently added per
 This is a pair of client and server plugins built based on the
 [Space Engineers server plugin template](https://github.com/viktor-ferenczi/se-server-plugin-template).
 For development guidance see [se-dev-skills](https://github.com/viktor-ferenczi/se-dev-skills/).
+
+### Folder path overrides
+
+`Directory.Build.props.template` is a template for `Directory.Build.props`. The latter is a
+local config file you can use to override the reference folder paths (`Bin64` for the Space
+Engineers client, `Pulsar` and `Magnetar` for the two plugin loaders, and `Dedicated64` for
+the Dedicated Server). It is **not committed** to the repository, so each contributor keeps
+their own local paths.
+
+`setup.py` copies `Directory.Build.props.template` to `Directory.Build.props` if the latter
+does not exist yet, then fills in the auto-detected paths. Because the override is not
+committed, anyone else who clones the repo and runs `setup.py` gets their own
+`Directory.Build.props` with paths properly auto-detected for their machine. Leaving a path
+empty in `Directory.Build.props` falls back to the platform-specific auto-detection further
+down in the same file (Windows and Linux), so the build works on both operating systems.
