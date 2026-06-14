@@ -30,7 +30,7 @@ namespace Shared.Patches
         // ReSharper disable once UnusedMember.Local
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MyPhysics.LoadData))]
-        [EnsureCode("2bb5480c|06ea6ea2")]
+        [EnsureCode("2bb5480c|06ea6ea2|4ac9e80c")]
         private static IEnumerable<CodeInstruction> LoadDataTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
         {
             if (!enabled)
