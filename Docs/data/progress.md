@@ -26,6 +26,20 @@ Verify links: `python3 Docs/data/scripts/check_links.py`
   `FixWheelTrail`/`FixTextPanel` client stubs), `PluginLogger.cs` and
   `PreloaderHelpers.cs`; dropped stale "Torch" framing now that the branch is
   Magnetar-only. Now 86 files, 16 modules.
+- Synced with code commits `a588665` ("Fixed patch timing") and `773795e`
+  ("Updated hashes"): documented the two-phase dedicated-server patching split.
+  Added new `Preloader.cs` doc (early Harmony bootstrap installed before world
+  load); rewrote `PatchHelpers.cs` (three entry points —
+  `HarmonyPatchAll` / `HarmonyPatchUncategorized` / `HarmonyPatchCategory` — on a
+  shared `VerifyAndApply` scaffold, with before/after `GetPatchedMethods()`
+  applied-patch logging), `ServerPlugin/Plugin.cs` (early `EarlyStartup`
+  bootstrap + `Common.AttachPlugin` from `Init` + deferred `"Late"` category),
+  `Common.cs` (`SetPlugin` vs `AttachPlugin` seam), `EnsureCode.cs` (phase-scoped
+  `VerifyUncategorized` / `VerifyCategory`), and `MyP2PQoSAdapterPatch.cs`
+  (`[HarmonyPatchCategory("Late")]` deferral). Refreshed the
+  `patch-infrastructure`, `server-plugin`, `shared-plugin-core` and
+  `keen-overhead-removal` module pages. Regenerated `manifest.jsonl` (LF-based),
+  `linkmap.json` and `Index.md`. Back to 87 files, 16 modules.
 
 ## Incremental re-run
 

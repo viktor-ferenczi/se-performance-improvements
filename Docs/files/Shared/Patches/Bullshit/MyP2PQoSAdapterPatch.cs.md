@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Keen Overhead Removal](../../../../modules/keen-overhead-removal.md) |
-| **Source** | [`MyP2PQoSAdapterPatch.cs`](../../../../../Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs) (37 lines) |
+| **Source** | [`MyP2PQoSAdapterPatch.cs`](../../../../../Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs) (41 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 
@@ -13,7 +13,7 @@
 
 As described in the "EOS P2P UpdateStats" section of `Docs/PerformanceFixes.md`, `VRage.EOS.MyP2PQoSAdapter.UpdateStats` is called in a tight loop on its own dedicated thread and consumes approximately 50% of a CPU core continuously — even in offline single-player sessions. The fix eliminates 98% of that overhead.
 
-The Prefix uses a static `counter` variable (intentionally non-thread-local, since the method runs on a single dedicated thread). On every call the counter is incremented; when it exceeds 47 it resets to 0 and lets the real method run (`return true`). For all other calls it executes `Thread.Sleep(1)` and returns `false` to skip the original. The initial value of `counter` is `−5*60 = −300`, which grants a warm-up period of 300 calls (~5 minutes at game start) during which the original method always runs. The `[HarmonyPatch]` class-level attribute has no type argument; the target is specified by a string name (`"VRage.EOS.MyP2PQoSAdapter"`, `"UpdateStats"`) because the EOS type is not directly referenceable.
+The Prefix uses a static `counter` variable (intentionally non-thread-local, since the method runs on a single dedicated thread). On every call the counter is incremented; when it exceeds 47 it resets to 0 and lets the real method run (`return true`). For all other calls it executes `Thread.Sleep(1)` and returns `false` to skip the original. The initial value of `counter` is `−5*60 = −300`, which grants a warm-up period of 300 calls (~5 minutes at game start) during which the original method always runs. The `[HarmonyPatch]` class-level attribute has no type argument; the target is specified by a string name (`"VRage.EOS.MyP2PQoSAdapter"`, `"UpdateStats"`) because the EOS type is not directly referenceable. Because that target is resolved by name and `VRage.EOS` is not loaded at the dedicated server's early bootstrap, the class also carries `[HarmonyPatchCategory(PatchHelpers.LateCategory)]` (`"Late"`) — it is the one patch deferred out of the early phase and applied from `IPlugin.Init` once the assembly is available. On the client, where everything is loaded at startup, it is applied with all the others.
 
 ## Key members
 
@@ -31,7 +31,7 @@ The Prefix uses a static `counter` variable (intentionally non-thread-local, sin
 ## References
 
 - [keen-overhead-removal](../../../../modules/keen-overhead-removal.md) — parent module.
-- [`PatchHelpers.cs`](../PatchHelpers.cs.md) — applies this patch via `harmony.PatchAll`.
+- [`PatchHelpers.cs`](../PatchHelpers.cs.md) — applies this patch: `harmony.PatchAll` on the client, but as the deferred `"Late"` category (`harmony.PatchCategory` from `Init`) on the dedicated server.
 
 ---
 

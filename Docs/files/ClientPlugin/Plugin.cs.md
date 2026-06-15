@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Plugin Entry Point](../../modules/client-plugin.md) |
-| **Source** | [`Plugin.cs`](../../../ClientPlugin/Plugin.cs) (123 lines) |
+| **Source** | [`Plugin.cs`](../../../ClientPlugin/Plugin.cs) (122 lines) |
 | **Kind** | `class Plugin : IPlugin, ICommonPlugin` |
 | **Role** | Plugin entry point |
 

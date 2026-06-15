@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**86 files across 16 modules.**
+**87 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -39,14 +39,15 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | File | Path | Summary |
 | --- | --- | --- |
 | [`PerformanceConfig.cs`](files/ServerPlugin/Config/PerformanceConfig.cs.md) | `ServerPlugin/Config/PerformanceConfig.cs` | XML-serialized server configuration implementing `IPluginConfig.cs`; each property corresponds to one toggleable performance fix. |
-| [`Plugin.cs`](files/ServerPlugin/Plugin.cs.md) | `ServerPlugin/Plugin.cs` | Dedicated-server plugin entry point: loads config, applies Harmony patches, and drives the per-tick update loop. |
+| [`Plugin.cs`](files/ServerPlugin/Plugin.cs.md) | `ServerPlugin/Plugin.cs` | Dedicated-server plugin entry point: applies the Harmony patches in two phases (uncategorized early via the Preloader bootstrap, the "Late" category from `Init`), loads config, and drives the per-tick update loop. |
+| [`Preloader.cs`](files/ServerPlugin/Preloader.cs.md) | `ServerPlugin/Preloader.cs` | Namespace-less preloader hook the Magnetar dedicated-server loader calls before the game starts; installs the early Harmony bootstrap so the plugin's patches are applied before world-load mod/script compilation. |
 
 ## [Shared Plugin Core](modules/shared-plugin-core.md)
 
 | File | Path | Summary |
 | --- | --- | --- |
 | [`IPluginConfig.cs`](files/Shared/Config/IPluginConfig.cs.md) | `Shared/Config/IPluginConfig.cs` | Shared configuration contract: one boolean toggle per performance fix, plus `INotifyPropertyChanged` so both platforms can react to live config updates. |
-| [`Common.cs`](files/Shared/Plugin/Common.cs.md) | `Shared/Plugin/Common.cs` | Shared bootstrap that receives the plugin instance from either host and wires up the logger, config, filesystem directories, and Harmony patch infrastructure. |
+| [`Common.cs`](files/Shared/Plugin/Common.cs.md) | `Shared/Plugin/Common.cs` | Shared bootstrap and static state hub: `SetPlugin` wires up the logger, config, filesystem directories and patch configuration once per process; `AttachPlugin` (re)points the shared accessors, letting the server swap its early stand-in for the live instance. |
 | [`ICommonPlugin.cs`](files/Shared/Plugin/ICommonPlugin.cs.md) | `Shared/Plugin/ICommonPlugin.cs` | Contract that both client and server plugin classes must implement so `Common.cs` can accept either without a circular assembly reference. |
 
 ## [Logging](modules/logging.md)
@@ -85,7 +86,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 
 | File | Path | Summary |
 | --- | --- | --- |
-| [`PatchHelpers.cs`](files/Shared/Patches/PatchHelpers.cs.md) | `Shared/Patches/PatchHelpers.cs` | Central patch engine: runs `EnsureCode.cs` verification, then applies all Harmony patch classes in the assembly, and provides per-tick update and configuration hooks for every patch module. |
+| [`PatchHelpers.cs`](files/Shared/Patches/PatchHelpers.cs.md) | `Shared/Patches/PatchHelpers.cs` | Central patch engine: verifies the targeted game methods (via `EnsureCode.cs`) then applies the Harmony patches — all at once on the client, or in two phases on the dedicated server — logging each applied patch, plus the per-tick update and configuration hooks for every patch module. |
 
 ## [Grid Merge & Paste Patches](modules/merge-and-paste.md)
 

@@ -144,6 +144,12 @@
       "toc": "../../TOC.md",
       "index": "../../Index.md"
     },
+    "ServerPlugin/Preloader.cs": {
+      "module": "../../modules/server-plugin.md",
+      "source": "../../../ServerPlugin/Preloader.cs",
+      "toc": "../../TOC.md",
+      "index": "../../Index.md"
+    },
     "Shared/Config/IPluginConfig.cs": {
       "module": "../../../modules/shared-plugin-core.md",
       "source": "../../../../Shared/Config/IPluginConfig.cs",
@@ -537,7 +543,7 @@
           "doc_link": "../files/ClientPlugin/Plugin.cs.md",
           "source_link": "../../ClientPlugin/Plugin.cs",
           "tier": 1,
-          "lines": 123
+          "lines": 122
         }
       ]
     },
@@ -790,7 +796,7 @@
           "doc_link": "../files/Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs.md",
           "source_link": "../../Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs",
           "tier": 2,
-          "lines": 37
+          "lines": 41
         },
         {
           "path": "Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs",
@@ -914,7 +920,7 @@
           "doc_link": "../files/Shared/Patches/PatchHelpers.cs.md",
           "source_link": "../../Shared/Patches/PatchHelpers.cs",
           "tier": 1,
-          "lines": 119
+          "lines": 207
         }
       ]
     },
@@ -991,7 +997,7 @@
           "doc_link": "../files/ServerPlugin/Config/PerformanceConfig.cs.md",
           "source_link": "../../ServerPlugin/Config/PerformanceConfig.cs",
           "tier": 2,
-          "lines": 109
+          "lines": 108
         },
         {
           "path": "ServerPlugin/Plugin.cs",
@@ -999,7 +1005,15 @@
           "doc_link": "../files/ServerPlugin/Plugin.cs.md",
           "source_link": "../../ServerPlugin/Plugin.cs",
           "tier": 1,
-          "lines": 145
+          "lines": 284
+        },
+        {
+          "path": "ServerPlugin/Preloader.cs",
+          "name": "Preloader.cs",
+          "doc_link": "../files/ServerPlugin/Preloader.cs.md",
+          "source_link": "../../ServerPlugin/Preloader.cs",
+          "tier": 3,
+          "lines": 24
         }
       ]
     },
@@ -1022,7 +1036,7 @@
           "doc_link": "../files/Shared/Plugin/Common.cs.md",
           "source_link": "../../Shared/Plugin/Common.cs",
           "tier": 1,
-          "lines": 78
+          "lines": 90
         },
         {
           "path": "Shared/Plugin/ICommonPlugin.cs",
@@ -1179,7 +1193,7 @@
           "doc_link": "../files/Shared/Tools/EnsureCode.cs.md",
           "source_link": "../../Shared/Tools/EnsureCode.cs",
           "tier": 1,
-          "lines": 107
+          "lines": 135
         },
         {
           "path": "Shared/Tools/GameAssembliesToPublicize.cs",

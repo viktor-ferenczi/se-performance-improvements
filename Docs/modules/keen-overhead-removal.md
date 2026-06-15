@@ -24,7 +24,7 @@ The three patches in this module are independent of each other; there is no shar
 
 [`PerfCountingRewriterPatch.cs`](../files/Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs.md) intercepts the Roslyn compilation pipeline at the point where mod syntax trees are rewritten. It activates when either `DisableModApiStatistics` or `CacheMods` is enabled, because cached compilation also benefits from skipping the rewrite step.
 
-All three patches are applied by [patch-infrastructure](patch-infrastructure.md) via `harmony.PatchAll`; none require `Configure()` or `PatchUpdates()` hooks.
+All three patches are applied by [patch-infrastructure](patch-infrastructure.md); none require `Configure()` or `PatchUpdates()` hooks. On the dedicated server `MyP2PQoSAdapterPatch` is deferred to the `"Late"` category and applied from `Init` (its EOS target assembly is not loaded at the early bootstrap), while `GcCollectPatch` and `PerfCountingRewriterPatch` are applied early with the rest; on the client all three are applied together via `harmony.PatchAll`.
 
 ---
 
