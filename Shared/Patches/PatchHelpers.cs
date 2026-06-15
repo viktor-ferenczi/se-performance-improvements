@@ -19,7 +19,7 @@ namespace Shared.Patches
 
         public static bool HarmonyPatchAll(IPluginLogger log, Harmony harmony, bool handleExceptions = true)
         {
-            return VerifyAndApply(log, handleExceptions,
+            return VerifyAndApply(log, harmony, handleExceptions,
                 EnsureCode.Verify,
                 () => harmony.PatchAll(Assembly.GetExecutingAssembly()),
                 "all patches");
@@ -30,7 +30,7 @@ namespace Shared.Patches
         // target assembly is not loaded yet carry a category and are applied later from Init.
         public static bool HarmonyPatchUncategorized(IPluginLogger log, Harmony harmony, bool handleExceptions = true)
         {
-            return VerifyAndApply(log, handleExceptions,
+            return VerifyAndApply(log, harmony, handleExceptions,
                 EnsureCode.VerifyUncategorized,
                 () => harmony.PatchAllUncategorized(Assembly.GetExecutingAssembly()),
                 "uncategorized patches");
@@ -39,14 +39,14 @@ namespace Shared.Patches
         // Applies only the patches in the given category, verifying only those first.
         public static bool HarmonyPatchCategory(IPluginLogger log, Harmony harmony, string category, bool handleExceptions = true)
         {
-            return VerifyAndApply(log, handleExceptions,
+            return VerifyAndApply(log, harmony, handleExceptions,
                 () => EnsureCode.VerifyCategory(category),
                 () => harmony.PatchCategory(Assembly.GetExecutingAssembly(), category),
                 $"category '{category}'");
         }
 
         // Shared scaffold: verify the targeted game methods still match, then apply the patches.
-        private static bool VerifyAndApply(IPluginLogger log, bool handleExceptions, Func<IEnumerable<CodeChange>> verify, Action apply, string what)
+        private static bool VerifyAndApply(IPluginLogger log, Harmony harmony, bool handleExceptions, Func<IEnumerable<CodeChange>> verify, Action apply, string what)
         {
             log.Debug($"Scanning for conflicting code changes ({what})");
             var throwOnFailedVerification = !handleExceptions || Environment.GetEnvironmentVariable("SE_PLUGIN_THROW_ON_FAILED_METHOD_VERIFICATION") != null;
@@ -80,6 +80,13 @@ namespace Shared.Patches
             }
 
             log.Debug($"Applying Harmony patches ({what})");
+
+            // Snapshot the methods this Harmony id has already patched so that, after applying, we
+            // can report exactly the ones this phase added. GetPatchedMethods() is scoped to
+            // harmony.Id, but the dedicated server applies patches in two phases under the same id
+            // (uncategorized early, then the "Late" category from Init), so a before/after delta
+            // isolates the current phase.
+            var before = new HashSet<MethodBase>(harmony.GetPatchedMethods());
             try
             {
                 apply();
@@ -90,7 +97,57 @@ namespace Shared.Patches
                 return false;
             }
 
+            if (log.IsDebugEnabled)
+            {
+                LogAppliedPatches(log, harmony, before, what);
+            }
+            
             return true;
+        }
+
+        // Proof that the patches were applied: debug-log every game method this phase patched (each
+        // with the plugin patch class targeting it) with a running count, then an info line with
+        // the total. A test run can be verified from the log — enable all fixes and confirm every
+        // expected patch appears. Note the applied set is fixed at build time, not by config: the
+        // Fix* flags gate behavior inside the patch bodies, not whether a patch is applied, so this
+        // count is the same regardless of which fixes are enabled.
+        private static void LogAppliedPatches(IPluginLogger log, Harmony harmony, HashSet<MethodBase> before, string what)
+        {
+            var applied = harmony.GetPatchedMethods()
+                .Where(method => !before.Contains(method))
+                .OrderBy(method => method.DeclaringType?.FullName, StringComparer.Ordinal)
+                .ThenBy(method => method.ToString(), StringComparer.Ordinal)
+                .ToList();
+
+            var count = 0;
+            foreach (var method in applied)
+                log.Debug($"Patch applied #{++count}: {DescribePatchedMethod(harmony, method)}");
+
+            log.Debug($"Applied {count} {(count == 1 ? "patch" : "patches")} ({what})");
+        }
+
+        // Renders a patched game method as "Namespace.Type.Method(argTypes) <- PatchClass[, ...]",
+        // naming the plugin patch classes (filtered to this Harmony id) whose prefix/postfix/
+        // transpiler/finalizer targets it.
+        private static string DescribePatchedMethod(Harmony harmony, MethodBase method)
+        {
+            var parameters = string.Join(", ", method.GetParameters().Select(parameter => parameter.ParameterType.Name));
+            var target = $"{method.DeclaringType?.FullName}.{method.Name}({parameters})";
+
+            var info = Harmony.GetPatchInfo(method);
+            if (info == null)
+                return target;
+
+            var patchClasses = info.Prefixes
+                .Concat(info.Postfixes)
+                .Concat(info.Transpilers)
+                .Concat(info.Finalizers)
+                .Where(patch => patch.owner == harmony.Id)
+                .Select(patch => patch.PatchMethod.DeclaringType?.Name)
+                .Distinct()
+                .ToList();
+
+            return patchClasses.Count == 0 ? target : $"{target} <- {string.Join(", ", patchClasses)}";
         }
 
         // Called after loading configuration, but before patching
