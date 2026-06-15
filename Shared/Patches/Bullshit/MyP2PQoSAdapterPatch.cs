@@ -7,7 +7,11 @@ using Shared.Tools;
 namespace Shared.Patches
 {
     // ReSharper disable once UnusedType.Global
+    // Deferred to the "Late" category: the target type VRage.EOS.MyP2PQoSAdapter is referenced
+    // by name, and VRage.EOS is not loaded yet at the dedicated server's early bootstrap point.
+    // This patch is applied from IPlugin.Init instead, once that assembly is available.
     [HarmonyPatch]
+    [HarmonyPatchCategory(PatchHelpers.LateCategory)]
     public static class MyP2PQoSAdapterPatch
     {
         private static IPluginConfig Config => Common.Config;

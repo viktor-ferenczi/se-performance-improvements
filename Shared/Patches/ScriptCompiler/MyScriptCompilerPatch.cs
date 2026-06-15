@@ -16,7 +16,6 @@ using Shared.Config;
 using Shared.Logging;
 using Shared.Plugin;
 using Shared.Tools;
-using VRage.Collections;
 using VRage.Scripting;
 
 namespace Shared.Patches
@@ -26,8 +25,6 @@ namespace Shared.Patches
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static class MyScriptCompilerPatch
     {
-        private static readonly FieldInfo ConditionalCompilationSymbolsField = AccessTools.DeclaredField(typeof(MyScriptCompiler), "m_conditionalCompilationSymbols"); 
-        
         private static readonly MethodInfo RecallFromCacheInfo = AccessTools.DeclaredMethod(typeof(MyScriptCompilerPatch), nameof(RecallFromCache));
         private static readonly MethodInfo StoreIntoCacheInfo = AccessTools.DeclaredMethod(typeof(MyScriptCompilerPatch), nameof(StoreIntoCache));
 
@@ -42,8 +39,7 @@ namespace Shared.Patches
 
         public static void Configure()
         {
-            if (ConditionalCompilationSymbolsField == null ||
-                RecallFromCacheInfo == null ||
+            if (RecallFromCacheInfo == null ||
                 StoreIntoCacheInfo == null)
             {
                 throw new Exception("MyScriptCompilerPatch: Reflection error");
@@ -261,8 +257,18 @@ namespace Shared.Patches
                 var frameworkVersion = RuntimeInformation.FrameworkDescription;
                 var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(frameworkVersion));
                 XorHashIntoAccumulator(hash, result);
-                
-                var conditionalCompilationSymbols = (HashSet<string>)ConditionalCompilationSymbolsField.GetValue(myScriptCompiler); 
+
+                // Include the game's build version (the client build version on the client,
+                // the server build version on the dedicated server) to prevent loading assemblies
+                // compiled against a different game build after the game has been updated
+                var gameVersion = Common.GameVersion;
+                if (gameVersion != null)
+                {
+                    result = sha1.ComputeHash(Encoding.UTF8.GetBytes(gameVersion));
+                    XorHashIntoAccumulator(hash, result);
+                }
+
+                var conditionalCompilationSymbols = myScriptCompiler.m_conditionalCompilationSymbols;
                 if (conditionalCompilationSymbols != null)
                 {
                     foreach (var symbol in conditionalCompilationSymbols)

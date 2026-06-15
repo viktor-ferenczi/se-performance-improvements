@@ -1,0 +1,86 @@
+{
+  "groups": [
+    {
+      "group": "Entry points",
+      "modules": ["client-plugin", "client-settings", "server-plugin"]
+    },
+    {
+      "group": "Shared infrastructure",
+      "modules": ["shared-plugin-core", "logging", "tools", "patch-infrastructure"]
+    },
+    {
+      "group": "Performance patches",
+      "modules": ["merge-and-paste", "conveyor", "physics", "safe-zone", "keen-overhead-removal", "memory-allocation", "world-loading", "simulation-and-blocks"]
+    },
+    {
+      "group": "Testing",
+      "modules": ["tests"]
+    }
+  ],
+  "modules": {
+    "client-plugin": {
+      "title": "Client Plugin Entry Point",
+      "summary": "The Pulsar `IPlugin` implementation that boots the plugin inside the Space Engineers game client and owns the client-side configuration object."
+    },
+    "client-settings": {
+      "title": "Client Settings UI Framework",
+      "summary": "A declarative framework that turns the client `Config` into an in-game settings dialog: typed UI elements, layouts, data binding, change persistence and the settings screen itself."
+    },
+    "server-plugin": {
+      "title": "Server Plugin Entry Point",
+      "summary": "The dedicated-server plugin entry point and its XML-serialized performance configuration, loaded by Magnetar / Quasar."
+    },
+    "shared-plugin-core": {
+      "title": "Shared Plugin Core",
+      "summary": "Code shared by both the client and server plugins: the `Common` bootstrap that applies patches and wires up logging/config, plus the `ICommonPlugin` and `IPluginConfig` contracts."
+    },
+    "logging": {
+      "title": "Logging",
+      "summary": "An environment-agnostic logger abstraction with a shared message formatter, so the same patch code can log on both the client and the dedicated server."
+    },
+    "tools": {
+      "title": "Shared Tools & Data Structures",
+      "summary": "The reusable toolbox the patches build on: time-bounded caches, reader/writer-locked collections, Harmony IL/transpiler helpers, IL verification, hashing, object pools and the assembly publicizer support types."
+    },
+    "patch-infrastructure": {
+      "title": "Patch Infrastructure",
+      "summary": "`PatchHelpers`: discovers every Harmony patch class, applies them in a controlled order, and verifies that the targeted game code still matches what the patches expect."
+    },
+    "merge-and-paste": {
+      "title": "Grid Merge & Paste Patches",
+      "summary": "Suppresses redundant conveyor and world updates while grids are merged, pasted or moved between grid groups, making those operations dramatically faster."
+    },
+    "conveyor": {
+      "title": "Conveyor System Patches",
+      "summary": "Caches conveyor-network reachability and pathfinding results and avoids redundant `IsWorking` recomputation, cutting the cost of large conveyor systems on capital ships and bases."
+    },
+    "physics": {
+      "title": "Physics Patches",
+      "summary": "Havok and physics-engine optimizations: a fixed Havok thread count, a faster `RigidBody` getter and a better-complexity cluster reordering algorithm."
+    },
+    "safe-zone": {
+      "title": "Safe Zone Patches",
+      "summary": "Caches the frequently-called safe-zone checks (`IsSafe`, `IsActionAllowed`) and replaces `IsOutside` with an allocation-free implementation."
+    },
+    "keen-overhead-removal": {
+      "title": "Keen Overhead Removal",
+      "summary": "Removes constant background overhead baked into the game: explicit `GC.Collect` pauses, the EOS P2P `UpdateStats` core load and the Mod API call-statistics rewriter."
+    },
+    "memory-allocation": {
+      "title": "Memory Allocation Patches",
+      "summary": "Reduces GC pressure from hot paths: a cached `MyDefinitionId.ToString`, less frequent block-limit sync and allocation-free voxel material lookups."
+    },
+    "world-loading": {
+      "title": "World Loading Patches",
+      "summary": "Speeds up world load by caching compiled mods and in-game scripts, and rate-limits the blueprint-not-found log flooding from `GetBlueprintDefinition`."
+    },
+    "simulation-and-blocks": {
+      "title": "Simulation & Block Patches",
+      "summary": "Assorted per-block and per-subsystem fixes: turret targeting allocations, block access-right caching, wind-turbine atmosphere caching, PB block-ownership sync, disabled projected blocks, server-side footprint/wheel-trail removal and LCD surface tweaks."
+    },
+    "tests": {
+      "title": "Tests",
+      "summary": "Unit tests for the shared tooling."
+    }
+  }
+}

@@ -2,7 +2,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using VRage.Collections;
 
-namespace TorchPlugin.Shared.Tools
+namespace Shared.Tools
 {
     public static class ObjectPools
     {

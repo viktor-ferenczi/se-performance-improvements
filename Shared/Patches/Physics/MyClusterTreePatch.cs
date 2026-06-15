@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using HarmonyLib;
 using Shared.Config;
@@ -15,25 +13,8 @@ using Shared.Tools;
 using VRageMath;
 using VRageMath.Spatial;
 
-#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
-
 namespace Shared.Patches
 {
-    // ReSharper disable once ClassNeverInstantiated.Global
-    // ReSharper disable once UnusedType.Global
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    public class MyObjectData
-    {
-        public ulong Id;
-        public MyClusterTree.MyCluster Cluster;
-        public MyClusterTree.IMyActivationHandler ActivationHandler;
-        public BoundingBoxD AABB;
-        public int StaticId;
-        public string Tag;
-        public long EntityId;
-    }
-
     [HarmonyPatch(typeof(MyClusterTree))]
     public static class MyClusterTreePatch
     {
@@ -42,34 +23,6 @@ namespace Shared.Patches
         private static bool enabled;
 
         private static readonly MethodInfo OptimizedImplementationMethodInfo = AccessTools.DeclaredMethod(typeof(MyClusterTreePatch), nameof(OptimizedImplementation));
-        private static readonly Type MyObjectDataType = AccessTools.GetTypesFromAssembly(typeof(MyClusterTree).Assembly).FirstOrDefault(t => t.Name.Contains("MyObjectData", StringComparison.InvariantCulture));
-
-        // Delegate to add items to the source HashSet using the correct runtime types
-        // This avoids the IEqualityComparer<T> type mismatch when using Unsafe.As on HashSet<T>
-        private static readonly Action<object, object> SourceHashSetAdd;
-
-        static MyClusterTreePatch()
-        {
-            Debug.Assert(OptimizedImplementationMethodInfo != null, "NestedLoopMethodInfo");
-            Debug.Assert(MyObjectDataType != null, "MyObjectDataType");
-
-            // Create a dynamic method to call HashSet<MyObjectData>.Add with proper types
-            var hashSetType = typeof(HashSet<>).MakeGenericType(MyObjectDataType);
-            var addMethod = hashSetType.GetMethod("Add");
-            Debug.Assert(addMethod != null, "HashSet.Add method not found");
-
-            var dm = new DynamicMethod("SourceHashSetAdd", null, new[] { typeof(object), typeof(object) }, typeof(MyClusterTreePatch), true);
-            var il = dm.GetILGenerator();
-            il.Emit(OpCodes.Ldarg_0);
-            il.Emit(OpCodes.Castclass, hashSetType);
-            il.Emit(OpCodes.Ldarg_1);
-            il.Emit(OpCodes.Castclass, MyObjectDataType);
-            il.Emit(OpCodes.Callvirt, addMethod);
-            il.Emit(OpCodes.Pop); // Discard the bool return value
-            il.Emit(OpCodes.Ret);
-
-            SourceHashSetAdd = (Action<object, object>)dm.CreateDelegate(typeof(Action<object, object>));
-        }
 
         public static void Configure()
         {
@@ -114,34 +67,11 @@ namespace Shared.Patches
             return il;
         }
 
-        // The fields of this class must be EXACTLY IDENTICAL to MyClusterTree.MyObjectData
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
-        private class MyObjectData
-        {
-            public ulong Id;
-            public MyClusterTree.MyCluster Cluster;
-            public MyClusterTree.IMyActivationHandler ActivationHandler;
-            public BoundingBoxD AABB;
-            public int StaticId;
-            public string Tag;
-            public long EntityId;
-        }
-
         // Reuse the hashsets used by the optimized implementation
         private static readonly ThreadLocal<HashSet<ulong>> CollidedObjectKeysPool = new ThreadLocal<HashSet<ulong>>();
 
-        private static void OptimizedImplementation(List<MyClusterTree.MyCluster> resultList, object objectsDataAsObject, object sourceAsObject, ref BoundingBoxD inflated1)
+        private static void OptimizedImplementation(List<MyClusterTree.MyCluster> resultList, Dictionary<ulong, MyClusterTree.MyObjectData> objectsData, HashSet<MyClusterTree.MyObjectData> source, ref BoundingBoxD inflated1)
         {
-            // Unsafe cast the objects which depend on private inner class MyObjectData.
-            // This works because TryGetValue doesn't call methods on the value type.
-            var objectsData = Unsafe.As<Dictionary<ulong, MyObjectData>>(objectsDataAsObject);
-
-            // NOTE: We cannot use Unsafe.As on the HashSet<MyObjectData> because HashSet.Add
-            // uses IEqualityComparer<T>.GetHashCode, and the comparer is typed for the original
-            // MyClusterTree.MyObjectData, not our local MyObjectData type. This causes
-            // EntryPointNotFoundException. Instead, we use a dynamically generated delegate
-            // (SourceHashSetAdd) that calls Add with the correct runtime types.
-
             // Original nested loop for reference:
             // foreach (MyClusterTree.MyCluster mResult in resultList)
             // {
@@ -159,7 +89,7 @@ namespace Shared.Patches
 
             if (Logger.IsDebugEnabled)
                 Logger.Debug($"{nameof(MyClusterTreePatch)}.{nameof(OptimizedImplementation)}: objectsData.Count={objectsData.Count}, collidedObjectKeys.Count={collidedObjectKeys.Count}");
-            
+
             foreach (MyClusterTree.MyCluster collidedCluster in resultList)
             {
                 collidedObjectKeys.UnionWith(collidedCluster.Objects);
@@ -169,8 +99,7 @@ namespace Shared.Patches
             {
                 if (objectsData.TryGetValue(objectKey, out var myObjectData))
                 {
-                    // Use the dynamic delegate to call Add with correct runtime types
-                    SourceHashSetAdd(sourceAsObject, myObjectData);
+                    source.Add(myObjectData);
                     inflated1.Include(myObjectData.AABB.GetInflated(MyClusterTree.IdealClusterSize / 2f));
                 }
             }

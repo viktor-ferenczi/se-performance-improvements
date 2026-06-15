@@ -1,0 +1,1336 @@
+{
+  "files": {
+    "ClientPlugin/Config.cs": {
+      "module": "../../modules/client-plugin.md",
+      "source": "../../../ClientPlugin/Config.cs",
+      "toc": "../../TOC.md",
+      "index": "../../Index.md"
+    },
+    "ClientPlugin/Plugin.cs": {
+      "module": "../../modules/client-plugin.md",
+      "source": "../../../ClientPlugin/Plugin.cs",
+      "toc": "../../TOC.md",
+      "index": "../../Index.md"
+    },
+    "ClientPlugin/Settings/ConfigStorage.cs": {
+      "module": "../../../modules/client-settings.md",
+      "source": "../../../../ClientPlugin/Settings/ConfigStorage.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Button.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Button.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Checkbox.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Checkbox.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Color.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Color.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Control.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Control.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Dropdown.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Dropdown.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Element.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Element.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Keybind.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Keybind.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Separator.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Separator.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Slider.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Slider.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Elements/Textbox.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Elements/Textbox.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Layouts/Layout.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Layouts/Layout.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Layouts/None.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Layouts/None.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Layouts/Simple.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Layouts/Simple.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/SettingsGenerator.cs": {
+      "module": "../../../modules/client-settings.md",
+      "source": "../../../../ClientPlugin/Settings/SettingsGenerator.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "ClientPlugin/Settings/SettingsScreen.cs": {
+      "module": "../../../modules/client-settings.md",
+      "source": "../../../../ClientPlugin/Settings/SettingsScreen.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "ClientPlugin/Settings/Tools/Binding.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Tools/Binding.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ClientPlugin/Settings/Tools/Tools.cs": {
+      "module": "../../../../modules/client-settings.md",
+      "source": "../../../../../ClientPlugin/Settings/Tools/Tools.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ServerPlugin/Config/PerformanceConfig.cs": {
+      "module": "../../../modules/server-plugin.md",
+      "source": "../../../../ServerPlugin/Config/PerformanceConfig.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "ServerPlugin/Patches/TextPanel/MyLcdSurfaceComponentPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../ServerPlugin/Patches/TextPanel/MyLcdSurfaceComponentPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ServerPlugin/Patches/Wheel/MyWheelPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../ServerPlugin/Patches/Wheel/MyWheelPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "ServerPlugin/Plugin.cs": {
+      "module": "../../modules/server-plugin.md",
+      "source": "../../../ServerPlugin/Plugin.cs",
+      "toc": "../../TOC.md",
+      "index": "../../Index.md"
+    },
+    "ServerPlugin/Preloader.cs": {
+      "module": "../../modules/server-plugin.md",
+      "source": "../../../ServerPlugin/Preloader.cs",
+      "toc": "../../TOC.md",
+      "index": "../../Index.md"
+    },
+    "Shared/Config/IPluginConfig.cs": {
+      "module": "../../../modules/shared-plugin-core.md",
+      "source": "../../../../Shared/Config/IPluginConfig.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Logging/IPluginLogger.cs": {
+      "module": "../../../modules/logging.md",
+      "source": "../../../../Shared/Logging/IPluginLogger.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Logging/LogFormatter.cs": {
+      "module": "../../../modules/logging.md",
+      "source": "../../../../Shared/Logging/LogFormatter.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Logging/PluginLogger.cs": {
+      "module": "../../../modules/logging.md",
+      "source": "../../../../Shared/Logging/PluginLogger.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Patches/Block/MyCubeBlockPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/Block/MyCubeBlockPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Block/MyTerminalBlockPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/Block/MyTerminalBlockPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Bullshit/GcCollectPatch.cs": {
+      "module": "../../../../modules/keen-overhead-removal.md",
+      "source": "../../../../../Shared/Patches/Bullshit/GcCollectPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs": {
+      "module": "../../../../modules/keen-overhead-removal.md",
+      "source": "../../../../../Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs": {
+      "module": "../../../../modules/keen-overhead-removal.md",
+      "source": "../../../../../Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Character/MyCharacterPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/Character/MyCharacterPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Connector/MyShipConnectorPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/Connector/MyShipConnectorPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyAssemblerPatch.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyAssemblerPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyPathFindingSystemEnumeratorPatch.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyPathFindingSystemEnumeratorPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyPathFindingSystemPatch.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyPathFindingSystemPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyPathfindingDataPatch.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyPathfindingDataPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/MyShipConnectorPatchForConveyor.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/MyShipConnectorPatchForConveyor.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Conveyor/PullItemStats.cs": {
+      "module": "../../../../modules/conveyor.md",
+      "source": "../../../../../Shared/Patches/Conveyor/PullItemStats.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs": {
+      "module": "../../../../modules/memory-allocation.md",
+      "source": "../../../../../Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Memory/MyPlayerCollectionPatch.cs": {
+      "module": "../../../../modules/memory-allocation.md",
+      "source": "../../../../../Shared/Patches/Memory/MyPlayerCollectionPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/MergeAndPaste/MyConveyorLinePatch.cs": {
+      "module": "../../../../modules/merge-and-paste.md",
+      "source": "../../../../../Shared/Patches/MergeAndPaste/MyConveyorLinePatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/MergeAndPaste/MyCubeGridPatchForMergeAndPaste.cs": {
+      "module": "../../../../modules/merge-and-paste.md",
+      "source": "../../../../../Shared/Patches/MergeAndPaste/MyCubeGridPatchForMergeAndPaste.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/MergeAndPaste/MyGroupsPatch.cs": {
+      "module": "../../../../modules/merge-and-paste.md",
+      "source": "../../../../../Shared/Patches/MergeAndPaste/MyGroupsPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/MergeAndPaste/MyResourceDistributorComponentPatch.cs": {
+      "module": "../../../../modules/merge-and-paste.md",
+      "source": "../../../../../Shared/Patches/MergeAndPaste/MyResourceDistributorComponentPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/PatchHelpers.cs": {
+      "module": "../../../modules/patch-infrastructure.md",
+      "source": "../../../../Shared/Patches/PatchHelpers.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Patches/Physics/MyClusterTreePatch.cs": {
+      "module": "../../../../modules/physics.md",
+      "source": "../../../../../Shared/Patches/Physics/MyClusterTreePatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Physics/MyPhysicsBodyPatch.cs": {
+      "module": "../../../../modules/physics.md",
+      "source": "../../../../../Shared/Patches/Physics/MyPhysicsBodyPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Physics/MyPhysicsPatch.cs": {
+      "module": "../../../../modules/physics.md",
+      "source": "../../../../../Shared/Patches/Physics/MyPhysicsPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Physics/PhysicsFixes.cs": {
+      "module": "../../../../modules/physics.md",
+      "source": "../../../../../Shared/Patches/Physics/PhysicsFixes.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Projection/MyEntityPatchForProjection.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/Projection/MyEntityPatchForProjection.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/SafeZone/MySafeZonePatch.cs": {
+      "module": "../../../../modules/safe-zone.md",
+      "source": "../../../../../Shared/Patches/SafeZone/MySafeZonePatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs": {
+      "module": "../../../../modules/safe-zone.md",
+      "source": "../../../../../Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Voxel/MyStorageExtensionsPatch.cs": {
+      "module": "../../../../modules/memory-allocation.md",
+      "source": "../../../../../Shared/Patches/Voxel/MyStorageExtensionsPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/WindTurbine/MyWindTurbinePatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/WindTurbine/MyWindTurbinePatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Plugin/Common.cs": {
+      "module": "../../../modules/shared-plugin-core.md",
+      "source": "../../../../Shared/Plugin/Common.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Plugin/ICommonPlugin.cs": {
+      "module": "../../../modules/shared-plugin-core.md",
+      "source": "../../../../Shared/Plugin/ICommonPlugin.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/Cache.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/Cache.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/CacheStat.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/CacheStat.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/CodeChange.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/CodeChange.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/ConveyorStat.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/ConveyorStat.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/EnsureCode.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/EnsureCode.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/GameAssembliesToPublicize.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/GameAssembliesToPublicize.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/Hashing.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/Hashing.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/IgnoresAccessChecksToAttribute.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/IgnoresAccessChecksToAttribute.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/MySessionExtensions.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/MySessionExtensions.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/ObjectPools.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/ObjectPools.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/PreloaderHelpers.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/PreloaderHelpers.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/RateLimiter.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/RateLimiter.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/RwLock.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/RwLock.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/RwLockDictionary.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/RwLockDictionary.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/RwLockHashSet.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/RwLockHashSet.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/TranspilerHelpers.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/TranspilerHelpers.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/TwoLayerCache.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/TwoLayerCache.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/UintCache.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/UintCache.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/Workarounds.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/Workarounds.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Tests/Shared/Tools/RateLimiterTest.cs": {
+      "module": "../../../../modules/tests.md",
+      "source": "../../../../../Tests/Shared/Tools/RateLimiterTest.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    }
+  },
+  "modules": {
+    "client-plugin": {
+      "doc": "Docs/modules/client-plugin.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "ClientPlugin/Config.cs",
+          "name": "Config.cs",
+          "doc_link": "../files/ClientPlugin/Config.cs.md",
+          "source_link": "../../ClientPlugin/Config.cs",
+          "tier": 1,
+          "lines": 224
+        },
+        {
+          "path": "ClientPlugin/Plugin.cs",
+          "name": "Plugin.cs",
+          "doc_link": "../files/ClientPlugin/Plugin.cs.md",
+          "source_link": "../../ClientPlugin/Plugin.cs",
+          "tier": 1,
+          "lines": 122
+        }
+      ]
+    },
+    "client-settings": {
+      "doc": "Docs/modules/client-settings.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "ClientPlugin/Settings/ConfigStorage.cs",
+          "name": "ConfigStorage.cs",
+          "doc_link": "../files/ClientPlugin/Settings/ConfigStorage.cs.md",
+          "source_link": "../../ClientPlugin/Settings/ConfigStorage.cs",
+          "tier": 2,
+          "lines": 44
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Button.cs",
+          "name": "Button.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Button.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Button.cs",
+          "tier": 2,
+          "lines": 36
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Checkbox.cs",
+          "name": "Checkbox.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Checkbox.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Checkbox.cs",
+          "tier": 3,
+          "lines": 35
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Color.cs",
+          "name": "Color.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Color.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Color.cs",
+          "tier": 2,
+          "lines": 86
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Control.cs",
+          "name": "Control.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Control.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Control.cs",
+          "tier": 3,
+          "lines": 30
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Dropdown.cs",
+          "name": "Dropdown.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Dropdown.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Dropdown.cs",
+          "tier": 2,
+          "lines": 70
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Element.cs",
+          "name": "Element.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Element.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Element.cs",
+          "tier": 3,
+          "lines": 10
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Keybind.cs",
+          "name": "Keybind.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Keybind.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Keybind.cs",
+          "tier": 2,
+          "lines": 177
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Separator.cs",
+          "name": "Separator.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Separator.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Separator.cs",
+          "tier": 2,
+          "lines": 46
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Slider.cs",
+          "name": "Slider.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Slider.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Slider.cs",
+          "tier": 2,
+          "lines": 115
+        },
+        {
+          "path": "ClientPlugin/Settings/Elements/Textbox.cs",
+          "name": "Textbox.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Elements/Textbox.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Elements/Textbox.cs",
+          "tier": 2,
+          "lines": 36
+        },
+        {
+          "path": "ClientPlugin/Settings/Layouts/Layout.cs",
+          "name": "Layout.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Layouts/Layout.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Layouts/Layout.cs",
+          "tier": 2,
+          "lines": 37
+        },
+        {
+          "path": "ClientPlugin/Settings/Layouts/None.cs",
+          "name": "None.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Layouts/None.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Layouts/None.cs",
+          "tier": 3,
+          "lines": 31
+        },
+        {
+          "path": "ClientPlugin/Settings/Layouts/Simple.cs",
+          "name": "Simple.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Layouts/Simple.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Layouts/Simple.cs",
+          "tier": 2,
+          "lines": 108
+        },
+        {
+          "path": "ClientPlugin/Settings/SettingsGenerator.cs",
+          "name": "SettingsGenerator.cs",
+          "doc_link": "../files/ClientPlugin/Settings/SettingsGenerator.cs.md",
+          "source_link": "../../ClientPlugin/Settings/SettingsGenerator.cs",
+          "tier": 2,
+          "lines": 149
+        },
+        {
+          "path": "ClientPlugin/Settings/SettingsScreen.cs",
+          "name": "SettingsScreen.cs",
+          "doc_link": "../files/ClientPlugin/Settings/SettingsScreen.cs.md",
+          "source_link": "../../ClientPlugin/Settings/SettingsScreen.cs",
+          "tier": 2,
+          "lines": 70
+        },
+        {
+          "path": "ClientPlugin/Settings/Tools/Binding.cs",
+          "name": "Binding.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Tools/Binding.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Tools/Binding.cs",
+          "tier": 2,
+          "lines": 40
+        },
+        {
+          "path": "ClientPlugin/Settings/Tools/Tools.cs",
+          "name": "Tools.cs",
+          "doc_link": "../files/ClientPlugin/Settings/Tools/Tools.cs.md",
+          "source_link": "../../ClientPlugin/Settings/Tools/Tools.cs",
+          "tier": 2,
+          "lines": 77
+        }
+      ]
+    },
+    "conveyor": {
+      "doc": "Docs/modules/conveyor.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/Conveyor/MyAssemblerPatch.cs",
+          "name": "MyAssemblerPatch.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyAssemblerPatch.cs",
+          "tier": 2,
+          "lines": 78
+        },
+        {
+          "path": "Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs",
+          "name": "MyCubeBlockPatchForConveyor.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs",
+          "tier": 3,
+          "lines": 34
+        },
+        {
+          "path": "Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs",
+          "name": "MyCubeGridPatchForConveyor.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs",
+          "tier": 1,
+          "lines": 183
+        },
+        {
+          "path": "Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs",
+          "name": "MyGridConveyorSystemPatch.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs",
+          "tier": 1,
+          "lines": 319
+        },
+        {
+          "path": "Shared/Patches/Conveyor/MyPathFindingSystemEnumeratorPatch.cs",
+          "name": "MyPathFindingSystemEnumeratorPatch.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyPathFindingSystemEnumeratorPatch.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyPathFindingSystemEnumeratorPatch.cs",
+          "tier": 2,
+          "lines": 41
+        },
+        {
+          "path": "Shared/Patches/Conveyor/MyPathFindingSystemPatch.cs",
+          "name": "MyPathFindingSystemPatch.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyPathFindingSystemPatch.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyPathFindingSystemPatch.cs",
+          "tier": 2,
+          "lines": 51
+        },
+        {
+          "path": "Shared/Patches/Conveyor/MyPathfindingDataPatch.cs",
+          "name": "MyPathfindingDataPatch.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyPathfindingDataPatch.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyPathfindingDataPatch.cs",
+          "tier": 2,
+          "lines": 54
+        },
+        {
+          "path": "Shared/Patches/Conveyor/MyShipConnectorPatchForConveyor.cs",
+          "name": "MyShipConnectorPatchForConveyor.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/MyShipConnectorPatchForConveyor.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/MyShipConnectorPatchForConveyor.cs",
+          "tier": 3,
+          "lines": 33
+        },
+        {
+          "path": "Shared/Patches/Conveyor/PullItemStats.cs",
+          "name": "PullItemStats.cs",
+          "doc_link": "../files/Shared/Patches/Conveyor/PullItemStats.cs.md",
+          "source_link": "../../Shared/Patches/Conveyor/PullItemStats.cs",
+          "tier": 3,
+          "lines": 32
+        }
+      ]
+    },
+    "keen-overhead-removal": {
+      "doc": "Docs/modules/keen-overhead-removal.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/Bullshit/GcCollectPatch.cs",
+          "name": "GcCollectPatch.cs",
+          "doc_link": "../files/Shared/Patches/Bullshit/GcCollectPatch.cs.md",
+          "source_link": "../../Shared/Patches/Bullshit/GcCollectPatch.cs",
+          "tier": 2,
+          "lines": 109
+        },
+        {
+          "path": "Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs",
+          "name": "MyP2PQoSAdapterPatch.cs",
+          "doc_link": "../files/Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs.md",
+          "source_link": "../../Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs",
+          "tier": 2,
+          "lines": 41
+        },
+        {
+          "path": "Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs",
+          "name": "PerfCountingRewriterPatch.cs",
+          "doc_link": "../files/Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs.md",
+          "source_link": "../../Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs",
+          "tier": 2,
+          "lines": 40
+        }
+      ]
+    },
+    "logging": {
+      "doc": "Docs/modules/logging.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Logging/IPluginLogger.cs",
+          "name": "IPluginLogger.cs",
+          "doc_link": "../files/Shared/Logging/IPluginLogger.cs.md",
+          "source_link": "../../Shared/Logging/IPluginLogger.cs",
+          "tier": 3,
+          "lines": 27
+        },
+        {
+          "path": "Shared/Logging/LogFormatter.cs",
+          "name": "LogFormatter.cs",
+          "doc_link": "../files/Shared/Logging/LogFormatter.cs.md",
+          "source_link": "../../Shared/Logging/LogFormatter.cs",
+          "tier": 2,
+          "lines": 88
+        },
+        {
+          "path": "Shared/Logging/PluginLogger.cs",
+          "name": "PluginLogger.cs",
+          "doc_link": "../files/Shared/Logging/PluginLogger.cs.md",
+          "source_link": "../../Shared/Logging/PluginLogger.cs",
+          "tier": 2,
+          "lines": 110
+        }
+      ]
+    },
+    "memory-allocation": {
+      "doc": "Docs/modules/memory-allocation.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs",
+          "name": "MyDefinitionIdToStringPatch.cs",
+          "doc_link": "../files/Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs.md",
+          "source_link": "../../Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs",
+          "tier": 1,
+          "lines": 117
+        },
+        {
+          "path": "Shared/Patches/Memory/MyPlayerCollectionPatch.cs",
+          "name": "MyPlayerCollectionPatch.cs",
+          "doc_link": "../files/Shared/Patches/Memory/MyPlayerCollectionPatch.cs.md",
+          "source_link": "../../Shared/Patches/Memory/MyPlayerCollectionPatch.cs",
+          "tier": 3,
+          "lines": 26
+        },
+        {
+          "path": "Shared/Patches/Voxel/MyStorageExtensionsPatch.cs",
+          "name": "MyStorageExtensionsPatch.cs",
+          "doc_link": "../files/Shared/Patches/Voxel/MyStorageExtensionsPatch.cs.md",
+          "source_link": "../../Shared/Patches/Voxel/MyStorageExtensionsPatch.cs",
+          "tier": 2,
+          "lines": 86
+        }
+      ]
+    },
+    "merge-and-paste": {
+      "doc": "Docs/modules/merge-and-paste.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/MergeAndPaste/MyConveyorLinePatch.cs",
+          "name": "MyConveyorLinePatch.cs",
+          "doc_link": "../files/Shared/Patches/MergeAndPaste/MyConveyorLinePatch.cs.md",
+          "source_link": "../../Shared/Patches/MergeAndPaste/MyConveyorLinePatch.cs",
+          "tier": 3,
+          "lines": 24
+        },
+        {
+          "path": "Shared/Patches/MergeAndPaste/MyCubeGridPatchForMergeAndPaste.cs",
+          "name": "MyCubeGridPatchForMergeAndPaste.cs",
+          "doc_link": "../files/Shared/Patches/MergeAndPaste/MyCubeGridPatchForMergeAndPaste.cs.md",
+          "source_link": "../../Shared/Patches/MergeAndPaste/MyCubeGridPatchForMergeAndPaste.cs",
+          "tier": 2,
+          "lines": 85
+        },
+        {
+          "path": "Shared/Patches/MergeAndPaste/MyGroupsPatch.cs",
+          "name": "MyGroupsPatch.cs",
+          "doc_link": "../files/Shared/Patches/MergeAndPaste/MyGroupsPatch.cs.md",
+          "source_link": "../../Shared/Patches/MergeAndPaste/MyGroupsPatch.cs",
+          "tier": 2,
+          "lines": 68
+        },
+        {
+          "path": "Shared/Patches/MergeAndPaste/MyResourceDistributorComponentPatch.cs",
+          "name": "MyResourceDistributorComponentPatch.cs",
+          "doc_link": "../files/Shared/Patches/MergeAndPaste/MyResourceDistributorComponentPatch.cs.md",
+          "source_link": "../../Shared/Patches/MergeAndPaste/MyResourceDistributorComponentPatch.cs",
+          "tier": 2,
+          "lines": 37
+        }
+      ]
+    },
+    "patch-infrastructure": {
+      "doc": "Docs/modules/patch-infrastructure.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/PatchHelpers.cs",
+          "name": "PatchHelpers.cs",
+          "doc_link": "../files/Shared/Patches/PatchHelpers.cs.md",
+          "source_link": "../../Shared/Patches/PatchHelpers.cs",
+          "tier": 1,
+          "lines": 207
+        }
+      ]
+    },
+    "physics": {
+      "doc": "Docs/modules/physics.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/Physics/MyClusterTreePatch.cs",
+          "name": "MyClusterTreePatch.cs",
+          "doc_link": "../files/Shared/Patches/Physics/MyClusterTreePatch.cs.md",
+          "source_link": "../../Shared/Patches/Physics/MyClusterTreePatch.cs",
+          "tier": 1,
+          "lines": 122
+        },
+        {
+          "path": "Shared/Patches/Physics/MyPhysicsBodyPatch.cs",
+          "name": "MyPhysicsBodyPatch.cs",
+          "doc_link": "../files/Shared/Patches/Physics/MyPhysicsBodyPatch.cs.md",
+          "source_link": "../../Shared/Patches/Physics/MyPhysicsBodyPatch.cs",
+          "tier": 2,
+          "lines": 49
+        },
+        {
+          "path": "Shared/Patches/Physics/MyPhysicsPatch.cs",
+          "name": "MyPhysicsPatch.cs",
+          "doc_link": "../files/Shared/Patches/Physics/MyPhysicsPatch.cs.md",
+          "source_link": "../../Shared/Patches/Physics/MyPhysicsPatch.cs",
+          "tier": 2,
+          "lines": 51
+        },
+        {
+          "path": "Shared/Patches/Physics/PhysicsFixes.cs",
+          "name": "PhysicsFixes.cs",
+          "doc_link": "../files/Shared/Patches/Physics/PhysicsFixes.cs.md",
+          "source_link": "../../Shared/Patches/Physics/PhysicsFixes.cs",
+          "tier": 3,
+          "lines": 17
+        }
+      ]
+    },
+    "safe-zone": {
+      "doc": "Docs/modules/safe-zone.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/SafeZone/MySafeZonePatch.cs",
+          "name": "MySafeZonePatch.cs",
+          "doc_link": "../files/Shared/Patches/SafeZone/MySafeZonePatch.cs.md",
+          "source_link": "../../Shared/Patches/SafeZone/MySafeZonePatch.cs",
+          "tier": 1,
+          "lines": 180
+        },
+        {
+          "path": "Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs",
+          "name": "MySessionComponentSafeZonesPatch.cs",
+          "doc_link": "../files/Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs.md",
+          "source_link": "../../Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs",
+          "tier": 2,
+          "lines": 92
+        }
+      ]
+    },
+    "server-plugin": {
+      "doc": "Docs/modules/server-plugin.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "ServerPlugin/Config/PerformanceConfig.cs",
+          "name": "PerformanceConfig.cs",
+          "doc_link": "../files/ServerPlugin/Config/PerformanceConfig.cs.md",
+          "source_link": "../../ServerPlugin/Config/PerformanceConfig.cs",
+          "tier": 2,
+          "lines": 108
+        },
+        {
+          "path": "ServerPlugin/Plugin.cs",
+          "name": "Plugin.cs",
+          "doc_link": "../files/ServerPlugin/Plugin.cs.md",
+          "source_link": "../../ServerPlugin/Plugin.cs",
+          "tier": 1,
+          "lines": 284
+        },
+        {
+          "path": "ServerPlugin/Preloader.cs",
+          "name": "Preloader.cs",
+          "doc_link": "../files/ServerPlugin/Preloader.cs.md",
+          "source_link": "../../ServerPlugin/Preloader.cs",
+          "tier": 3,
+          "lines": 24
+        }
+      ]
+    },
+    "shared-plugin-core": {
+      "doc": "Docs/modules/shared-plugin-core.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Config/IPluginConfig.cs",
+          "name": "IPluginConfig.cs",
+          "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
+          "source_link": "../../Shared/Config/IPluginConfig.cs",
+          "tier": 2,
+          "lines": 87
+        },
+        {
+          "path": "Shared/Plugin/Common.cs",
+          "name": "Common.cs",
+          "doc_link": "../files/Shared/Plugin/Common.cs.md",
+          "source_link": "../../Shared/Plugin/Common.cs",
+          "tier": 1,
+          "lines": 90
+        },
+        {
+          "path": "Shared/Plugin/ICommonPlugin.cs",
+          "name": "ICommonPlugin.cs",
+          "doc_link": "../files/Shared/Plugin/ICommonPlugin.cs.md",
+          "source_link": "../../Shared/Plugin/ICommonPlugin.cs",
+          "tier": 3,
+          "lines": 11
+        }
+      ]
+    },
+    "simulation-and-blocks": {
+      "doc": "Docs/modules/simulation-and-blocks.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "ServerPlugin/Patches/TextPanel/MyLcdSurfaceComponentPatch.cs",
+          "name": "MyLcdSurfaceComponentPatch.cs",
+          "doc_link": "../files/ServerPlugin/Patches/TextPanel/MyLcdSurfaceComponentPatch.cs.md",
+          "source_link": "../../ServerPlugin/Patches/TextPanel/MyLcdSurfaceComponentPatch.cs",
+          "tier": 3,
+          "lines": 29
+        },
+        {
+          "path": "ServerPlugin/Patches/Wheel/MyWheelPatch.cs",
+          "name": "MyWheelPatch.cs",
+          "doc_link": "../files/ServerPlugin/Patches/Wheel/MyWheelPatch.cs.md",
+          "source_link": "../../ServerPlugin/Patches/Wheel/MyWheelPatch.cs",
+          "tier": 3,
+          "lines": 29
+        },
+        {
+          "path": "Shared/Patches/Block/MyCubeBlockPatch.cs",
+          "name": "MyCubeBlockPatch.cs",
+          "doc_link": "../files/Shared/Patches/Block/MyCubeBlockPatch.cs.md",
+          "source_link": "../../Shared/Patches/Block/MyCubeBlockPatch.cs",
+          "tier": 2,
+          "lines": 88
+        },
+        {
+          "path": "Shared/Patches/Block/MyTerminalBlockPatch.cs",
+          "name": "MyTerminalBlockPatch.cs",
+          "doc_link": "../files/Shared/Patches/Block/MyTerminalBlockPatch.cs.md",
+          "source_link": "../../Shared/Patches/Block/MyTerminalBlockPatch.cs",
+          "tier": 2,
+          "lines": 89
+        },
+        {
+          "path": "Shared/Patches/Character/MyCharacterPatch.cs",
+          "name": "MyCharacterPatch.cs",
+          "doc_link": "../files/Shared/Patches/Character/MyCharacterPatch.cs.md",
+          "source_link": "../../Shared/Patches/Character/MyCharacterPatch.cs",
+          "tier": 2,
+          "lines": 68
+        },
+        {
+          "path": "Shared/Patches/Connector/MyShipConnectorPatch.cs",
+          "name": "MyShipConnectorPatch.cs",
+          "doc_link": "../files/Shared/Patches/Connector/MyShipConnectorPatch.cs.md",
+          "source_link": "../../Shared/Patches/Connector/MyShipConnectorPatch.cs",
+          "tier": 2,
+          "lines": 66
+        },
+        {
+          "path": "Shared/Patches/Projection/MyEntityPatchForProjection.cs",
+          "name": "MyEntityPatchForProjection.cs",
+          "doc_link": "../files/Shared/Patches/Projection/MyEntityPatchForProjection.cs.md",
+          "source_link": "../../Shared/Patches/Projection/MyEntityPatchForProjection.cs",
+          "tier": 2,
+          "lines": 42
+        },
+        {
+          "path": "Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
+          "name": "MyLargeTurretTargetingSystemPatch.cs",
+          "doc_link": "../files/Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs.md",
+          "source_link": "../../Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
+          "tier": 1,
+          "lines": 318
+        },
+        {
+          "path": "Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs",
+          "name": "MyGridTerminalSystemPatch.cs",
+          "doc_link": "../files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md",
+          "source_link": "../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs",
+          "tier": 2,
+          "lines": 80
+        },
+        {
+          "path": "Shared/Patches/WindTurbine/MyWindTurbinePatch.cs",
+          "name": "MyWindTurbinePatch.cs",
+          "doc_link": "../files/Shared/Patches/WindTurbine/MyWindTurbinePatch.cs.md",
+          "source_link": "../../Shared/Patches/WindTurbine/MyWindTurbinePatch.cs",
+          "tier": 2,
+          "lines": 83
+        }
+      ]
+    },
+    "tests": {
+      "doc": "Docs/modules/tests.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Tests/Shared/Tools/RateLimiterTest.cs",
+          "name": "RateLimiterTest.cs",
+          "doc_link": "../files/Tests/Shared/Tools/RateLimiterTest.cs.md",
+          "source_link": "../../Tests/Shared/Tools/RateLimiterTest.cs",
+          "tier": 3,
+          "lines": 22
+        }
+      ]
+    },
+    "tools": {
+      "doc": "Docs/modules/tools.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Tools/Cache.cs",
+          "name": "Cache.cs",
+          "doc_link": "../files/Shared/Tools/Cache.cs.md",
+          "source_link": "../../Shared/Tools/Cache.cs",
+          "tier": 1,
+          "lines": 147
+        },
+        {
+          "path": "Shared/Tools/CacheStat.cs",
+          "name": "CacheStat.cs",
+          "doc_link": "../files/Shared/Tools/CacheStat.cs.md",
+          "source_link": "../../Shared/Tools/CacheStat.cs",
+          "tier": 2,
+          "lines": 82
+        },
+        {
+          "path": "Shared/Tools/CodeChange.cs",
+          "name": "CodeChange.cs",
+          "doc_link": "../files/Shared/Tools/CodeChange.cs.md",
+          "source_link": "../../Shared/Tools/CodeChange.cs",
+          "tier": 3,
+          "lines": 22
+        },
+        {
+          "path": "Shared/Tools/ConveyorStat.cs",
+          "name": "ConveyorStat.cs",
+          "doc_link": "../files/Shared/Tools/ConveyorStat.cs.md",
+          "source_link": "../../Shared/Tools/ConveyorStat.cs",
+          "tier": 2,
+          "lines": 78
+        },
+        {
+          "path": "Shared/Tools/EnsureCode.cs",
+          "name": "EnsureCode.cs",
+          "doc_link": "../files/Shared/Tools/EnsureCode.cs.md",
+          "source_link": "../../Shared/Tools/EnsureCode.cs",
+          "tier": 1,
+          "lines": 135
+        },
+        {
+          "path": "Shared/Tools/GameAssembliesToPublicize.cs",
+          "name": "GameAssembliesToPublicize.cs",
+          "doc_link": "../files/Shared/Tools/GameAssembliesToPublicize.cs.md",
+          "source_link": "../../Shared/Tools/GameAssembliesToPublicize.cs",
+          "tier": 3,
+          "lines": 8
+        },
+        {
+          "path": "Shared/Tools/Hashing.cs",
+          "name": "Hashing.cs",
+          "doc_link": "../files/Shared/Tools/Hashing.cs.md",
+          "source_link": "../../Shared/Tools/Hashing.cs",
+          "tier": 1,
+          "lines": 103
+        },
+        {
+          "path": "Shared/Tools/IgnoresAccessChecksToAttribute.cs",
+          "name": "IgnoresAccessChecksToAttribute.cs",
+          "doc_link": "../files/Shared/Tools/IgnoresAccessChecksToAttribute.cs.md",
+          "source_link": "../../Shared/Tools/IgnoresAccessChecksToAttribute.cs",
+          "tier": 3,
+          "lines": 20
+        },
+        {
+          "path": "Shared/Tools/MySessionExtensions.cs",
+          "name": "MySessionExtensions.cs",
+          "doc_link": "../files/Shared/Tools/MySessionExtensions.cs.md",
+          "source_link": "../../Shared/Tools/MySessionExtensions.cs",
+          "tier": 3,
+          "lines": 20
+        },
+        {
+          "path": "Shared/Tools/ObjectPools.cs",
+          "name": "ObjectPools.cs",
+          "doc_link": "../files/Shared/Tools/ObjectPools.cs.md",
+          "source_link": "../../Shared/Tools/ObjectPools.cs",
+          "tier": 2,
+          "lines": 50
+        },
+        {
+          "path": "Shared/Tools/PreloaderHelpers.cs",
+          "name": "PreloaderHelpers.cs",
+          "doc_link": "../files/Shared/Tools/PreloaderHelpers.cs.md",
+          "source_link": "../../Shared/Tools/PreloaderHelpers.cs",
+          "tier": 1,
+          "lines": 282
+        },
+        {
+          "path": "Shared/Tools/RateLimiter.cs",
+          "name": "RateLimiter.cs",
+          "doc_link": "../files/Shared/Tools/RateLimiter.cs.md",
+          "source_link": "../../Shared/Tools/RateLimiter.cs",
+          "tier": 3,
+          "lines": 34
+        },
+        {
+          "path": "Shared/Tools/RwLock.cs",
+          "name": "RwLock.cs",
+          "doc_link": "../files/Shared/Tools/RwLock.cs.md",
+          "source_link": "../../Shared/Tools/RwLock.cs",
+          "tier": 1,
+          "lines": 81
+        },
+        {
+          "path": "Shared/Tools/RwLockDictionary.cs",
+          "name": "RwLockDictionary.cs",
+          "doc_link": "../files/Shared/Tools/RwLockDictionary.cs.md",
+          "source_link": "../../Shared/Tools/RwLockDictionary.cs",
+          "tier": 2,
+          "lines": 58
+        },
+        {
+          "path": "Shared/Tools/RwLockHashSet.cs",
+          "name": "RwLockHashSet.cs",
+          "doc_link": "../files/Shared/Tools/RwLockHashSet.cs.md",
+          "source_link": "../../Shared/Tools/RwLockHashSet.cs",
+          "tier": 2,
+          "lines": 58
+        },
+        {
+          "path": "Shared/Tools/TranspilerHelpers.cs",
+          "name": "TranspilerHelpers.cs",
+          "doc_link": "../files/Shared/Tools/TranspilerHelpers.cs.md",
+          "source_link": "../../Shared/Tools/TranspilerHelpers.cs",
+          "tier": 1,
+          "lines": 268
+        },
+        {
+          "path": "Shared/Tools/TwoLayerCache.cs",
+          "name": "TwoLayerCache.cs",
+          "doc_link": "../files/Shared/Tools/TwoLayerCache.cs.md",
+          "source_link": "../../Shared/Tools/TwoLayerCache.cs",
+          "tier": 1,
+          "lines": 109
+        },
+        {
+          "path": "Shared/Tools/UintCache.cs",
+          "name": "UintCache.cs",
+          "doc_link": "../files/Shared/Tools/UintCache.cs.md",
+          "source_link": "../../Shared/Tools/UintCache.cs",
+          "tier": 1,
+          "lines": 128
+        },
+        {
+          "path": "Shared/Tools/Workarounds.cs",
+          "name": "Workarounds.cs",
+          "doc_link": "../files/Shared/Tools/Workarounds.cs.md",
+          "source_link": "../../Shared/Tools/Workarounds.cs",
+          "tier": 3,
+          "lines": 16
+        }
+      ]
+    },
+    "world-loading": {
+      "doc": "Docs/modules/world-loading.md",
+      "toc": "../TOC.md",
+      "index": "../Index.md",
+      "members": [
+        {
+          "path": "Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs",
+          "name": "MyDefinitionManagerPatch.cs",
+          "doc_link": "../files/Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs.md",
+          "source_link": "../../Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs",
+          "tier": 2,
+          "lines": 68
+        },
+        {
+          "path": "Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
+          "name": "MyScriptCompilerPatch.cs",
+          "doc_link": "../files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md",
+          "source_link": "../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
+          "tier": 1,
+          "lines": 295
+        }
+      ]
+    }
+  }
+}

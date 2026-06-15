@@ -8,7 +8,6 @@ using Sandbox.Game.Entities;
 using Shared.Config;
 using Shared.Plugin;
 using Shared.Tools;
-using TorchPlugin.Shared.Tools;
 using VRage.Game;
 
 namespace Shared.Patches

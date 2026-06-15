@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 
 namespace Shared.Tools
 {
@@ -29,10 +28,6 @@ namespace Shared.Tools
         }
 
         public RwLockHashSet(IEnumerable<T> set, IEqualityComparer<T> comparer) : base(set, comparer)
-        {
-        }
-
-        protected RwLockHashSet(SerializationInfo info, StreamingContext context) : base(info, context)
         {
         }
 

@@ -1,6 +1,4 @@
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
-using HarmonyLib;
 using Sandbox.Game.World;
 
 namespace Shared.Tools
@@ -9,16 +7,14 @@ namespace Shared.Tools
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public static class MySessionExtensions
     {
-        private static readonly FieldInfo UpdateAllowedFieldInfo = AccessTools.Field(typeof(MySession), "m_updateAllowed");
-
         public static bool IsUpdateAllowed(this MySession self)
         {
-            return (bool)UpdateAllowedFieldInfo.GetValue(self);
+            return self.m_updateAllowed;
         }
 
         public static void SetUpdateAllowed(this MySession self, bool value)
         {
-            UpdateAllowedFieldInfo.SetValue(self, value);
+            self.m_updateAllowed = value;
         }
     }
 }
