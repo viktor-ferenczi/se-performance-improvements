@@ -25,11 +25,13 @@ public static class Common
     private static string CacheGameVersionPath => Path.Combine(CacheDir, "GameVersion.txt");
     private static string PluginVersionPath => Path.Combine(DebugDir, "PluginVersion.txt");
 
+    // One-time setup: resolve storage paths, clean stale cache/debug files and configure the
+    // patches. Called once per process — from the client's Init, or from the dedicated server's
+    // early bootstrap (with a stand-in plugin; the live instance is attached later via
+    // AttachPlugin). See ServerPlugin.Plugin.EarlyStartup.
     public static void SetPlugin(ICommonPlugin plugin, string gameVersion, string storageDir)
     {
-        Plugin = plugin;
-        Logger = plugin.Log;
-        Config = plugin.Config;
+        AttachPlugin(plugin);
 
         GameVersion = gameVersion;
 
@@ -44,6 +46,16 @@ public static class Common
         CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
 
         PatchHelpers.Configure();
+    }
+
+    // Points the shared accessors at the given plugin instance. On the dedicated server the early
+    // bootstrap runs against a stand-in; Init calls this to swap in the live instance once it
+    // exists, so per-tick code reaches the real Tick counter.
+    public static void AttachPlugin(ICommonPlugin plugin)
+    {
+        Plugin = plugin;
+        Logger = plugin.Log;
+        Config = plugin.Config;
     }
 
     private static void CleanupCache(bool clear)

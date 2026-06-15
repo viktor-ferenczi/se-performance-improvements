@@ -40,6 +40,34 @@ public class EnsureCode : Attribute
         return AccessTools.GetTypesFromAssembly(pluginAssembly).SelectMany(Verify);
     }
 
+    // Verify only the patch types in the given Harmony patch category. Used when patches are
+    // applied in phases (Harmony.PatchCategory): each phase verifies only the patches it is about
+    // to apply, so patches whose target assembly is not loaded yet (handled in another phase) are
+    // not resolved here. See Shared.Patches.PatchHelpers.
+    public static IEnumerable<CodeChange> VerifyCategory(string category)
+    {
+        return VerifyFiltered(type => GetCategory(type) == category);
+    }
+
+    // Verify only the uncategorized patch types, mirroring Harmony.PatchAllUncategorized.
+    // Companion to VerifyCategory for the dedicated server's early phase.
+    public static IEnumerable<CodeChange> VerifyUncategorized()
+    {
+        return VerifyFiltered(type => string.IsNullOrEmpty(GetCategory(type)));
+    }
+
+    private static IEnumerable<CodeChange> VerifyFiltered(Func<Type, bool> typeFilter)
+    {
+        // The patches live in the same assembly as this class (the Shared project is compiled
+        // into the plugin assembly), so resolve it directly rather than via the call stack.
+        return AccessTools.GetTypesFromAssembly(typeof(EnsureCode).Assembly).Where(typeFilter).SelectMany(Verify);
+    }
+
+    private static string GetCategory(Type type)
+    {
+        return type.GetCustomAttributes<HarmonyPatchCategory>().FirstOrDefault()?.info.category;
+    }
+
     private static IEnumerable<CodeChange> Verify(Type patchType)
     {
         return AccessTools.GetDeclaredMethods(patchType).SelectMany(Verify);

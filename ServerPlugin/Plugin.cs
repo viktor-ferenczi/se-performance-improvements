@@ -5,6 +5,7 @@ using System.Threading;
 using HarmonyLib;
 using PluginSdk.Config;
 using PluginSdk.Paths;
+using Sandbox;
 using ServerPlugin.Config;
 using Shared.Config;
 using Shared.Logging;
@@ -65,6 +66,36 @@ public class Plugin : IPlugin, ICommonPlugin
 
         SdkLog.Info("Loading");
 
+        // On the dedicated server the world (including mod and in-game script compilation) is
+        // loaded before IPlugin.Init runs, so the patches are normally applied much earlier,
+        // bootstrapped from the Preloader's Finish() hook (see InstallEarlyBootstrap). Run it
+        // here as a fallback for the case the preloader path did not execute (e.g. Magnetar
+        // safe mode): the compilation cache will not have helped this load, but the runtime
+        // optimizations still apply for the rest of the session. Idempotent.
+        EarlyStartup();
+        if (failed)
+            return;
+
+        // Early startup ran against a stand-in plugin; point Common at the live instance so
+        // per-tick code reaches the real Tick counter.
+        Common.AttachPlugin(this);
+
+        // Apply the patches deferred to the "Late" category. By now the world/session has loaded,
+        // so their target assemblies (e.g. VRage.EOS) are available. On the dedicated server this
+        // is the only point where these patches can be applied; the cache-relevant patches were
+        // already applied early, before world-load compilation.
+        if (!PatchHelpers.HarmonyPatchCategory(Logger, new Harmony(Name), PatchHelpers.LateCategory))
+        {
+            failed = true;
+            return;
+        }
+
+        SdkLog.Info("Successfully loaded");
+    }
+
+    // Loads the PluginSdk configuration. Called once, from EarlyStartup.
+    private static void LoadConfig()
+    {
         // Resolve the config path case-insensitively: a no-op on Windows, the
         // LinuxCompat resolver on Linux. One code path works on both.
         configPath = PathResolver.Normalize(Path.Combine(MyFileSystem.UserDataPath, $"{Name}.cfg"));
@@ -78,18 +109,114 @@ public class Plugin : IPlugin, ICommonPlugin
 
         // Re-persist whenever the live config changes (e.g. pushed by Quasar).
         config.PropertyChanged += OnConfigChanged;
+    }
 
-        var serverBuildNumber = Sandbox.Game.MyPerGameSettings.BasicGameInfo.ServerBuildNumber.GetValueOrDefault();
-        var gameVersion = $"{MyFinalBuildConstants.APP_VERSION_STRING_DOTS} b{serverBuildNumber}";
-        Common.SetPlugin(this, gameVersion, MyFileSystem.UserDataPath);
+    private static string GetGameVersion()
+    {
+        try
+        {
+            var serverBuildNumber = Sandbox.Game.MyPerGameSettings.BasicGameInfo.ServerBuildNumber.GetValueOrDefault();
+            return $"{MyFinalBuildConstants.APP_VERSION_STRING_DOTS} b{serverBuildNumber}";
+        }
+        catch
+        {
+            // BasicGameInfo not populated yet (should not happen this late, but the
+            // version only feeds the cache hash, so degrade gracefully rather than crash).
+            return MyFinalBuildConstants.APP_VERSION_STRING_DOTS.ToString();
+        }
+    }
 
-        if (!PatchHelpers.HarmonyPatchAll(Log, new Harmony(Name)))
+    // Called from the Preloader's Finish() hook (before the game starts). Installs a Harmony
+    // postfix on MyInitializer.InvokeBeforeRun so the rest of the patching runs as soon as the
+    // game has finished its core initialization — still well before world-load mod/script
+    // compilation.
+    //
+    // InvokeBeforeRun is the earliest safe trigger: it is where the game calls MyFileSystem.Init
+    // (so UserDataPath becomes available) AND assigns MyLog.Default (so the game logger works).
+    // This method itself runs even earlier, before MyLog.Default exists, so it logs via SdkLog,
+    // whose Magnetar sink is a no-op until the game log is ready.
+    // ReSharper disable once UnusedMember.Global
+    public static void InstallEarlyBootstrap()
+    {
+        try
+        {
+            var target = AccessTools.Method(typeof(MyInitializer), nameof(MyInitializer.InvokeBeforeRun));
+            if (target == null)
+            {
+                SdkLog.Critical("Early bootstrap: MyInitializer.InvokeBeforeRun not found; the compilation cache will not be populated");
+                return;
+            }
+
+            var postfix = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(OnGameInitialized)));
+            new Harmony($"{Name}.Bootstrap").Patch(target, postfix: postfix);
+        }
+        catch (Exception ex)
+        {
+            SdkLog.Critical("Early bootstrap: failed to install the MyInitializer.InvokeBeforeRun hook", ex);
+        }
+    }
+
+    // Harmony postfix on MyInitializer.InvokeBeforeRun. Public so Harmony can resolve it;
+    // intentionally NOT decorated with [HarmonyPatch], so it is never re-applied by the patch
+    // scan. Runs once the game's filesystem, logging and config are ready, but before any world
+    // is loaded (and therefore before mod/script compilation).
+    // ReSharper disable once UnusedMember.Global
+    public static void OnGameInitialized()
+    {
+        try
+        {
+            EarlyStartup();
+        }
+        catch (Exception ex)
+        {
+            failed = true;
+            SdkLog.Critical("Early startup failed", ex);
+        }
+    }
+
+    private static bool earlyStarted;
+
+    // One-shot early initialization: load config, run Common's heavy setup (paths, cache cleanup,
+    // patch configuration) and apply the uncategorized patches — all before world-load
+    // compilation. Called from the InvokeBeforeRun postfix (normal dedicated-server path) and
+    // from Init (fallback); both run on the main thread, so a plain flag keeps it one-shot.
+    private static void EarlyStartup()
+    {
+        if (earlyStarted)
+            return;
+        earlyStarted = true;
+
+        LoadConfig();
+
+        Common.SetPlugin(EarlyPlugin.Instance, GetGameVersion(), MyFileSystem.UserDataPath);
+
+        // PerfCountingRewriterPatch targets a VRage.Scripting type by name, and EnsureCode
+        // resolves by-name targets only among already-loaded assemblies. Touch the assembly so
+        // it is loaded before verification runs. (MyScriptCompilerPatch references it via typeof,
+        // but the order in which the scan visits patch classes is not guaranteed.)
+        _ = typeof(VRage.Scripting.MyScriptCompiler);
+
+        // Apply the uncategorized patches now, before world-load compilation. The deferred "Late"
+        // category targets assemblies that are not loaded this early (e.g. VRage.EOS); those are
+        // applied from Init.
+        if (!PatchHelpers.HarmonyPatchUncategorized(Logger, new Harmony(Name)))
         {
             failed = true;
             return;
         }
 
-        SdkLog.Info("Successfully loaded");
+        SdkLog.Info("Early patches applied, before world load");
+    }
+
+    // Lightweight ICommonPlugin used before the real plugin instance is available, so the shared
+    // Common state (and every patch reading Common.Plugin) is valid during the early world-load
+    // window on the dedicated server. Init swaps in the live instance via Common.AttachPlugin.
+    private sealed class EarlyPlugin : ICommonPlugin
+    {
+        public static readonly EarlyPlugin Instance = new EarlyPlugin();
+        public IPluginLogger Log => Logger;
+        public IPluginConfig Config => config;
+        public long Tick => 0; // No simulation ticks during world load
     }
 
     private static void OnConfigChanged(object sender, PropertyChangedEventArgs e)
