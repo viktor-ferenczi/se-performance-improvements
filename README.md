@@ -72,7 +72,7 @@ Have [Pulsar](https://github.com/SpaceGT/Pulsar) installed. Link to the Installe
 <details>
 <summary>Quasar</summary>
 
-Have [Quasar](https://github.com/viktor-ferenczi/Quasar) installed and a server created.
+Have [Quasar](https://github.com/CometWorks/quasar) installed and a server created.
 
 1. Enable the **Performance Improvements** plugin in your config profile(s).
 2. Restart the server, so it picks up the plugin
@@ -85,7 +85,7 @@ The client enables all newly added performance fixes by default.
 <details>
 <summary>Magnetar</summary>
 
-For standalone [Magnetar](https://github.com/viktor-ferenczi/Magnetar/) 
+For standalone [Magnetar](https://github.com/CometWorks/magnetar) 
 you need to reference the Performance Improvements plugin from the `Current` profile.
 
 Edit the profile:
