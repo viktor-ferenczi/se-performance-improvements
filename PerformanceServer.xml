@@ -5,7 +5,7 @@
     <Id>454B0F55-C727-4DAB-B1A9-5AE6050A0932</Id>
 
     <!-- GitHub repository ID -->
-    <RepoId>viktor-ferenczi/se-performance</RepoId>
+    <RepoId>viktor-ferenczi/se-performance-improvements</RepoId>
 
     <!-- The name of your plugin that will appear in the plugin list -->
     <FriendlyName>Performance</FriendlyName>
