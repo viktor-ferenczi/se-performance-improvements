@@ -61,22 +61,47 @@ namespace Shared.Tools
                 Add(stat);
         }
 
-        public string Report
+        // Reads the accumulated counters into an immutable sample and resets them,
+        // clamping hits to lookups (the counters are updated without locking, so a
+        // race can momentarily overshoot). This is the single numeric accessor both
+        // the human-readable Report and the statistics publishing build on, so the
+        // counters are read and reset exactly once per period.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public CacheStatSample Sample()
         {
-            get
-            {
-                var lookups = Lookups;
-                var hits = Hits;
-                var size = Size;
+            var lookups = Lookups;
+            var hits = Hits;
+            var size = Size;
 
-                if (hits > lookups)
-                    hits = lookups;
+            if (hits > lookups)
+                hits = lookups;
 
-                Reset(size);
+            Reset(size);
 
-                var rate = lookups > 0 ? 100.0 * hits / lookups : 100.0;
-                return $"HitRate = {rate:0.000}% = {hits}/{lookups}; ItemCount = {size}";
-            }
+            return new CacheStatSample(lookups, hits, size);
         }
+
+        public string Report => Sample().ToString();
+    }
+
+    // Immutable snapshot of a CacheStat, taken by CacheStat.Sample. Carries the raw
+    // counters so a consumer (the statistics publisher, or the Report formatter) can
+    // compute the hit rate however it needs.
+    public readonly struct CacheStatSample
+    {
+        public readonly long Lookups;
+        public readonly long Hits;
+        public readonly int Size;
+
+        public CacheStatSample(long lookups, long hits, int size)
+        {
+            Lookups = lookups;
+            Hits = hits;
+            Size = size;
+        }
+
+        public double HitRatePercent => Lookups > 0 ? 100.0 * Hits / Lookups : 100.0;
+
+        public override string ToString() => $"HitRate = {HitRatePercent:0.000}% = {Hits}/{Lookups}; ItemCount = {Size}";
     }
 }

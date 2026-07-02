@@ -51,6 +51,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\WindTurbine\MyWindTurbinePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin\Common.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin\ICommonPlugin.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Stats\Statistics.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Stats\StatisticsSnapshot.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\Cache.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\CacheStat.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\CodeChange.cs" />

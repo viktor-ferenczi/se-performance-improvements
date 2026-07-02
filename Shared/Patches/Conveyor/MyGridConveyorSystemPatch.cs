@@ -12,6 +12,7 @@ using Sandbox.Game.GameSystems.Conveyors;
 using Shared.Config;
 using Shared.Logging;
 using Shared.Plugin;
+using Shared.Stats;
 using Shared.Tools;
 using VRage;
 using VRage.Game;
@@ -30,14 +31,33 @@ namespace Shared.Patches
 
         private static readonly RwLockDictionary<TLogicalGroup, UintCache<ulong>> ReachableCaches = new RwLockDictionary<TLogicalGroup, UintCache<ulong>>();
 
-#if DEBUG
-        public static IEnumerable<string> CacheReports => ReachableCaches.Values.Select(c => c.Report);
-#endif
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static UintCache<ulong> CreateCache()
         {
-            return new UintCache<ulong>(999999999, 16);
+            return new UintCache<ulong>(999999999, 16, collectStats: true);
+        }
+
+        // Reads the conveyor counters into the snapshot, resetting them. The per-group
+        // reachability caches are aggregated into a single hit-rate entry.
+        public static void CaptureStatistics(StatisticsSnapshot snapshot)
+        {
+            long lookups = 0, hits = 0, size = 0;
+
+            ReachableCaches.BeginReading();
+            foreach (var cache in ReachableCaches.Values)
+            {
+                var sample = cache.Sample();
+                lookups += sample.Lookups;
+                hits += sample.Hits;
+                size += sample.Size;
+            }
+            ReachableCaches.FinishReading();
+
+            snapshot.Caches.Add(new CacheStatEntry("Conveyor.Reachable", lookups, hits, size));
+
+            var pull = Stats.Sample();
+            snapshot.PullItem = pull.PullItem;
+            snapshot.PullItems = pull.PullItems;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -222,98 +242,33 @@ namespace Shared.Patches
             return true;
         }
 
-#if DEBUG
         // PullItem and PullItems have been optimized very well by the calcImmediately flag,
-        // therefore they don't need to be optimized further for regular cases. If you see
-        // huge counts reported here with some test worlds, then we may still go into this.
+        // therefore they don't need to be optimized further for regular cases. These prefixes
+        // only count how often the two methods are called (when statistics collection is
+        // enabled); the counts are published so an unusual call frequency is visible remotely.
 
         private static readonly PullItemStats Stats = new PullItemStats();
 
-        public static string PullItemReports => Stats.Report();
-
-        // Destination inventory volume fill factor stored before invoking PullItems for change detection
-        private static readonly ThreadLocal<float> VolumeFillFactor = new ThreadLocal<float>(() => -1f);
-
         [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
         [HarmonyPrefix]
         [EnsureCode("43dc9172")]
-        private static bool PullItemPrefix(
-            MyGridConveyorSystem __instance,
-            MyDefinitionId itemId,
-            IMyConveyorEndpointBlock start,
-            ref MyFixedPoint __result)
+        private static bool PullItemPrefix()
         {
-            if (!Config.Enabled)
-                return true;
-
-            Stats.PullItemCount++;
-
-            // __result = MyFixedPoint.Zero;
-            // Stats.PullItemMuted++;
-
-            return true;
-        }
-
-        [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
-        [HarmonyPostfix]
-        [EnsureCode("43dc9172")]
-        private static void PullItemPostfix(
-            ref MyFixedPoint __result
-        )
-        {
-            if (!Config.Enabled)
-                return;
-        }
-
-        [HarmonyPatch("PullItems")]
-        [HarmonyPrefix]
-        [EnsureCode("85a4df5f")]
-        private static bool PullItemsPrefix(
-            MyGridConveyorSystem __instance,
-            MyInventoryConstraint inventoryConstraint,
-            IMyConveyorEndpointBlock start,
-            MyInventory destinationInventory,
-            ref MyFixedPoint __result)
-        {
-            if (!Config.Enabled)
-                return true;
-
-            Stats.PullItemsCount++;
-
-            // __result = MyFixedPoint.Zero;
-            // Stats.PullItemsMuted++;
+            if (Statistics.Enabled)
+                Stats.PullItemCount++;
 
             return true;
         }
 
         [HarmonyPatch("PullItems")]
-        [HarmonyPostfix]
+        [HarmonyPrefix]
         [EnsureCode("85a4df5f")]
-        private static void PullItemsPostfix(
-            ref MyFixedPoint __result)
+        private static bool PullItemsPrefix()
         {
-            if (!Config.Enabled)
-                return;
+            if (Statistics.Enabled)
+                Stats.PullItemsCount++;
+
+            return true;
         }
-
-        /* Old key calculations for caching the above
-
-        private static void GetPullItemTracker(IMyConveyorEndpointBlock start, MyDefinitionId itemId)
-        {
-            var entityId = (start as IMyFunctionalBlock)?.EntityId ?? 0;
-            var itemHash = itemId.GetHashCode();
-            var key = entityId ^ itemHash;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void GetPullItemsTracker(IMyConveyorEndpointBlock start, MyInventoryConstraint inventoryConstraint)
-        {
-            var entityId = (start as IMyFunctionalBlock)?.EntityId ?? 0;
-            var constraintHash = inventoryConstraint.Description.GetHashCode();
-            var key = entityId ^ constraintHash;
-        }
-        */
-
-#endif
     }
 }

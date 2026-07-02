@@ -5,6 +5,7 @@ using HarmonyLib;
 using Sandbox.Game.Entities;
 using Shared.Config;
 using Shared.Plugin;
+using Shared.Stats;
 using Shared.Tools;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Components;
@@ -41,11 +42,14 @@ namespace Shared.Patches
             Cache.Cleanup();
         }
 
-        private static readonly UintCache<long> Cache = new UintCache<long>(113 * 60, 128);
+        private static readonly UintCache<long> Cache = new UintCache<long>(113 * 60, 128, collectStats: true);
 
-#if DEBUG
-        public static string CacheReport => Cache.Report;
-#endif
+        // Reads the cache hit-rate counters into the snapshot, resetting them.
+        public static void CaptureStatistics(StatisticsSnapshot snapshot)
+        {
+            var sample = Cache.Sample();
+            snapshot.Caches.Add(new CacheStatEntry("SafeZones.IsActionAllowedForSafezone", sample.Lookups, sample.Hits, sample.Size));
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch("IsActionAllowedForSafezone", typeof(MyEntity), typeof(MySafeZoneAction), typeof(long))]
