@@ -84,4 +84,9 @@ public interface IPluginConfig : INotifyPropertyChanged
 
     // Disables functional blocks in projected grids without affecting the blocks built from the projection
     bool FixProjection { get; set; }
+
+    // Collects runtime statistics (cache hit rates, conveyor call counts) and, on the
+    // dedicated server, publishes them through the PluginSdk statistics API. Turn off
+    // to eliminate the small per-operation collection overhead.
+    bool CollectStatistics { get; set; }
 }

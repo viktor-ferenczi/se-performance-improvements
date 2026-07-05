@@ -6,6 +6,7 @@ using Sandbox.Common.ObjectBuilders;
 using Sandbox.Game.Entities;
 using Shared.Config;
 using Shared.Plugin;
+using Shared.Stats;
 using Shared.Tools;
 using VRage.Game.Entity;
 using VRage.Game.ObjectBuilders.Components;
@@ -44,13 +45,19 @@ namespace Shared.Patches
             IsActionAllowedCache.Cleanup();
         }
 
+        // Reads the cache hit-rate counters into the snapshot, resetting them.
+        public static void CaptureStatistics(StatisticsSnapshot snapshot)
+        {
+            var isSafe = IsSafeCache.Sample();
+            snapshot.Caches.Add(new CacheStatEntry("SafeZone.IsSafe", isSafe.Lookups, isSafe.Hits, isSafe.Size));
+
+            var isActionAllowed = IsActionAllowedCache.Sample();
+            snapshot.Caches.Add(new CacheStatEntry("SafeZone.IsActionAllowed", isActionAllowed.Lookups, isActionAllowed.Hits, isActionAllowed.Size));
+        }
+
         #region "IsSafe fix, see: https://support.keenswh.com/spaceengineers/pc/topic/24146-performance-mysafezone-issafe-is-called-frequently-but-not-cached"
 
-        private static readonly UintCache<long> IsSafeCache = new UintCache<long>(139 * 60, 256);
-
-#if DEBUG
-        public static string IsSafeCacheReport => IsSafeCache.Report;
-#endif
+        private static readonly UintCache<long> IsSafeCache = new UintCache<long>(139 * 60, 256, collectStats: true);
 
         [HarmonyPrefix]
         [HarmonyPatch("IsSafe")]
@@ -121,11 +128,7 @@ namespace Shared.Patches
 
         #region "IsActionAllowed fix"
 
-        private static readonly UintCache<long> IsActionAllowedCache = new UintCache<long>(27 * 60);
-
-#if DEBUG
-        public static string IsActionAllowedCacheReport => IsActionAllowedCache.Report;
-#endif
+        private static readonly UintCache<long> IsActionAllowedCache = new UintCache<long>(27 * 60, collectStats: true);
 
         [HarmonyPrefix]
         [HarmonyPatch("IsActionAllowed", typeof(MyEntity), typeof(MySafeZoneAction), typeof(long))]

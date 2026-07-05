@@ -5,6 +5,7 @@ using System.Reflection;
 using HarmonyLib;
 using Shared.Logging;
 using Shared.Plugin;
+using Shared.Stats;
 using Shared.Tools;
 
 namespace Shared.Patches
@@ -167,6 +168,8 @@ namespace Shared.Patches
             // MyTerminalBlockPatch.Configure();
             // MyGridTerminalSystemPatch.Configure();
 
+            Statistics.Configure();
+
             // FIXME: Make this configurable!
             // PhysicsFixes.SetClusterSize(3000f);
         }
@@ -183,29 +186,31 @@ namespace Shared.Patches
             // MyTerminalBlockPatch.Update();
             // MyGridTerminalSystemPatch.Update();
 
-#if DEBUG
-            const int period = 10 * 60; // Ticks
-            if (Common.Plugin.Tick % period == 0)
+            // Capture and deliver the runtime statistics once per period. This runs
+            // regardless of the log level (formerly a DEBUG-only log); the dedicated
+            // server forwards each snapshot to the PluginSdk statistics API through the
+            // Publisher, while a debug build additionally logs it. Gated by the
+            // CollectStatistics config option via Statistics.Enabled.
+            if (Statistics.Enabled && Common.Plugin.Tick % Statistics.PeriodTicks == 0)
             {
-                var log = Common.Plugin.Log;
-                log.Info("Cache hit rates:");
-                log.Info($"- MySafeZonePatch IsSafe: {MySafeZonePatch.IsSafeCacheReport}");
-                log.Info($"- MySafeZonePatch IsActionAllowed: {MySafeZonePatch.IsActionAllowedCacheReport}");
-                log.Info($"- MySessionComponentSafeZonesPatch: {MySessionComponentSafeZonesPatch.CacheReport}");
-                log.Info($"- MyWindTurbinePatch: {MyWindTurbinePatch.CacheReport}");
-                // log.Info($"- MyPathFindingSystemPatch: {MyPathFindingSystemPatch.Report(period)}");
-                // log.Info($"- MyPathFindingSystemEnumeratorPatch: {MyPathFindingSystemEnumeratorPatch.Report(period)}");
-                log.Info($"- MyGridConveyorSystemPatch: {MyGridConveyorSystemPatch.PullItemReports}");
-                foreach (var report in MyGridConveyorSystemPatch.CacheReports)
-                {
-                    log.Info($"- MyGridConveyorSystemPatch: {report}");
-                }
-                // log.Info($"- MyLargeTurretTargetingSystemPatch VisibilityCache: {MyLargeTurretTargetingSystemPatch.VisibilityCacheReport}");
-                // log.Info($"- MyCubeBlockPatch: {MyCubeBlockPatch.CacheReport}");
-                // log.Info($"- MyTerminalBlockPatch: {MyTerminalBlockPatch.CacheReport}");
-                // log.Info($"- MyGridTerminalSystemPatch: {MyGridTerminalSystemPatch.InhibitorReport}");
-            }
+                var snapshot = Statistics.Capture();
+                Statistics.Publisher?.Invoke(snapshot);
+#if DEBUG
+                LogStatistics(snapshot);
 #endif
+            }
         }
+
+#if DEBUG
+        // Logs the captured statistics, preserving the former DEBUG cache-hit-rate dump.
+        private static void LogStatistics(StatisticsSnapshot snapshot)
+        {
+            var log = Common.Plugin.Log;
+            log.Info("Cache hit rates:");
+            foreach (var cache in snapshot.Caches)
+                log.Info($"- {cache.Name}: HitRate = {cache.HitRatePercent:0.000}% = {cache.Hits}/{cache.Lookups}; ItemCount = {cache.Size}");
+            log.Info($"- Conveyor pull calls: PullItem {snapshot.PullItem}; PullItems {snapshot.PullItems}");
+        }
+#endif
     }
 }

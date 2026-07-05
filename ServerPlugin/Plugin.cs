@@ -7,10 +7,12 @@ using PluginSdk.Config;
 using PluginSdk.Paths;
 using Sandbox;
 using ServerPlugin.Config;
+using ServerPlugin.Stats;
 using Shared.Config;
 using Shared.Logging;
 using Shared.Patches;
 using Shared.Plugin;
+using Shared.Stats;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Plugins;
@@ -20,8 +22,8 @@ using SdkLogger = PluginSdk.Logging.Logger;
 #if !DEV_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.12.0")]
-[assembly: AssemblyFileVersion("1.12.0")]
+[assembly: AssemblyVersion("1.12.1")]
+[assembly: AssemblyFileVersion("1.12.1")]
 #endif
 
 namespace ServerPlugin;
@@ -189,6 +191,11 @@ public class Plugin : IPlugin, ICommonPlugin
         LoadConfig();
 
         Common.SetPlugin(EarlyPlugin.Instance, GetGameVersion(), MyFileSystem.UserDataPath);
+
+        // Deliver the runtime statistics to the PluginSdk statistics API. The shared
+        // code captures them; this is the only place that knows about the PluginSdk, so
+        // the client (which has no PluginSdk yet) simply leaves the Publisher unset.
+        Statistics.Publisher = PerformanceStats.Publish;
 
         // PerfCountingRewriterPatch targets a VRage.Scripting type by name, and EnsureCode
         // resolves by-name targets only among already-loaded assemblies. Touch the assembly so

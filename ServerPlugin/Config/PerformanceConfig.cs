@@ -26,6 +26,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Enable the plugin (all fixes)", Parent = "core")]
     public bool Enabled { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Collect runtime statistics and publish them to the control plane (small overhead)", Parent = "core")]
+    public bool CollectStatistics { get; set => SetField(ref field, value); } = true;
+
     // ---- World load & networking ---------------------------------------
 
     [BoolOption("Disable conveyor updates during grid merge (MyCubeGrid.MergeGridInternal)", Parent = "worldload")]

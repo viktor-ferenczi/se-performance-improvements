@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Shared.Plugin;
+using Shared.Stats;
 
 namespace Shared.Tools
 {
@@ -17,16 +18,28 @@ namespace Shared.Tools
 
         private readonly RwLockDictionary<TK, ulong> cache = new RwLockDictionary<TK, ulong>();
 
-#if DEBUG
+        // Statistics are collected only for the caches that opt in (collectStats: true)
+        // and only while collection is enabled at runtime (Statistics.Enabled, which
+        // mirrors the CollectStatistics config option). Caches that do not opt in never
+        // touch Stat, so they pay nothing on the lookup path.
+        private readonly bool collectStats;
         public readonly CacheStat Stat = new CacheStat();
+
+        // Reads and resets the collected counters. Returns zeros when this cache does
+        // not collect statistics or collection is currently disabled.
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public CacheStatSample Sample() => Stat.Sample();
+
+#if DEBUG
         public bool HasItems => cache.Count != 0;
         public string Report => Stat.Report;
 #endif
 
-        public UintCache(uint cleanupPeriod, uint maxDeleteCount = 64)
+        public UintCache(uint cleanupPeriod, uint maxDeleteCount = 64, bool collectStats = false)
         {
             this.cleanupPeriod = (ulong)cleanupPeriod << 32;
             this.maxDeleteCount = maxDeleteCount;
+            this.collectStats = collectStats;
 
             // FIXME: Reuse arrays of the same size (get them from a thread local pool on demand)
             keysToDelete = new TK[this.maxDeleteCount];
@@ -103,9 +116,9 @@ namespace Shared.Tools
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool TryGetValue(TK key, out uint value)
         {
-#if DEBUG
-            Stat.CountLookup(cache.Count);
-#endif
+            if (collectStats && Statistics.Enabled)
+                Stat.CountLookup(cache.Count);
+
             cache.BeginReading();
             if (cache.TryGetValue(key, out var item))
             {
@@ -113,9 +126,8 @@ namespace Shared.Tools
                 {
                     value = (uint)item;
                     cache.FinishReading();
-#if DEBUG
-                    Stat.CountHit();
-#endif
+                    if (collectStats && Statistics.Enabled)
+                        Stat.CountHit();
                     return true;
                 }
             }

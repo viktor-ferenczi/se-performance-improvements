@@ -1,5 +1,3 @@
-﻿#if DEBUG
-
 using System.Runtime.CompilerServices;
 
 namespace Shared.Patches
@@ -9,15 +7,16 @@ namespace Shared.Patches
         public long PullItemCount;
         public long PullItemsCount;
 
+        // Reads the accumulated call counts into an immutable sample and resets them.
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public string Report()
+        public PullItemStatsSample Sample()
         {
             var pullItemCount = PullItemCount;
             var pullItemsCount = PullItemsCount;
 
             Reset();
 
-            return $"PullItem {pullItemCount}; PullItems {pullItemsCount}";
+            return new PullItemStatsSample(pullItemCount, pullItemsCount);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -27,6 +26,17 @@ namespace Shared.Patches
             PullItemsCount = 0;
         }
     }
-}
 
-#endif
+    // Immutable snapshot of PullItemStats, taken by PullItemStats.Sample.
+    public readonly struct PullItemStatsSample
+    {
+        public readonly long PullItem;
+        public readonly long PullItems;
+
+        public PullItemStatsSample(long pullItem, long pullItems)
+        {
+            PullItem = pullItem;
+            PullItems = pullItems;
+        }
+    }
+}

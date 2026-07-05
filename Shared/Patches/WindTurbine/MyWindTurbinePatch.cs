@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using HarmonyLib;
 using Shared.Config;
 using Shared.Plugin;
+using Shared.Stats;
 using Shared.Tools;
 using SpaceEngineers.Game.Entities.Blocks;
 
@@ -34,16 +35,19 @@ namespace Shared.Patches
                 Cache.Clear();
         }
 
-        private static readonly UintCache<long> Cache = new UintCache<long>(111 * 60);
-
-#if DEBUG
-        public static string CacheReport => Cache.Report;
-#endif
+        private static readonly UintCache<long> Cache = new UintCache<long>(111 * 60, collectStats: true);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Update()
         {
             Cache.Cleanup();
+        }
+
+        // Reads the cache hit-rate counters into the snapshot, resetting them.
+        public static void CaptureStatistics(StatisticsSnapshot snapshot)
+        {
+            var sample = Cache.Sample();
+            snapshot.Caches.Add(new CacheStatEntry("WindTurbine.IsInAtmosphere", sample.Lookups, sample.Hits, sample.Size));
         }
 
         // ReSharper disable once UnusedMember.Local

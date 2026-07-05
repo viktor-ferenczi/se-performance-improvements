@@ -28,6 +28,13 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(label: "Collect runtime statistics", description: "Collects cache hit rates and conveyor call counts (small overhead). Turn off to eliminate the collection overhead.")]
+    public bool CollectStatistics
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Separator("World load & networking")]
     [Checkbox(label: "Fix grid merge", description: "Disable conveyor updates during grid merge (MyCubeGrid.MergeGridInternal)")]
     public bool FixGridMerge
