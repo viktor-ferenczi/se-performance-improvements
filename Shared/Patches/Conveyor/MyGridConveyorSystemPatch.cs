@@ -251,7 +251,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
         [HarmonyPrefix]
-        [EnsureCode("43dc9172")]
+        [EnsureCode("178d38e5")]
         private static bool PullItemPrefix()
         {
             if (Statistics.Enabled)
@@ -262,7 +262,7 @@ namespace Shared.Patches
 
         [HarmonyPatch("PullItems")]
         [HarmonyPrefix]
-        [EnsureCode("85a4df5f")]
+        [EnsureCode("a6bc0cf4")]
         private static bool PullItemsPrefix()
         {
             if (Statistics.Enabled)
