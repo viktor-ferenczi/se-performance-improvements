@@ -251,6 +251,12 @@ namespace Shared.Patches
             const int size = 20;
             var hash = new byte[size];
 
+            // Include the versions of the loaded mod rewriting plugins (currently the implicitly
+            // loaded compat ones), so upgrading any of them invalidates the cached assemblies
+            var modRewriterVersionsHash = ModRewriterVersions.Hash;
+            if (modRewriterVersionsHash != null)
+                XorHashIntoAccumulator(hash, modRewriterVersionsHash);
+
             using (var sha1 = SHA1.Create())
             {
                 // Include .NET version in the hash to prevent loading assemblies compiled on different .NET versions

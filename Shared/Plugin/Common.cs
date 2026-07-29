@@ -4,6 +4,7 @@ using System.Reflection;
 using Shared.Config;
 using Shared.Logging;
 using Shared.Patches;
+using Shared.Tools;
 
 namespace Shared.Plugin;
 
@@ -44,6 +45,10 @@ public static class Common
 
         CleanupCache(hasGameVersionChanged);
         CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
+
+        // Must run before any mod or script compilation, so the versions of the loaded
+        // mod rewriting plugins contribute to the compilation cache keys.
+        ModRewriterVersions.Initialize(Logger);
 
         PatchHelpers.Configure();
     }
