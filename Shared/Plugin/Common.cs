@@ -47,8 +47,12 @@ public static class Common
         CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
 
         // Must run before any mod or script compilation, so the versions of the loaded
-        // mod rewriting plugins contribute to the compilation cache keys.
-        ModRewriterVersions.Initialize(Logger);
+        // mod rewriting plugins contribute to the compilation cache keys. Throws on failure;
+        // the exception propagates to Pulsar/Magnetar, which logs it as an ERROR and reports
+        // the plugin as failed. On the dedicated server detection has already run from the
+        // preloader hook (see ServerPlugin.Preloader.Finish), here it only logs.
+        ModRewriterVersions.Initialize();
+        ModRewriterVersions.LogVersions(Logger);
 
         PatchHelpers.Configure();
     }

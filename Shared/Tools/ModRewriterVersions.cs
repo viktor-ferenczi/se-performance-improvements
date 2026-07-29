@@ -24,31 +24,46 @@ public static class ModRewriterVersions
     };
 
     // SHA1 over the sorted "id version" pairs of the loaded mod rewriting plugins.
-    // Null if none of them are loaded (vanilla client, Torch), keeping cache keys unchanged.
+    // Null if none of them are loaded, keeping the cache keys unchanged in that case.
     public static byte[] Hash { get; private set; }
 
-    public static void Initialize(IPluginLogger log)
+    // Human readable form of the hashed version pairs, kept for LogVersions
+    private static string combinedVersions;
+
+    private static bool initialized;
+
+    // Detects the loaded mod rewriting plugins and captures the hash of their versions.
+    // Throws on any failure, terminating plugin initialization: the exception is caught by
+    // Pulsar/Magnetar, logged as an ERROR and reported. Failing hard is deliberate, silently
+    // skipping the versions would poison the compilation caches with wrongly keyed entries.
+    //
+    // Must be called before any mod or script compilation. No logging here: on the dedicated
+    // server this runs from the preloader hook, before the game log exists (see LogVersions).
+    // Idempotent, because the dedicated server calls it again on the Init fallback path.
+    public static void Initialize()
     {
-        try
-        {
-            var versions = FindModRewritingPluginVersions();
-            if (versions.Count == 0)
-                return;
+        if (initialized)
+            return;
+        initialized = true;
 
-            versions.Sort(StringComparer.Ordinal);
-            var combined = string.Join(";", versions);
+        var versions = FindModRewritingPluginVersions();
+        if (versions.Count == 0)
+            return;
 
-            using (var sha1 = SHA1.Create())
-                Hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(combined));
+        versions.Sort(StringComparer.Ordinal);
+        combinedVersions = string.Join(";", versions);
 
-            log.Info("Mod rewriting plugins included in the compilation cache keys: {0}", combined);
-        }
-        catch (Exception e)
-        {
-            // Defensive: a loader layout change must not break the plugin, it may only
-            // weaken cache invalidation until this code is updated to match.
-            log.Warning(e, "Failed to detect mod rewriting plugin versions, they are not included in the compilation cache keys");
-        }
+        using (var sha1 = SHA1.Create())
+            Hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(combinedVersions));
+    }
+
+    // Logs what Initialize detected, once a working logger is available
+    public static void LogVersions(IPluginLogger log)
+    {
+        if (combinedVersions != null)
+            log.Info("Mod rewriting plugins included in the compilation cache keys: {0}", combinedVersions);
+        else
+            log.Info("No mod rewriting plugins are loaded, compilation cache keys are not affected");
     }
 
     // The loader keeps the list of loaded plugins in Pulsar.Shared.Loader.Instance.Plugins,
@@ -57,32 +72,38 @@ public static class ModRewriterVersions
     // be accessed via reflection.
     private static List<string> FindModRewritingPluginVersions()
     {
-        var versions = new List<string>();
-
         var loaderType = AppDomain.CurrentDomain
             .GetAssemblies()
             .Where(a => !a.IsDynamic)
             .Select(a => a.GetType("Pulsar.Shared.Loader"))
             .FirstOrDefault(t => t != null);
         if (loaderType == null)
-            return versions;
+            throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader not found; this plugin must be loaded by Pulsar or Magnetar");
 
-        var loader = loaderType.GetField("Instance", BindingFlags.Public | BindingFlags.Static)?.GetValue(null);
-        if (loader == null)
-            return versions;
+        var loader = (loaderType.GetField("Instance", BindingFlags.Public | BindingFlags.Static)
+                      ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Instance field not found; has the loader layout changed?"))
+            .GetValue(null)
+            ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Instance is null; the loader has not run yet");
 
-        if (!(loaderType.GetField("Plugins", BindingFlags.Public | BindingFlags.Instance)?.GetValue(loader) is IEnumerable plugins))
-            return versions;
+        var plugins = (loaderType.GetField("Plugins", BindingFlags.Public | BindingFlags.Instance)
+                       ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Plugins field not found; has the loader layout changed?"))
+            .GetValue(loader) as IEnumerable
+            ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Plugins is not enumerable; has the loader layout changed?");
 
+        var versions = new List<string>();
         foreach (var item in plugins)
         {
             // Item type is ValueTuple<PluginData, Assembly>
             var itemType = item.GetType();
-            var data = itemType.GetField("Item1")?.GetValue(item);
+            var data = (itemType.GetField("Item1")
+                        ?? throw new Exception("ModRewriterVersions: Loader.Plugins items are not tuples; has the loader layout changed?"))
+                .GetValue(item);
             if (data == null)
                 continue;
 
-            if (!(data.GetType().GetProperty("Id")?.GetValue(data) is string id))
+            var idProperty = data.GetType().GetProperty("Id")
+                             ?? throw new Exception("ModRewriterVersions: PluginData.Id property not found; has the loader layout changed?");
+            if (!(idProperty.GetValue(data) is string id))
                 continue;
 
             if (!ModRewritingPluginIds.Contains(id, StringComparer.OrdinalIgnoreCase))
