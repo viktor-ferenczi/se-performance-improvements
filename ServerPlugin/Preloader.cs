@@ -19,6 +19,14 @@ public class Preloader
     // ReSharper disable once UnusedMember.Global
     public static void Finish()
     {
+        // Detect the versions of the loaded mod rewriting plugins while still inside
+        // Magnetar's loader: on failure the exception is caught by Magnetar's SafeInvoke,
+        // logged as an ERROR and the loader terminates (Environment.Exit). The game log
+        // does not exist yet, so this only detects; the versions are logged later, from
+        // Common.SetPlugin. The client has no preloader; there Pulsar catches the same
+        // exception when thrown from IPlugin.Init.
+        Shared.Tools.ModRewriterVersions.Initialize();
+
         ServerPlugin.Plugin.InstallEarlyBootstrap();
     }
 }

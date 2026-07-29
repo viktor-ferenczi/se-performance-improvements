@@ -4,6 +4,7 @@ using System.Reflection;
 using Shared.Config;
 using Shared.Logging;
 using Shared.Patches;
+using Shared.Tools;
 
 namespace Shared.Plugin;
 
@@ -16,7 +17,7 @@ public static class Common
     public static IPluginConfig Config { get; private set; }
 
     public static string GameVersion { get; private set; }
-    public const string PluginVersion = "1.12.1";
+    public const string PluginVersion = "1.12.2";
 
     public static string DataDir { get; private set; }
     public static string CacheDir { get; private set; }
@@ -44,6 +45,14 @@ public static class Common
 
         CleanupCache(hasGameVersionChanged);
         CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
+
+        // Must run before any mod or script compilation, so the versions of the loaded
+        // mod rewriting plugins contribute to the compilation cache keys. Throws on failure;
+        // the exception propagates to Pulsar/Magnetar, which logs it as an ERROR and reports
+        // the plugin as failed. On the dedicated server detection has already run from the
+        // preloader hook (see ServerPlugin.Preloader.Finish), here it only logs.
+        ModRewriterVersions.Initialize();
+        ModRewriterVersions.LogVersions(Logger);
 
         PatchHelpers.Configure();
     }

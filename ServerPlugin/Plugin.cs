@@ -22,8 +22,8 @@ using SdkLogger = PluginSdk.Logging.Logger;
 #if !DEV_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.12.1")]
-[assembly: AssemblyFileVersion("1.12.1")]
+[assembly: AssemblyVersion("1.12.2")]
+[assembly: AssemblyFileVersion("1.12.2")]
 #endif
 
 namespace ServerPlugin;
