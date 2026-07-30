@@ -109,10 +109,20 @@ public static class ModRewriterVersions
             if (!ModRewritingPluginIds.Contains(id, StringComparer.OrdinalIgnoreCase))
                 continue;
 
+            var assembly = itemType.GetField("Item2")?.GetValue(item) as Assembly;
             var version = data.GetType().GetProperty("Version")?.GetValue(data) as Version
-                          ?? (itemType.GetField("Item2")?.GetValue(item) as Assembly)?.GetName().Version;
+                          ?? assembly?.GetName().Version;
 
-            versions.Add($"{id.ToLowerInvariant()} {version?.ToString() ?? "unknown"}");
+            // The cached mod assemblies reference the rewriting plugin's exact assembly
+            // identity (the rewriters redirect mod code to types inside that assembly).
+            // Pulsar generates a fresh random assembly name on every from-source plugin
+            // compilation (dev folders: every launch; GitHub installs: every recompile),
+            // so the name must contribute to the cache key as well — the version alone
+            // keeps serving cached assemblies whose references point at the previous,
+            // no longer loadable name.
+            var assemblyName = assembly?.GetName().Name ?? "unknown";
+
+            versions.Add($"{id.ToLowerInvariant()} {version?.ToString() ?? "unknown"} {assemblyName}");
         }
 
         return versions;
