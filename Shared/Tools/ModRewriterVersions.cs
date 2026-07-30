@@ -10,9 +10,10 @@ using Shared.Logging;
 namespace Shared.Tools;
 
 // Some plugins rewrite mod scripts before compilation, so the compiled assembly depends on
-// their version as well, not only on the script source code and the game version. Their
-// versions must therefore contribute to the compilation cache keys, otherwise upgrading such
-// a plugin would keep serving assemblies rewritten by the old version from the cache.
+// their identity as well, not only on the script source code and the game version. Their
+// version and assembly name must therefore contribute to the compilation cache keys,
+// otherwise upgrading or recompiling such a plugin would keep serving assemblies from the
+// cache which were rewritten by the old version or reference the old assembly name.
 public static class ModRewriterVersions
 {
     // Plugin IDs known to rewrite mod scripts. Currently these are the compat plugins
@@ -23,8 +24,8 @@ public static class ModRewriterVersions
         "se-linux-compat",
     };
 
-    // SHA1 over the sorted "id version" pairs of the loaded mod rewriting plugins.
-    // Null if none of them are loaded, keeping the cache keys unchanged in that case.
+    // SHA1 over the sorted "id version assemblyname" triples of the loaded mod rewriting
+    // plugins. Null if none of them are loaded, keeping the cache keys unchanged in that case.
     public static byte[] Hash { get; private set; }
 
     // Human readable form of the hashed version pairs, kept for LogVersions
