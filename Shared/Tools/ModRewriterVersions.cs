@@ -1,42 +1,44 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
-using System.Text;
 using Shared.Logging;
 
 namespace Shared.Tools;
 
 // Some plugins rewrite mod scripts before compilation, so the compiled assembly depends on
-// their identity as well, not only on the script source code and the game version. Their
-// version and assembly name must therefore contribute to the compilation cache keys,
-// otherwise upgrading or recompiling such a plugin would keep serving assemblies from the
-// cache which were rewritten by the old version or reference the old assembly name.
+// their identity as well, not only on the script source code and the game version. The exact
+// build of each such plugin must therefore contribute to the compilation cache keys, otherwise
+// upgrading or recompiling one of them would keep serving assemblies from the cache which were
+// rewritten by the old build or reference its no longer loadable assembly name.
 public static class ModRewriterVersions
 {
-    // Plugin IDs known to rewrite mod scripts. Currently these are the compat plugins
-    // Pulsar/Magnetar load implicitly (see GetCorePlugins in their Program.cs).
-    private static readonly string[] ModRewritingPluginIds =
-    {
-        "se-dotnet-compat",
-        "se-linux-compat",
-    };
+    // The plugin interface implemented by every plugin main type, matched by name to avoid
+    // loading the game assembly which declares it (Initialize runs from the preloader hook
+    // on the dedicated server, before the game starts).
+    private const string PluginInterfaceName = "VRage.Plugins.IPlugin";
 
-    // SHA1 over the sorted "id version assemblyname" triples of the loaded mod rewriting
-    // plugins. Null if none of them are loaded, keeping the cache keys unchanged in that case.
+    // The mod rewriting hook, see FindModRewriters
+    private const string RewriteMethodName = "Rewrite";
+
+    private const BindingFlags DeclaredMembers = BindingFlags.Public | BindingFlags.NonPublic |
+                                                 BindingFlags.Instance | BindingFlags.Static |
+                                                 BindingFlags.DeclaredOnly;
+
+    // SHA1 over the sorted module version IDs of the loaded mod rewriting plugin assemblies.
+    // Null if none of them are loaded, keeping the cache keys unchanged in that case.
     public static byte[] Hash { get; private set; }
 
-    // Human readable form of the hashed version pairs, kept for LogVersions
-    private static string combinedVersions;
+    // Human readable form of what was hashed, kept for LogVersions
+    private static string rewriterDescriptions;
 
     private static bool initialized;
 
-    // Detects the loaded mod rewriting plugins and captures the hash of their versions.
+    // Detects the loaded mod rewriting plugins and captures the hash of their module version IDs.
     // Throws on any failure, terminating plugin initialization: the exception is caught by
     // Pulsar/Magnetar, logged as an ERROR and reported. Failing hard is deliberate, silently
-    // skipping the versions would poison the compilation caches with wrongly keyed entries.
+    // skipping the rewriters would poison the compilation caches with wrongly keyed entries.
     //
     // Must be called before any mod or script compilation. No logging here: on the dedicated
     // server this runs from the preloader hook, before the game log exists (see LogVersions).
@@ -47,85 +49,93 @@ public static class ModRewriterVersions
             return;
         initialized = true;
 
-        var versions = FindModRewritingPluginVersions();
-        if (versions.Count == 0)
+        var rewriters = FindModRewriters();
+        if (rewriters.Count == 0)
             return;
 
-        versions.Sort(StringComparer.Ordinal);
-        combinedVersions = string.Join(";", versions);
+        rewriters.Sort((a, b) => a.Mvid.CompareTo(b.Mvid));
+
+        var mvids = new byte[rewriters.Count * 16];
+        for (var i = 0; i < rewriters.Count; i++)
+            rewriters[i].Mvid.ToByteArray().CopyTo(mvids, i * 16);
 
         using (var sha1 = SHA1.Create())
-            Hash = sha1.ComputeHash(Encoding.UTF8.GetBytes(combinedVersions));
+            Hash = sha1.ComputeHash(mvids);
+
+        rewriterDescriptions = string.Join("; ", rewriters.Select(r => r.Description));
     }
 
     // Logs what Initialize detected, once a working logger is available
     public static void LogVersions(IPluginLogger log)
     {
-        if (combinedVersions != null)
-            log.Info("Mod rewriting plugins included in the compilation cache keys: {0}", combinedVersions);
+        if (rewriterDescriptions != null)
+            log.Info("Mod rewriting plugins included in the compilation cache keys: {0}", rewriterDescriptions);
         else
             log.Info("No mod rewriting plugins are loaded, compilation cache keys are not affected");
     }
 
-    // The loader keeps the list of loaded plugins in Pulsar.Shared.Loader.Instance.Plugins,
-    // a List<(PluginData, Assembly)>. The same type lives in both Pulsar (client) and
-    // Magnetar (dedicated server), but it is not part of any public API, so it can only
-    // be accessed via reflection.
-    private static List<string> FindModRewritingPluginVersions()
+    // Pulsar and Magnetar wire up mod rewriting by looking for a method named Rewrite declared
+    // on the plugin's main type, the one implementing IPlugin (PluginInstance.DependencyInject
+    // in their loaders). That contract is detected here directly, on the loaded types, instead
+    // of reflecting into the loader's own bookkeeping, whose layout differs between the two and
+    // changes between releases.
+    //
+    // The assembly's module version ID identifies the exact build and nothing else is needed:
+    // Pulsar compiles plugins non-deterministically, so every recompilation mints a fresh random
+    // MVID, and plugins shipped as prebuilt DLLs are normally built deterministically, where the
+    // MVID is a content hash of the assembly. Either way it changes precisely when the build
+    // does, unlike the assembly version, which recompilations routinely leave untouched.
+    private static List<(Guid Mvid, string Description)> FindModRewriters()
     {
-        var loaderType = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .Where(a => !a.IsDynamic)
-            .Select(a => a.GetType("Pulsar.Shared.Loader"))
-            .FirstOrDefault(t => t != null);
-        if (loaderType == null)
-            throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader not found; this plugin must be loaded by Pulsar or Magnetar");
+        var rewriters = new List<(Guid Mvid, string Description)>();
+        var pluginTypeCount = 0;
 
-        var loader = (loaderType.GetField("Instance", BindingFlags.Public | BindingFlags.Static)
-                      ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Instance field not found; has the loader layout changed?"))
-            .GetValue(null)
-            ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Instance is null; the loader has not run yet");
-
-        var plugins = (loaderType.GetField("Plugins", BindingFlags.Public | BindingFlags.Instance)
-                       ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Plugins field not found; has the loader layout changed?"))
-            .GetValue(loader) as IEnumerable
-            ?? throw new Exception("ModRewriterVersions: Pulsar.Shared.Loader.Plugins is not enumerable; has the loader layout changed?");
-
-        var versions = new List<string>();
-        foreach (var item in plugins)
+        foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
-            // Item type is ValueTuple<PluginData, Assembly>
-            var itemType = item.GetType();
-            var data = (itemType.GetField("Item1")
-                        ?? throw new Exception("ModRewriterVersions: Loader.Plugins items are not tuples; has the loader layout changed?"))
-                .GetValue(item);
-            if (data == null)
+            if (assembly.IsDynamic)
                 continue;
 
-            var idProperty = data.GetType().GetProperty("Id")
-                             ?? throw new Exception("ModRewriterVersions: PluginData.Id property not found; has the loader layout changed?");
-            if (!(idProperty.GetValue(data) is string id))
-                continue;
+            foreach (var type in GetLoadableTypes(assembly))
+            {
+                if (type.IsInterface || type.IsAbstract)
+                    continue;
 
-            if (!ModRewritingPluginIds.Contains(id, StringComparer.OrdinalIgnoreCase))
-                continue;
+                if (!type.GetInterfaces().Any(i => i.FullName == PluginInterfaceName))
+                    continue;
 
-            var assembly = itemType.GetField("Item2")?.GetValue(item) as Assembly;
-            var version = data.GetType().GetProperty("Version")?.GetValue(data) as Version
-                          ?? assembly?.GetName().Version;
+                pluginTypeCount++;
 
-            // The cached mod assemblies reference the rewriting plugin's exact assembly
-            // identity (the rewriters redirect mod code to types inside that assembly).
-            // Pulsar generates a fresh random assembly name on every from-source plugin
-            // compilation (dev folders: every launch; GitHub installs: every recompile),
-            // so the name must contribute to the cache key as well — the version alone
-            // keeps serving cached assemblies whose references point at the previous,
-            // no longer loadable name.
-            var assemblyName = assembly?.GetName().Name ?? "unknown";
+                // GetMethods instead of GetMethod, the latter would throw on overloads
+                if (!type.GetMethods(DeclaredMembers).Any(m => m.Name == RewriteMethodName))
+                    continue;
 
-            versions.Add($"{id.ToLowerInvariant()} {version?.ToString() ?? "unknown"} {assemblyName}");
+                var mvid = assembly.ManifestModule.ModuleVersionId;
+                var name = assembly.GetName();
+                rewriters.Add((mvid, $"{name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {type.FullName} {mvid:D}"));
+
+                // One entry per assembly, no matter how many plugin types it declares
+                break;
+            }
         }
 
-        return versions;
+        // This plugin itself implements IPlugin, so not finding a single implementation means
+        // the detection ran before the plugin assemblies were loaded, or the interface moved.
+        if (pluginTypeCount == 0)
+            throw new Exception($"ModRewriterVersions: no {PluginInterfaceName} implementations are loaded; has the loader or the game changed?");
+
+        return rewriters;
+    }
+
+    // Assemblies with unresolvable references yield only the types which did load
+    private static IEnumerable<Type> GetLoadableTypes(Assembly assembly)
+    {
+        try
+        {
+            return assembly.GetTypes();
+        }
+        catch (ReflectionTypeLoadException e)
+        {
+            return e.Types.Where(t => t != null);
+        }
     }
 }
