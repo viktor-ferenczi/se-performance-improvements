@@ -18,14 +18,15 @@ class CheckboxAttribute : Attribute, IElement
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
     {               
         var label = Tools.Tools.GetLabelOrDefault(name, Label);
-        return new List<Control>()
+        return new List<Control>
         {
-            new Control(new MyGuiControlLabel(text: label), minWidth: Control.LabelMinWidth),
             new Control(new MyGuiControlCheckbox(toolTip: Description)
             {
                 IsChecked = (bool)propertyGetter(),
-                IsCheckedChanged = (x) => propertySetter(x.IsChecked),
+                IsCheckedChanged = x => propertySetter(x.IsChecked),
             }),
+            new Control(new MyGuiControlLabel(text: label), minWidth: Control.LabelMinWidth),
+            new Control(new MyGuiControlLabel(text: Description ?? ""), minWidth: Control.DescriptionMinWidth),
         };
     }
     public List<Type> SupportedTypes { get; } = new List<Type>()
