@@ -123,6 +123,12 @@ public static class ModRewriterVersions
         if (pluginTypeCount == 0)
             throw new Exception($"ModRewriterVersions: no {PluginInterfaceName} implementations are loaded; has the loader or the game changed?");
 
+        // LEGACY FALLBACK, remove together with LegacyModRewriters: the old Pulsar and Magnetar
+        // releases have no Rewrite hook, the compat plugin builds they load rewrite mod scripts
+        // by patching the compiler themselves, so they are recognized by their hook types instead
+        if (rewriters.Count == 0)
+            rewriters = LegacyModRewriters.Find();
+
         return rewriters;
     }
 

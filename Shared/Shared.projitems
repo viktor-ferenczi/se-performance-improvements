@@ -61,6 +61,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\GameAssembliesToPublicize.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\Hashing.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\IgnoresAccessChecksToAttribute.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\LegacyModRewriters.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ModRewriterVersions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\MySessionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ObjectPools.cs" />
