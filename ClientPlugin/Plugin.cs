@@ -13,11 +13,11 @@ using VRage.Game;
 using VRage.Plugins;
 
 // Define assembly version when compiled by Pulsar
-#if !DEV_BUILD
+#if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.12.3")]
-[assembly: AssemblyFileVersion("1.12.3")]
+[assembly: AssemblyVersion("1.12.4")]
+[assembly: AssemblyFileVersion("1.12.4")]
 #endif
 
 namespace ClientPlugin;

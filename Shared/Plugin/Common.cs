@@ -17,7 +17,7 @@ public static class Common
     public static IPluginConfig Config { get; private set; }
 
     public static string GameVersion { get; private set; }
-    public const string PluginVersion = "1.12.3";
+    public const string PluginVersion = "1.12.4";
 
     public static string DataDir { get; private set; }
     public static string CacheDir { get; private set; }

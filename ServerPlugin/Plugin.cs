@@ -19,11 +19,11 @@ using VRage.Plugins;
 using SdkLogger = PluginSdk.Logging.Logger;
 
 // Define assembly version when compiled by Magnetar
-#if !DEV_BUILD
+#if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.12.3")]
-[assembly: AssemblyFileVersion("1.12.3")]
+[assembly: AssemblyVersion("1.12.4")]
+[assembly: AssemblyFileVersion("1.12.4")]
 #endif
 
 namespace ServerPlugin;

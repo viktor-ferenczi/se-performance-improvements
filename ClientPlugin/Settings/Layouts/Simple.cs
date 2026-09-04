@@ -13,7 +13,7 @@ internal class Simple : Layout
     private MyGuiControlParent parent;
     private MyGuiControlScrollablePanel scrollPanel;
 
-    public override Vector2 SettingsPanelSize => new Vector2(0.5f, 0.7f);
+    public override Vector2 SettingsPanelSize => new Vector2(0.96f, 0.96f);
     private const float ElementPadding = 0.01f;
 
     public Simple(Func<List<List<Control>>> getControls) : base(getControls) { }
