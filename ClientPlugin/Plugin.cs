@@ -16,8 +16,8 @@ using VRage.Plugins;
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.12.4")]
-[assembly: AssemblyFileVersion("1.12.4")]
+[assembly: AssemblyVersion("1.13.0")]
+[assembly: AssemblyFileVersion("1.13.0")]
 #endif
 
 namespace ClientPlugin;
@@ -87,7 +87,7 @@ public class Plugin : IPlugin, ICommonPlugin
 #if DEBUG
         CustomUpdate();
         Tick++;
-#else        
+#else
         try
         {
             CustomUpdate();
@@ -98,7 +98,7 @@ public class Plugin : IPlugin, ICommonPlugin
             Log.Critical(e, "Update failed");
             failed = true;
         }
-#endif       
+#endif
     }
 
     private void CustomUpdate()
@@ -113,7 +113,7 @@ public class Plugin : IPlugin, ICommonPlugin
         Instance.settingsGenerator.SetLayout<Simple>();
         MyGuiSandbox.AddScreen(Instance.settingsGenerator.Dialog);
     }
-        
+
     //TODO: Uncomment and use this method to load asset files
     /*public void LoadAssets(string folder)
     {
