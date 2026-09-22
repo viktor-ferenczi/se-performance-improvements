@@ -1,6 +1,35 @@
+using System;
 using System.ComponentModel;
 
 namespace Shared.Config;
+
+// How the number of Havok physics worker threads is decided. See
+// Shared.Patches.MyWindowsSystemPatch.
+public enum HavokThreadCountMode
+{
+    // One worker per logical processor, capped (HavokThreads.Auto)
+    Auto,
+
+    // Exactly the configured number of workers
+    Manual,
+}
+
+// The range and the automatic value of the Havok physics thread count. It lives next to the
+// configuration rather than in the patch which applies it, so the client and server config
+// classes can use it in their attributes and defaults without pulling the patch (and with it
+// Common, which is not set up yet while a config object is being constructed) into their
+// static initialization.
+public static class HavokThreads
+{
+    // Two, not one: see the comment in Shared.Patches.MyWindowsSystemPatch for why one
+    // worker thread is not single threaded physics. The maximum is a sanity limit.
+    public const int Min = 2;
+    public const int Max = 64;
+
+    // One worker per logical processor, capped. The cap is what the plugin has always used
+    // here; beyond it the pool costs more in scheduling than the physics step wins back.
+    public static int Auto => Math.Max(Min, Math.Min(16, Environment.ProcessorCount));
+}
 
 // Configuration properties shared by the patches in the Shared project.
 //
@@ -55,8 +84,15 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Reduces memory allocations in IMyStorageExtensions.GetMaterialAt
     bool FixVoxel { get; set; }
 
-    // Optimizes the MyPhysicsBody.RigidBody getter (needs restart)
+    // Optimizes the MyPhysicsBody.RigidBody getter and sets the Havok physics thread count (needs restart)
     bool FixPhysics { get; set; }
+
+    // Whether the Havok physics thread count is decided automatically or taken from HavokThreadCount
+    HavokThreadCountMode HavokThreadCountMode { get; set; }
+
+    // Number of Havok physics worker threads. In the Auto mode the plugin keeps this updated
+    // with the number it decided, so the configuration always shows the effective count.
+    int HavokThreadCount { get; set; }
 
     // Disables character footprint logic on server side (needs restart)
     bool FixCharacter { get; set; }

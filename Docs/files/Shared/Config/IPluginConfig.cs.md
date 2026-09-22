@@ -1,6 +1,6 @@
 # `Shared/Config/IPluginConfig.cs`
 
-*Shared configuration contract: one boolean toggle per performance fix, plus `INotifyPropertyChanged` so both platforms can react to live config updates.*
+*Shared configuration contract: one toggle per performance fix (plus the Havok thread count mode and number), and `INotifyPropertyChanged` so both platforms can react to live config updates.*
 
 |  |  |
 | --- | --- |
@@ -16,6 +16,8 @@
 The client implements this interface with its in-game settings dialog class (`ClientPlugin.Config`); the server implements it with [`PerformanceConfig.cs`](../../ServerPlugin/Config/PerformanceConfig.cs.md). Both implementations notify via `INotifyPropertyChanged` when a value changes, allowing [`Plugin.cs`](../../ServerPlugin/Plugin.cs.md) to re-persist the config to disk on Quasar-pushed updates.
 
 Every property maps to a distinct performance fix described in `Docs/PerformanceFixes.md`. The interface lists them in the same logical groups used by the server's UI tabs: world load / networking, simulation, restart-required, and optional (off by default on the server).
+
+Most are `bool`. The exception is the Havok physics thread count, which is a `HavokThreadCountMode` (`Auto` or `Manual`) plus an `int`; both are declared in this file, together with the `HavokThreads` helper holding the range (2..64) and the automatic value (`min(16, processorCount)`). That helper lives here rather than in the patch which applies it ([`MyWindowsSystemPatch.cs`](../Patches/Physics/MyWindowsSystemPatch.cs.md)), so a config class can use it in an attribute or a property default without touching `Common` while it is still being constructed.
 
 ## Key members
 

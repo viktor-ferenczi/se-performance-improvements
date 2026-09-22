@@ -174,14 +174,59 @@ Caches the result of `MyCubeBlock.GetUserRelationToOwner` and
 `MyTerminalBlock.HasPlayerAccessReason`. Off by default on the server; opt in
 deliberately.
 
-## Fixed Havok thread count in MyPhysics
+## Configurable Havok physics thread count
 
-Keen introduced `MyVRage.Platform.System.OptimalHavokThreadCount`, but it is set to
-`null`. The new logic in `MyPhysics.LoadData` falls back to the call it made before:
-`HkJobThreadPool()`.
+**Needs restart.** `MyPhysics.LoadData` sizes the Havok job thread pool from
+`MyVRage.Platform.System.OptimalHavokThreadCount`, and the game's implementation of
+that property is a hard `null`, so the parameterless `HkJobThreadPool()` runs and
+Havok sizes the pool from the machine on its own terms — measured on a 16 logical
+processor host, that is 7 worker threads. The property is the game's own extension
+point for this answer and `MyPhysics.LoadData` is the only place it is read, so a
+postfix on it is the whole fix; the job queue follows, since its size is derived from
+the pool's.
 
-Inside Havok (C++ code) they apparently changed it to default to a single thread in
-this case, so all the physics ends up running on a single thread (main thread).
+Two options control it, both under the physics fix:
+
+- **Auto** (the default) uses one worker per logical processor, capped at 16, and
+  keeps the thread count option updated with the number this machine gets, so the
+  configuration always shows the count the game will actually be given.
+- **Manual** uses exactly the configured number, between 2 and 64.
+
+The minimum is 2 rather than 1, because a pool of one is *not* single threaded
+physics. The Havok worlds are still created and initialized for multithreading
+(`HkWorld.InitMultithreading`) and still stepped through the multithreaded path
+(`StepSimulation` with `multithreaded: true`, or `InitMtStep` / `ProcessAllJobs` /
+`FinishMtStep` on the job queue), so a single worker pays all of the job dispatch and
+waiting with nothing to overlap it with. Physics without threading is a different
+switch entirely — `MyFakes.ENABLE_HAVOK_MULTITHREADING`, which the game exposes to
+admins through `MyPhysics.SetScheduling` and which also decides how the worlds
+themselves are created. Havok's own way to run the multithreaded code path on the
+calling thread alone would be a pool of zero, but `HkJobThreadPool` hands the count
+straight to the native library, so nothing on the managed side can establish what the
+shipped build does with 0 or 1 without guessing.
+
+Turning the physics fix off leaves the game's own sizing alone.
+
+The upper end is capped by Havok itself, not by the plugin. Measured on a 16 logical
+processor host, with a Star System world loaded and the worker threads counted by name
+(`HkThread_1..N`):
+
+| Setting | Havok worker threads |
+| --- | --- |
+| Physics fix off (the game's own sizing) | 7 |
+| Auto (asked for 16) | 11 |
+| Manual 24 | 11 |
+| Manual 3 | 3 |
+
+So the shipped library has an internal maximum of its own — 11 workers plus the calling
+thread — and a number above that is neither an error nor an improvement, it simply stops
+making a difference. The resolved count is logged at the DEBUG log level when the world
+loads, which is the way to see what a setting actually asked for.
+
+Until this was reworked the same thing was done by a transpiler on `MyPhysics.LoadData`
+which wrote an `int` into a `Nullable<int>` local — invalid IL, which is why it had to be
+disabled on .NET Core, where it corrupted memory during world load. So on any current
+(.NET) client or server the thread count fix did nothing at all until now.
 
 ## Optimized MyClusterTree.ReorderClusters
 

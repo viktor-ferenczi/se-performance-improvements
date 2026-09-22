@@ -74,7 +74,7 @@ each lives in [PerformanceFixes.md](PerformanceFixes.md).
 | --- | --- |
 | [Grid Merge & Paste Patches](modules/merge-and-paste.md) | Suppresses redundant conveyor/world updates during grid merge, paste and group changes (~60–70% faster on heavy grids). |
 | [Conveyor System Patches](modules/conveyor.md) | Caches conveyor-network reachability and pathfinding for large conveyor systems; avoids redundant `IsWorking` recomputation. |
-| [Physics Patches](modules/physics.md) | Fixed Havok thread count, faster `RigidBody` getter, better-complexity cluster reordering. |
+| [Physics Patches](modules/physics.md) | Configurable Havok thread count, faster `RigidBody` getter, better-complexity cluster reordering. |
 | [Safe Zone Patches](modules/safe-zone.md) | Caches `IsSafe` / `IsActionAllowed`; allocation-free `IsOutside`. |
 | [Keen Overhead Removal](modules/keen-overhead-removal.md) | Removes constant background overhead: `GC.Collect` pauses, EOS P2P `UpdateStats` core load, Mod API call-statistics rewriter. |
 | [Memory Allocation Patches](modules/memory-allocation.md) | Cuts GC pressure: cached `MyDefinitionId.ToString`, less frequent block-limit sync, allocation-free voxel material lookups. |

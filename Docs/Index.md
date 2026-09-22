@@ -118,7 +118,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`MyClusterTreePatch.cs`](files/Shared/Patches/Physics/MyClusterTreePatch.cs.md) | `Shared/Patches/Physics/MyClusterTreePatch.cs` | Replaces the O(N×M) nested loop in `MyClusterTree.ReorderClusters` with a set-union approach of lower time complexity. |
 | [`MyPhysicsBodyPatch.cs`](files/Shared/Patches/Physics/MyPhysicsBodyPatch.cs.md) | `Shared/Patches/Physics/MyPhysicsBodyPatch.cs` | Optimizes the `MyPhysicsBody.RigidBody` property getter by removing a redundant parent-body load sequence. |
-| [`MyPhysicsPatch.cs`](files/Shared/Patches/Physics/MyPhysicsPatch.cs.md) | `Shared/Patches/Physics/MyPhysicsPatch.cs` | Fixes the Havok thread count in `MyPhysics.LoadData` so all available CPU cores are used for physics simulation. |
+| [`MyWindowsSystemPatch.cs`](files/Shared/Patches/Physics/MyWindowsSystemPatch.cs.md) | `Shared/Patches/Physics/MyWindowsSystemPatch.cs` | Postfix answering `OptimalHavokThreadCount`, which decides how many worker threads the Havok physics job pool gets. |
 | [`PhysicsFixes.cs`](files/Shared/Patches/Physics/PhysicsFixes.cs.md) | `Shared/Patches/Physics/PhysicsFixes.cs` | Shared utility class exposing a helper to reconfigure `MyClusterTree` cluster-size parameters at runtime. |
 
 ## [Safe Zone Patches](modules/safe-zone.md)

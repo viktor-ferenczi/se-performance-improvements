@@ -164,12 +164,26 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Fix physics performance (needs restart)", description: "Optimizes the MyPhysicsBody.RigidBody getter (needs restart)")]
+    [Checkbox(label: "Fix physics performance (needs restart)", description: "Optimizes the MyPhysicsBody.RigidBody getter and sets the Havok physics thread count (needs restart)")]
     public bool FixPhysics
     {
         get;
         set => SetField(ref field, value);
     } = true;
+
+    [Dropdown(label: "Physics thread count", description: "Auto: one Havok worker thread per logical processor, capped at 16. Manual: exactly the number below. Needs the physics fix enabled and a restart.")]
+    public HavokThreadCountMode HavokThreadCountMode
+    {
+        get;
+        set => SetField(ref field, value);
+    } = HavokThreadCountMode.Auto;
+
+    [Slider(HavokThreads.Min, HavokThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "Physics threads", description: "Number of Havok worker threads used in the Manual mode. In the Auto mode it shows the number this machine gets. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference. Needs a restart.")]
+    public int HavokThreadCount
+    {
+        get;
+        set => SetField(ref field, value);
+    } = HavokThreads.Auto;
 
     [Checkbox(label: "Fix character performance (needs restart)", description: "Disables character footprint logic on server side (needs restart)")]
     public bool FixCharacter

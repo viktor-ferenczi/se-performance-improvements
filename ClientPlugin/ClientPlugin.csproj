@@ -271,6 +271,7 @@
     <Publicize Include="Sandbox.Game"/>
     <Publicize Include="SpaceEngineers.Game"/>
     <Publicize Include="VRage.Math"/>
+    <Publicize Include="VRage.Platform.Windows"/>
     <Publicize Include="VRage.Render"/>
     <Publicize Include="VRage.Scripting"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyEntities.OnEntityAdd"/>

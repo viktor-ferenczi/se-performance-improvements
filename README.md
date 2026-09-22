@@ -39,7 +39,7 @@ the code that implements them is organized.
 - Cache safe zone checks (`IsSafe`, `IsActionAllowed`, optimized `IsOutside`)
 - Cache wind turbine atmosphere checks
 - Cache conveyor network reachability lookups
-- Physics optimizations (`RigidBody` getter, Havok thread count, faster cluster reordering)
+- Physics optimizations (`RigidBody` getter, configurable Havok thread count, faster cluster reordering)
 - Reduce frequent memory allocations (`MyDefinitionId.ToString`, turret targeting, voxel material lookups)
 - Less frequent sync of block counts, block access rights and PB access to blocks
 - Disable server-side character footprints and wheel trail tracking

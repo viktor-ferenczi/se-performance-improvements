@@ -42,7 +42,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\PatchHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTreePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBodyPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyWindowsSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\PhysicsFixes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Projection\MyEntityPatchForProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySafeZonePatch.cs" />
@@ -106,8 +106,6 @@
     <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTree.ReorderClusters.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBody.get_RigidBody.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBody.get_RigidBody.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysics.LoadData.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysics.LoadData.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.patched.il" />
   </ItemGroup>

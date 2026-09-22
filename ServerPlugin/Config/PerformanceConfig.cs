@@ -86,8 +86,14 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Reduce memory allocations in the turret targeting system (needs restart)", Parent = "restart")]
     public bool FixTargeting { get; set => SetField(ref field, value); } = true;
 
-    [BoolOption("Optimize the MyPhysicsBody.RigidBody getter (needs restart)", Parent = "restart")]
+    [BoolOption("Optimize the MyPhysicsBody.RigidBody getter and set the Havok physics thread count (needs restart)", Parent = "restart")]
     public bool FixPhysics { get; set => SetField(ref field, value); } = true;
+
+    [EnumOption("Physics thread count: Auto is one Havok worker thread per logical processor capped at 16, Manual is exactly the number below (needs restart)", Parent = "restart")]
+    public HavokThreadCountMode HavokThreadCountMode { get; set => SetField(ref field, value); } = HavokThreadCountMode.Auto;
+
+    [IntOption(HavokThreads.Min, HavokThreads.Max, "Number of Havok worker threads used in the Manual mode; in the Auto mode it shows the number this machine gets. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference (needs restart)", Parent = "restart")]
+    public int HavokThreadCount { get; set => SetField(ref field, value); } = HavokThreads.Auto;
 
     [BoolOption("Disable character footprint logic on the server side (needs restart)", Parent = "restart")]
     public bool FixCharacter { get; set => SetField(ref field, value); } = true;

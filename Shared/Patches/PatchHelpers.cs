@@ -172,7 +172,7 @@ namespace Shared.Patches
             MyScriptCompilerPatch.Configure();
             MySafeZonePatch.Configure();
             MySessionComponentSafeZonesPatch.Configure();
-            MyPhysicsPatch.Configure();
+            MyWindowsSystemPatch.Configure();
             MyPhysicsBodyPatch.Configure();
             MyClusterTreePatch.Configure();
             MyCharacterPatch.Configure();
