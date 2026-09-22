@@ -10,6 +10,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`Config.cs`](files/ClientPlugin/Config.cs.md) | `ClientPlugin/Config.cs` | Declares all client-side performance-fix toggles as `bool` properties decorated with settings-framework attributes, forming the single source of truth for both the in-game dialog and the shared Harmony patch guards. |
 | [`Plugin.cs`](files/ClientPlugin/Plugin.cs.md) | `ClientPlugin/Plugin.cs` | Pulsar `IPlugin` entry point that initialises Harmony patches, registers the shared plugin common state, and opens the in-game settings dialog on demand. |
+| [`Preloader.cs`](files/ClientPlugin/Preloader.cs.md) | `ClientPlugin/Preloader.cs` | Namespace-less preloader hook Pulsar calls before the game starts; installs the early Harmony bootstrap so the `"Early"` patch category is applied before the game's own startup preloading. |
 
 ## [Client Settings UI Framework](modules/client-settings.md)
 
@@ -142,6 +143,8 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`MyDefinitionIdToStringPatch.cs`](files/Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs.md) | `Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs` | Caches `MyDefinitionId.ToString()` results in a two-layer cache to eliminate repeated string allocations from a hot path. |
 | [`MyPlayerCollectionPatch.cs`](files/Shared/Patches/Memory/MyPlayerCollectionPatch.cs.md) | `Shared/Patches/Memory/MyPlayerCollectionPatch.cs` | Rate-limits `MyPlayerCollection.SendDirtyBlockLimits` to once every 180 ticks (~3 seconds) to reduce network and CPU overhead from too-frequent block-limit syncs. |
 | [`MyStorageExtensionsPatch.cs`](files/Shared/Patches/Voxel/MyStorageExtensionsPatch.cs.md) | `Shared/Patches/Voxel/MyStorageExtensionsPatch.cs` | Eliminates per-call `MyStorageData` allocations in `IMyStorageExtensions.GetMaterialAt` by maintaining a fixed-size pool of reusable storage objects. |
+| [`MySandboxGamePatchForVoxelPreload.cs`](files/Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs.md) | `Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs` | Marks the window in which `MySandboxGame.PerformPreloading` runs, so the vanilla asteroid voxel storages it would eagerly load on game start can be skipped. |
+| [`MyStorageBasePatchForVoxelPreload.cs`](files/Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs.md) | `Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs` | Drops the voxel storage loads the startup preload asks for, and only those, by returning `null` from `MyStorageBase.LoadFromFile`. |
 
 ## [World Loading Patches](modules/world-loading.md)
 

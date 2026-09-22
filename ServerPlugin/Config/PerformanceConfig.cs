@@ -111,4 +111,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [BoolOption("Disable functional blocks in projected grids without affecting the blocks built from the projection", Parent = "optional")]
     public bool FixProjection { get; set => SetField(ref field, value); } = false;
+
+    [BoolOption("Skip loading the vanilla asteroid voxel files on server start, they are loaded on first use instead (needs restart)", Parent = "optional")]
+    public bool SkipVoxelPreload { get; set => SetField(ref field, value); } = false;
 }

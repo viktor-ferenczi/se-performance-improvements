@@ -40,6 +40,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Decodes planet maps and PNG textures with a newer ImageSharp than the game ships
     bool UpgradeImageSharp { get; set; }
 
+    // Skips the eager preloading of the vanilla asteroid voxel storages on game start
+    bool SkipVoxelPreload { get; set; }
+
     // Caches frequent recalculations in safe zones
     bool FixSafeZone { get; set; }
 

@@ -264,3 +264,53 @@ because the game's decoder, once dotnet-compat has fixed its stream handling for
 .NET, is already reasonable at this; the fix mostly removes the remaining decoder
 overhead and brings a maintained PNG decoder into the game.
 
+
+## Asteroid voxel preloading on game start
+
+**Needs restart.** `MySandboxGame.PerformPreloading` runs while the game starts, before
+any world is loaded. Besides the vanilla sounds it walks every `VoxelMapStorage`
+definition which can take part in procedural asteroid generation and calls
+`MyStorageBase.LoadFromFile` on each, purely to warm the LRU cache inside
+`MyStorageBase`. That happens whether or not the session will ever contain an
+asteroid, and it is paid by the dedicated server as well as by the client.
+
+The fix skips those loads. It is a lazy versus eager change and nothing else:
+`LoadFromFile` *is* the cache lookup (a 512 entry LRU cache keyed by the file path
+plus the material modifiers), so a caller which needs one of these storages later
+loads it then and gets the same shared object the preload would have put there. The
+only cost is that the load happens on first use instead of at startup, and the game
+already has a weaker form of the same idea — the preload calls `ResetDataCache()` on
+what it has just loaded when the platform reports `IsMemoryLimited`.
+
+Two patches implement it. A prefix and a finalizer on `PerformPreloading` mark the
+window in which the preload runs, and a prefix on `LoadFromFile` drops the loads
+asked for inside that window, returning `null` — a value the preload already handles,
+since `LoadFromFile` returns `null` for a definition whose file is missing. Only the
+preload's own call shape is dropped (`cache: true, logInfo: false`, which no other
+caller in the game uses), so a voxel load which happens to run on another thread
+while the window is open is left alone. Everything a session actually needs still
+loads normally.
+
+Both patches must be in place before the game starts preloading, which happens
+before `IPlugin.Init` on the client, so they are applied from the plugin's
+`Preloader` through a hook on `MyInitializer.InvokeBeforeRun` — the same early
+bootstrap the dedicated server already used. The number of skipped loads is logged
+at the DEBUG log level when the window closes.
+
+Measured on a headless Linux client (isolated Pulsar instance, this plugin and the
+Remote API loaded), 99 storages skipped, RSS 30 seconds after reaching the main menu
+and 60 seconds after a Star System world with procedural asteroids became active:
+
+| | fix off | fix on |
+| --- | --- | --- |
+| Main menu | 3046 MiB | 2020 MiB |
+| In the world | 6545 MiB | 5517 MiB |
+
+About a gigabyte either way — the game never reclaims the preloaded storages, so the
+saving survives into the session. Both runs loaded the world with no exceptions at
+simulation speed 1.0, and both logged exactly one vanilla asteroid shape loaded from
+`Content/VoxelMaps` while playing — with the fix on, that is the lazy path doing its
+job.
+
+The fix is ported from the `--bare-bones` mode of the Remote API plugin, where it was
+first measured.

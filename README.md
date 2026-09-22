@@ -30,6 +30,7 @@ the code that implements them is organized.
 **World loading**
 - Cache compiled mods and in-game (PB) scripts
 - Decode planet maps and PNG textures with a newer ImageSharp
+- Skip the preloading of the vanilla asteroid voxels on game start
 - Eliminate long pauses from explicit `GC.Collect` calls
 - Disable Mod API call statistics overhead
 

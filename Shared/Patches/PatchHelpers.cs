@@ -18,6 +18,11 @@ namespace Shared.Patches
         // bootstrap point (e.g. VRage.EOS). Every patch without this category is applied early.
         public const string LateCategory = "Late";
 
+        // Harmony patch category for patches which must already be in place when the game starts
+        // its own startup work, before IPlugin.Init runs on the client. Both sides apply this
+        // category from the MyInitializer.InvokeBeforeRun hook installed by the Preloader.
+        public const string EarlyCategory = "Early";
+
         public static bool HarmonyPatchAll(IPluginLogger log, Harmony harmony, bool handleExceptions = true)
         {
             return VerifyAndApply(log, harmony, handleExceptions,
@@ -151,9 +156,19 @@ namespace Shared.Patches
             return patchClasses.Count == 0 ? target : $"{target} <- {string.Join(", ", patchClasses)}";
         }
 
+        // Called from the early bootstrap on both sides, before the "Early" category is applied.
+        // Those patches run during the game's own startup, so they are configured separately from
+        // the rest, which Configure() handles once the plugin is fully initialized.
+        public static void ConfigureEarly()
+        {
+            MySandboxGamePatchForVoxelPreload.Configure();
+        }
+
         // Called after loading configuration, but before patching
         public static void Configure()
         {
+            ConfigureEarly();
+
             MyScriptCompilerPatch.Configure();
             MySafeZonePatch.Configure();
             MySessionComponentSafeZonesPatch.Configure();

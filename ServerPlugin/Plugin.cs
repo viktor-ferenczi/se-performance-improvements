@@ -203,10 +203,16 @@ public class Plugin : IPlugin, ICommonPlugin
         // but the order in which the scan visits patch classes is not guaranteed.)
         _ = typeof(VRage.Scripting.MyScriptCompiler);
 
+        // Apply the "Early" category first: those patches have to be in place before the game
+        // starts its own startup work, which on this hook has not begun yet. A failure there
+        // disables only those patches, so it does not stop the rest from being applied.
+        var harmony = new Harmony(Name);
+        PatchHelpers.HarmonyPatchCategory(Logger, harmony, PatchHelpers.EarlyCategory);
+
         // Apply the uncategorized patches now, before world-load compilation. The deferred "Late"
         // category targets assemblies that are not loaded this early (e.g. VRage.EOS); those are
         // applied from Init.
-        if (!PatchHelpers.HarmonyPatchUncategorized(Logger, new Harmony(Name)))
+        if (!PatchHelpers.HarmonyPatchUncategorized(Logger, harmony))
         {
             failed = true;
             return;

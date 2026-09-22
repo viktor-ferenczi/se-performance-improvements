@@ -11,7 +11,9 @@
 
 ## Purpose
 
-`Plugin` is the single class Pulsar instantiates when the *Performance Improvements* plugin is enabled. `Init` is called once at game startup: it sets up the `Common` shared state (game version, user-data path, config reference), then runs `PatchHelpers.HarmonyPatchAll` to apply all Harmony patches declared in the `Shared` project. If patching fails the `failed` flag is set and `Update` becomes a no-op for the rest of the session.
+`Plugin` is the single class Pulsar instantiates when the *Performance Improvements* plugin is enabled. `Init` is called once at game startup: it sets up the `Common` shared state (game version, user-data path, config reference), then runs `PatchHelpers.HarmonyPatchUncategorized` and `PatchHelpers.HarmonyPatchCategory(LateCategory)` to apply the Harmony patches declared in the `Shared` project. If patching fails the `failed` flag is set and `Update` becomes a no-op for the rest of the session.
+
+The `"Early"` category is applied before that, from `OnGameInitialized`: a Harmony postfix on `MyInitializer.InvokeBeforeRun` installed by `InstallEarlyBootstrap`, which [`Preloader.cs`](Preloader.cs.md) calls before the game's `Main`. The game starts preloading the vanilla sounds and asteroid voxel storages before any `IPlugin.Init` runs, so a patch on that path has to be in place by then. In that window `Common` is pointed at a lightweight `EarlyPlugin` stand-in (logger and config only); `Init` replaces it with the live instance through `Common.SetPlugin`. A failure in the early phase disables only those patches and does not set `failed`.
 
 The `Update` method is called every simulation frame. In the current implementation it delegates to `CustomUpdate`, which calls `PatchHelpers.PatchUpdates()` to service any patches that require per-frame work (e.g. cache invalidation timers).
 
