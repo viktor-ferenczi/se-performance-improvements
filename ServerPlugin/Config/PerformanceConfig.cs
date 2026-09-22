@@ -55,6 +55,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable the collection of Mod API call statistics to eliminate the overhead", Parent = "worldload")]
     public bool DisableModApiStatistics { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Decode planet maps with a newer ImageSharp than the game ships", Parent = "worldload")]
+    public bool UpgradeImageSharp { get; set => SetField(ref field, value); } = true;
+
     // ---- Simulation -----------------------------------------------------
 
     [BoolOption("Cache frequent recalculations in safe zones", Parent = "simulation")]

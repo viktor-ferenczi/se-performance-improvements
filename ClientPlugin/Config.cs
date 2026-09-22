@@ -92,6 +92,13 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(label: "Faster image loading", description: "Decodes planet maps and PNG textures with a newer ImageSharp than the game ships")]
+    public bool UpgradeImageSharp
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Separator("Simulation")]
     [Checkbox(label: "Lower safe zone CPU load", description: "Caches frequent recalculations in safe zones")]
     public bool FixSafeZone

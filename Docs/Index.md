@@ -149,6 +149,9 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`MyDefinitionManagerPatch.cs`](files/Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs.md) | `Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs` | Eliminates redundant double-lookup and log flooding in `MyDefinitionManager.GetBlueprintDefinition` via a transpiler that replaces the ContainsKey+indexer pattern with a single `GetValueOrDefault` call. |
 | [`MyScriptCompilerPatch.cs`](files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) | `Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs` | Caches compiled mod and in-game script assemblies to disk, short-circuiting the Roslyn compilation step on subsequent world loads. |
+| [`ImageLoader.cs`](files/Shared/Patches/Image/ImageLoader.cs.md) | `Shared/Patches/Image/ImageLoader.cs` | Decodes an image through the bundled ImageSharp and logs size, time and a pixel hash in debug builds. |
+| [`ImageSharpRuntime.cs`](files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | `Shared/Patches/Image/ImageSharpRuntime.cs` | Loads a renamed copy of ImageSharp 2.1.13 beside the game's own and decodes through reflection, mirroring `MyImage.Load`'s pixel format selection. |
+| [`MyImagePatch.cs`](files/Shared/Patches/Image/MyImagePatch.cs.md) | `Shared/Patches/Image/MyImagePatch.cs` | Prefix on `MyImage.Load` routing image decoding to the bundled ImageSharp with a fallback to the game's decoder. |
 
 ## [Simulation & Block Patches](modules/simulation-and-blocks.md)
 

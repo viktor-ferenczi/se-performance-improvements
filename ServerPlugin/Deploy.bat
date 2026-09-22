@@ -47,6 +47,11 @@ if /i "%EDITION%"=="Interim" (
     )
 )
 
+REM The image loading fix ships a newer ImageSharp beside the plugin, plus its System.*
+REM dependencies on .NET Framework builds. Copy whatever of that the build produced.
+if exist "%SOURCE%\SixLabors.ImageSharp.dll" copy /y "%SOURCE%\SixLabors.ImageSharp.dll" "!PLUGIN_DIR!\" >nul
+if exist "%SOURCE%\System.*.dll" copy /y "%SOURCE%\System.*.dll" "!PLUGIN_DIR!\" >nul
+
 REM Copy the plugin into the plugin directory, retrying if it is locked by a running server
 echo Copying "%SRCFILE%" to "!PLUGIN_DIR!\"
 

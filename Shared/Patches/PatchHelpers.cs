@@ -164,6 +164,7 @@ namespace Shared.Patches
             MyStorageExtensionsPatch.Configure();
             MyWindTurbinePatch.Configure();
             MyDefinitionIdToStringPatch.Configure();
+            MyImagePatch.Configure();
             // MyCubeBlockPatch.Configure();
             // MyTerminalBlockPatch.Configure();
             // MyGridTerminalSystemPatch.Configure();

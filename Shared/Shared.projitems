@@ -30,6 +30,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyShipConnectorPatchForConveyor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\PullItemStats.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\MyDefinitionManagerPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Image\ImageLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Image\ImageSharpRuntime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Image\MyImagePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Memory\MyDefinitionIdToStringPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Memory\MyPlayerCollectionPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\MergeAndPaste\MyConveyorLinePatch.cs" />

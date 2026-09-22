@@ -37,6 +37,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Disables Mod API call statistics collection to eliminate the overhead
     bool DisableModApiStatistics { get; set; }
 
+    // Decodes planet maps and PNG textures with a newer ImageSharp than the game ships
+    bool UpgradeImageSharp { get; set; }
+
     // Caches frequent recalculations in safe zones
     bool FixSafeZone { get; set; }
 

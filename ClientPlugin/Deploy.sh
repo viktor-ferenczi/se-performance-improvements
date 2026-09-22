@@ -58,6 +58,12 @@ else
     esac
 fi
 
+# The image loading fix ships a newer ImageSharp beside the plugin, plus its System.*
+# dependencies on .NET Framework builds. Copy whatever of that the build produced.
+for DEP in "$SOURCE"/SixLabors.ImageSharp.dll "$SOURCE"/System.*.dll; do
+    [ -f "$DEP" ] && cp -f "$DEP" "$PLUGIN_DIR/"
+done
+
 # Copy the plugin, retrying in case the file is temporarily locked by a running game.
 echo "Copying \"$SRCFILE\" to \"$PLUGIN_DIR/\""
 i=1

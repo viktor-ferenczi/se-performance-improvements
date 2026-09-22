@@ -1,6 +1,6 @@
 # World Loading Patches
 
-Speeds up world load by caching compiled mods and in-game scripts, and rate-limits the blueprint-not-found log flooding from `GetBlueprintDefinition`.
+Speeds up world load by caching compiled mods and in-game scripts, decoding planet maps and PNG textures with a newer ImageSharp, and rate-limits the blueprint-not-found log flooding from `GetBlueprintDefinition`.
 
 World load time is dominated by two independent costs: Roslyn compilation of all mod and PB script assemblies, and log flooding from a dictionary double-lookup in `GetBlueprintDefinition`. This module addresses both.
 
@@ -12,6 +12,9 @@ World load time is dominated by two independent costs: Roslyn compilation of all
 | --- | --- |
 | [`MyDefinitionManagerPatch.cs`](../files/Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs.md) | Replaces double dictionary lookup in `GetBlueprintDefinition` with `GetValueOrDefault`, eliminating log flooding. |
 | [`MyScriptCompilerPatch.cs`](../files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) | Caches compiled mod and PB script assemblies to disk, skipping Roslyn on subsequent world loads. |
+| [`ImageLoader.cs`](../files/Shared/Patches/Image/ImageLoader.cs.md) | Decodes an image through the bundled ImageSharp and, in debug builds, logs size, time and a hash of the pixels for both decoders. |
+| [`ImageSharpRuntime.cs`](../files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | Renames the shipped ImageSharp 2.1.13 with Cecil, loads it beside the game's copy and decodes through reflection with the same pixel format selection as `MyImage.Load`. |
+| [`MyImagePatch.cs`](../files/Shared/Patches/Image/MyImagePatch.cs.md) | Prefix on `MyImage.Load` that routes decoding to the bundled library, falling back to the game's decoder on any failure. |
 
 ## How it fits together
 
@@ -23,7 +26,9 @@ The two patches are independent and operate at different points in the world-loa
 
 Cache directories (`CompiledMods/`, `CompiledInGameScripts/`) live under `Common.CacheDir` and are created at `Configure()` time. The patch respects `CacheMods` and `CacheScripts` config flags independently, so operators can cache one type but not the other.
 
-There is no interaction between the two files in this module; they are co-located here because both affect world-load performance.
+The image loading fix is the third, independent part. `MyImagePatch` prefixes the one `MyImage.Load` overload every image load funnels into and hands the stream to `ImageLoader`, which decodes through `ImageSharpRuntime`. That class is the only place that knows about the newer ImageSharp: it renames the shipped library with Cecil (so it can be loaded beside the game's own copy on .NET, which allows one assembly per simple name), caches the renamed file under `Common.CacheDir/ImageSharp`, and binds the handful of members it needs by reflection. The pixel format selection is a mirror of `MyImage.Load`, which is what keeps the decoded arrays byte-identical to the game's; planet height maps are terrain, so this is a correctness requirement, not a nicety.
+
+There is no interaction between the three parts of this module; they are co-located here because all affect world-load performance.
 
 ---
 

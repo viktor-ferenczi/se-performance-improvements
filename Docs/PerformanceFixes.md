@@ -233,3 +233,34 @@ This fix has the visual side-effect of all functional blocks showing up as disab
 in the projection, so the players don't know in advance whether they will be enabled
 once welded. The fix does not affect the welded state, only the visual feedback.
 This applies only if the plugin is installed on the client side.
+
+## Faster image loading with a newer ImageSharp
+
+The game decodes PNG images with SixLabors.ImageSharp 1.0.0-beta0006 from 2019.
+Every planet height map and material map (six 2048x2048 faces per planet, 16 bit
+gray and RGBA), the terrain blend textures and every non-DDS mod texture go through
+it, all via `MyImage.Load` in `VRage.Render`. The plugin ships ImageSharp 2.1.13
+next to itself and decodes those images with it instead.
+
+The newer library cannot simply be referenced: the game's copy is loaded early by
+dotnet-compat and linux-compat, and on .NET (Core) a process holds one assembly per
+simple name. The plugin therefore rewrites its copy with Cecil to a different
+assembly name (`SixLabors.ImageSharp.Performance`, cached under the plugin's cache
+folder per library version) and drives it through a small reflection layer, so the
+plugin's own code never references either ImageSharp at compile time. A prefix on
+the one `MyImage.Load` overload that the other two funnel into does the decoding;
+if the library is missing or a decode throws, the game's own decoder runs.
+
+The decoded pixels are byte-identical to the game's decoder: the pixel format
+selection mirrors `MyImage.Load`, and every planet map shipped with the game was
+checked by hashing the decoded arrays from the game's decoder, from this fix and
+from an independent PNG reader. Height maps feed voxel generation, so anything less
+would change terrain and desync a patched client from an unpatched server.
+
+Measured on the Earth planet test world (79 planet map files, decoded on several
+threads during world load), the planet map phase went from about 1.2 s to about
+0.95 s and the per-file decode time dropped by roughly a third. The gain is modest
+because the game's decoder, once dotnet-compat has fixed its stream handling for
+.NET, is already reasonable at this; the fix mostly removes the remaining decoder
+overhead and brings a maintained PNG decoder into the game.
+
