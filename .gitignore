@@ -7,6 +7,7 @@
 *.rsuser
 *.suo
 *.user
+# Local folder overrides imported by Directory.Build.props (matched by *.user above)
 *.userosscache
 *.sln.docstates
 
@@ -363,9 +364,6 @@ MigrationBackup/
 
 # Claude Code
 .claude
-
-# Local config copied from Directory.Build.props.template by setup.py
-/Directory.Build.props
 
 # Plugin specific
 *.il
