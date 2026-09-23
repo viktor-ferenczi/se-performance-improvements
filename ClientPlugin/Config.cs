@@ -235,13 +235,6 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Rate limit logs with flooding potential", description: "Rate limited excessive logging from MyDefinitionManager.GetBlueprintDefinition")]
-    public bool FixLogFlooding
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
     [Checkbox(label: "Disable functional blocks in projected grids", description: "Disable functional blocks in projected grids without affecting the blocks built from the projection")]
     public bool FixProjection
     {

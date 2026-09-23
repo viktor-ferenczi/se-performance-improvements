@@ -79,7 +79,7 @@ each lives in [PerformanceFixes.md](PerformanceFixes.md).
 | [Safe Zone Patches](modules/safe-zone.md) | Caches `IsSafe` / `IsActionAllowed`; allocation-free `IsOutside`. |
 | [Keen Overhead Removal](modules/keen-overhead-removal.md) | Removes constant background overhead: `GC.Collect` pauses, EOS P2P `UpdateStats` core load, Mod API call-statistics rewriter. |
 | [Memory Allocation Patches](modules/memory-allocation.md) | Cuts GC pressure: cached `MyDefinitionId.ToString`, less frequent block-limit sync, allocation-free voxel material lookups. |
-| [World Loading Patches](modules/world-loading.md) | Caches compiled mods and in-game scripts on disk; rate-limits blueprint log flooding. |
+| [World Loading Patches](modules/world-loading.md) | Caches compiled mods and in-game scripts on disk; eliminates blueprint log flooding. |
 | [Simulation & Block Patches](modules/simulation-and-blocks.md) | Assorted per-block/per-subsystem fixes: turret targeting, access-right caching, wind-turbine atmosphere caching, projected-block disabling, server-side footprint/wheel-trail removal. |
 
 ### Testing

@@ -11,7 +11,7 @@ namespace ServerPlugin.Config;
 //
 // The defaults are the conservative server defaults: a few gameplay/visual
 // affecting fixes (block access rights, PB access, LCD visibility, conveyor
-// caching, log rate limiting, projected blocks) are left OFF so an admin opts
+// caching, projected blocks) are left OFF so an admin opts
 // into them deliberately. The client defaults everything ON.
 [Tab("general", caption: "General")]
 [Tab("worldload", caption: "World load & networking")]
@@ -121,9 +121,6 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
         get => false;
         set { }
     }
-
-    [BoolOption("Rate limit excessive logging from MyDefinitionManager.GetBlueprintDefinition", Parent = "optional")]
-    public bool FixLogFlooding { get; set => SetField(ref field, value); } = false;
 
     [BoolOption("Disable functional blocks in projected grids without affecting the blocks built from the projection", Parent = "optional")]
     public bool FixProjection { get; set => SetField(ref field, value); } = false;
