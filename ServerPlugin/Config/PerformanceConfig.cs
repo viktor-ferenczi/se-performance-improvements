@@ -9,10 +9,15 @@ namespace ServerPlugin.Config;
 // Shared project gate on it via Plugin.Common.Config. INotifyPropertyChanged is
 // provided by PluginSdk.Config.PluginConfig.
 //
-// The defaults are the conservative server defaults: a few gameplay/visual
-// affecting fixes (block access rights, PB access, LCD visibility, conveyor
-// caching, log rate limiting, projected blocks) are left OFF so an admin opts
-// into them deliberately. The client defaults everything ON.
+// The defaults are the conservative server defaults: what is left OFF is what an
+// admin may notice in the game, not what is merely new. That is mostly the fixes
+// which serve a value from a cache for a while instead of recomputing it, so a
+// change can take up to a couple of seconds to be seen (block access rights, PB
+// access, conveyor lookups), plus the two which change what players see outright
+// (LCD surface visibility, functional blocks in projected grids). Everything else
+// defaults ON, including the fixes which only trade eager work for lazy work or
+// replace an algorithm with a faster one of the same result. The client defaults
+// everything ON.
 [Tab("general", caption: "General")]
 [Tab("worldload", caption: "World load & networking")]
 [Tab("simulation", caption: "Simulation")]
@@ -37,6 +42,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable updates during grid paste (MyCubeGrid.PasteBlocksServer)", Parent = "worldload")]
     public bool FixGridPaste { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Read the process memory size for the statistics once per second instead of on every frame", Parent = "worldload")]
+    public bool FixMemoryStats { get; set => SetField(ref field, value); } = true;
+
     [BoolOption("Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)", Parent = "worldload")]
     public bool FixP2PUpdateStats { get; set => SetField(ref field, value); } = true;
 
@@ -54,6 +62,15 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [BoolOption("Disable the collection of Mod API call statistics to eliminate the overhead", Parent = "worldload")]
     public bool DisableModApiStatistics { get; set => SetField(ref field, value); } = true;
+
+    [BoolOption("Decode planet maps and PNG textures with a newer ImageSharp than the game ships", Parent = "worldload")]
+    public bool UpgradeImageSharp { get; set => SetField(ref field, value); } = true;
+
+    [BoolOption("Skip loading the vanilla asteroid voxel files on server start, they are loaded on first use instead (needs restart)", Parent = "worldload")]
+    public bool SkipVoxelPreload { get; set => SetField(ref field, value); } = true;
+
+    [BoolOption("Load worlds, blueprints and definitions from XML faster by setting up the XML reader's name lookup once per file instead of once per block", Parent = "worldload")]
+    public bool FixXmlDeserialization { get; set => SetField(ref field, value); } = true;
 
     // ---- Simulation -----------------------------------------------------
 
@@ -78,6 +95,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable tracking of wheel trails on the server, where they are not needed (trails are only visual)", Parent = "simulation")]
     public bool FixWheelTrail { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Refresh the turret target groups in linear instead of quadratic time", Parent = "simulation")]
+    public bool FixTargetGroups { get; set => SetField(ref field, value); } = true;
+
     // ---- Requires server restart ---------------------------------------
 
     [BoolOption("Reduce memory allocations in the turret targeting system (needs restart)", Parent = "restart")]
@@ -85,6 +105,12 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [BoolOption("Optimize the MyPhysicsBody.RigidBody getter (needs restart)", Parent = "restart")]
     public bool FixPhysics { get; set => SetField(ref field, value); } = true;
+
+    [EnumOption("Physics thread count: Game leaves the sizing of the Havok worker thread pool to the game; Auto is one worker per physical CPU core, minus one to leave the main thread a core of its own, not counting hyper-threading siblings which only add contention; Manual is exactly the number below (needs restart)", Parent = "restart")]
+    public HavokThreadCountMode HavokThreadCountMode { get; set => SetField(ref field, value); } = HavokThreadCountMode.Auto;
+
+    [IntOption(HavokThreads.Min, HavokThreads.Max, "Number of Havok worker threads used in the Manual mode; in the Auto mode it shows the number this machine gets. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference (needs restart)", Parent = "restart")]
+    public int HavokThreadCount { get; set => SetField(ref field, value); } = HavokThreads.Auto;
 
     [BoolOption("Disable character footprint logic on the server side (needs restart)", Parent = "restart")]
     public bool FixCharacter { get; set => SetField(ref field, value); } = true;
@@ -94,7 +120,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Cache the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason", Parent = "optional")]
     public bool FixAccess { get; set => SetField(ref field, value); } = false;
 
-    [BoolOption("Suppress frequent MyGridTerminalSystem.UpdateGridBlocksOwnership calls updating IsAccessibleForProgrammableBlock", Parent = "optional")]
+    [BoolOption("Skip MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)", Parent = "optional")]
     public bool FixTerminal { get; set => SetField(ref field, value); } = false;
 
     [BoolOption("Disable UpdateVisibility of LCD surfaces on multiplayer servers (disable if LCDs flicker on clients)", Parent = "optional")]
@@ -103,8 +129,12 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Cache conveyor network lookups", Parent = "optional")]
     public bool FixConveyor { get; set => SetField(ref field, value); } = false;
 
-    [BoolOption("Rate limit excessive logging from MyDefinitionManager.GetBlueprintDefinition", Parent = "optional")]
-    public bool FixLogFlooding { get; set => SetField(ref field, value); } = false;
+    // Client only: the dedicated server has no toolbar updates
+    public bool FixToolbar
+    {
+        get => false;
+        set { }
+    }
 
     [BoolOption("Disable functional blocks in projected grids without affecting the blocks built from the projection", Parent = "optional")]
     public bool FixProjection { get; set => SetField(ref field, value); } = false;

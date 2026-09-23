@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Plugin Core](../../../modules/shared-plugin-core.md) |
-| **Source** | [`Common.cs`](../../../../Shared/Plugin/Common.cs) (90 lines) |
+| **Source** | [`Common.cs`](../../../../Shared/Plugin/Common.cs) (99 lines) |
 | **Kind** | Static class |
 | **Role** | Plugin bootstrap / shared state hub |
 

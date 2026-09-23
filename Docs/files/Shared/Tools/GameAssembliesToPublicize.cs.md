@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Tools & Data Structures](../../../modules/tools.md) |
-| **Source** | [`GameAssembliesToPublicize.cs`](../../../../Shared/Tools/GameAssembliesToPublicize.cs) (8 lines) |
+| **Source** | [`GameAssembliesToPublicize.cs`](../../../../Shared/Tools/GameAssembliesToPublicize.cs) (10 lines) |
 | **Kind** | Assembly-attribute file (no types, only `[assembly: …]` attributes) |
 | **Role** | Publicizer support |
 

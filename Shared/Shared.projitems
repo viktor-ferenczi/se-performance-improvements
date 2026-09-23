@@ -17,6 +17,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Block\MyTerminalBlockPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\GcCollectPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\MyP2PQoSAdapterPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\MyWindowsSystemPatchForStats.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\PerfCountingRewriterPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Character\MyCharacterPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Connector\MyShipConnectorPatch.cs" />
@@ -30,6 +31,9 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\MyShipConnectorPatchForConveyor.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Conveyor\PullItemStats.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\DefinitionManager\MyDefinitionManagerPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Image\ImageLoader.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Image\ImageSharpRuntime.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Image\MyImagePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Memory\MyDefinitionIdToStringPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Memory\MyPlayerCollectionPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\MergeAndPaste\MyConveyorLinePatch.cs" />
@@ -39,14 +43,19 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\PatchHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTreePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBodyPatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyWindowsSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\PhysicsFixes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Projection\MyEntityPatchForProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySafeZonePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyGridTargetingPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Toolbar\MyToolbarItemTerminalGroupPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Serialization\XmlSerializationReaderPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MySandboxGamePatchForVoxelPreload.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MyStorageBasePatchForVoxelPreload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MyStorageExtensionsPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\WindTurbine\MyWindTurbinePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Plugin\Common.cs" />
@@ -101,8 +110,6 @@
     <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTree.ReorderClusters.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBody.get_RigidBody.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBody.get_RigidBody.patched.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysics.LoadData.original.il" />
-    <Content Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysics.LoadData.patched.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.original.il" />
     <Content Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\Compile.patched.il" />
   </ItemGroup>

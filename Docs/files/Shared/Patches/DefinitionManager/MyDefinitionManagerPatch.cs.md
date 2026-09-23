@@ -11,7 +11,7 @@
 
 ## Purpose
 
-`MyDefinitionManager.GetBlueprintDefinition` was implemented as a double-lookup: first `ContainsKey`, then a second dictionary access to retrieve the value. When the key is absent the method returns `null`, but it also implicitly produced a log message via the negative branch — at rates of up to 11,000 "No blueprint with Id" entries per minute when mods such as Isy's Inventory Manager PB script were active. This excessive logging not only burned CPU time but risked filling disk space over long server uptimes (see the "Rate limited excessive logging" section in `Docs/PerformanceFixes.md`).
+`MyDefinitionManager.GetBlueprintDefinition` was implemented as a double-lookup: first `ContainsKey`, then a second dictionary access to retrieve the value. When the key is absent the method returns `null`, but it also implicitly produced a log message via the negative branch — at rates of up to 11,000 "No blueprint with Id" entries per minute when mods such as Isy's Inventory Manager PB script were active. This excessive logging not only burned CPU time but risked filling disk space over long server uptimes (see the *Eliminated excessive logging* section in `Docs/PerformanceFixes.md`).
 
 The transpiler rewrites the method body to a single `GetValueOrDefault` call on the internal `m_blueprintsById` dictionary, eliminating both the redundant lookup and the log flooding in one step. On Linux/Mono, where `Dictionary<,>.GetValueOrDefault` is not available as a BCL extension, the patch falls back to a locally provided `Workarounds.GetValueOrDefault` helper.
 

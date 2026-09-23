@@ -5,4 +5,6 @@ using System.Runtime.CompilerServices;
 [assembly: IgnoresAccessChecksTo("Sandbox.Game")]
 [assembly: IgnoresAccessChecksTo("SpaceEngineers.Game")]
 [assembly: IgnoresAccessChecksTo("VRage.Math")]
+[assembly: IgnoresAccessChecksTo("VRage.Platform.Windows")]
+[assembly: IgnoresAccessChecksTo("VRage.Render")]
 [assembly: IgnoresAccessChecksTo("VRage.Scripting")]

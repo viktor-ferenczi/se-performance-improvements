@@ -24,6 +24,16 @@
         <Dedicated64 />
     </PropertyGroup>
 
+    <!-- Local developer overrides for the folders above; ignored by Git (*.user).
+         Copy the first PropertyGroup of this file into Directory.Build.props.user,
+         wrapped into a top-level Project element, and fill in your local paths
+         there. Running setup.py writes that file for you. Overrides are imported
+         after the defaults above and before the auto-detection below, so a value
+         set there wins: every auto-detection step is conditional on the property
+         still being empty. -->
+    <Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user"
+            Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
+
     <!-- Repository root (this file lives in it). Used instead of $(SolutionDir) so
          the PreBuildEvent scripts are found whether the build is driven from the
          solution or a single project. $(MSBuildThisFileDirectory) ends with a
@@ -32,9 +42,13 @@
         <RepoRoot>$(MSBuildThisFileDirectory)</RepoRoot>
     </PropertyGroup>
 
-    <!-- User home, resolved once for the Linux auto-detection below -->
+    <!-- User home and config home, resolved once for the Linux auto-detection below.
+         Pulsar and Magnetar are portable and install themselves under the XDG config
+         home, which defaults to ~/.config. -->
     <PropertyGroup Condition=" !$([MSBuild]::IsOSPlatform('Windows')) ">
         <_UserHome>$([System.Environment]::GetFolderPath(SpecialFolder.UserProfile))</_UserHome>
+        <_ConfigHome Condition=" '$(XDG_CONFIG_HOME)' != '' ">$(XDG_CONFIG_HOME)</_ConfigHome>
+        <_ConfigHome Condition=" '$(_ConfigHome)' == '' AND '$(_UserHome)' != '' ">$(_UserHome)/.config</_ConfigHome>
     </PropertyGroup>
 
     <!-- Auto-detect Bin64 (Space Engineers, Steam app 244850) when not explicitly set above -->
@@ -55,12 +69,13 @@
     <!-- Auto-detect the Pulsar install location when not explicitly set above.
          Default locations:
            Windows: %AppData%\Pulsar   (Environment.SpecialFolder.ApplicationData)
-           Linux:   ~/.local/share/Pulsar
-         PulsarBin is the folder containing PluginSdk.dll, referenced by the
-         ServerPlugin project. -->
+           Linux:   $XDG_CONFIG_HOME/Pulsar, i.e. ~/.config/Pulsar by default
+         PulsarBin is the folder containing Pulsar's PluginSdk.dll. No project
+         in this repository references it at the moment; the ServerPlugin
+         project uses MagnetarBin below. -->
     <PropertyGroup>
         <Pulsar Condition=" '$(Pulsar)' == '' AND $([MSBuild]::IsOSPlatform('Windows')) ">$([System.Environment]::GetFolderPath(SpecialFolder.ApplicationData))\Pulsar</Pulsar>
-        <Pulsar Condition=" '$(Pulsar)' == '' AND '$(_UserHome)' != '' ">$(_UserHome)/.local/share/Pulsar</Pulsar>
+        <Pulsar Condition=" '$(Pulsar)' == '' AND '$(_ConfigHome)' != '' ">$(_ConfigHome)/Pulsar</Pulsar>
 
         <!-- PulsarBin (Legacy on .NET Framework, Interim on .NET Core) is resolved
              in Directory.Build.targets, not here: it depends on
@@ -72,27 +87,27 @@
     <!-- Auto-detect the Magnetar install location when not explicitly set above.
          Default locations:
            Windows: %AppData%\Magnetar   (Environment.SpecialFolder.ApplicationData)
-           Linux:   ~/.local/share/Magnetar
+           Linux:   $XDG_CONFIG_HOME/Magnetar, i.e. ~/.config/Magnetar by default
          MagnetarBin is the folder containing PluginSdk.dll, referenced by the
          ServerPlugin project. -->
     <PropertyGroup>
         <Magnetar Condition=" '$(Magnetar)' == '' AND $([MSBuild]::IsOSPlatform('Windows')) ">$([System.Environment]::GetFolderPath(SpecialFolder.ApplicationData))\Magnetar</Magnetar>
-        <Magnetar Condition=" '$(Magnetar)' == '' AND '$(_UserHome)' != '' ">$(_UserHome)/.local/share/Magnetar</Magnetar>
+        <Magnetar Condition=" '$(Magnetar)' == '' AND '$(_ConfigHome)' != '' ">$(_ConfigHome)/Magnetar</Magnetar>
 
-        <!-- Linux: flat Bin layout. -->
-        <MagnetarBin Condition=" '$(MagnetarBin)' == '' AND '$(Magnetar)' != '' AND !$([MSBuild]::IsOSPlatform('Windows')) ">$([System.IO.Path]::Combine('$(Magnetar)', 'Bin'))</MagnetarBin>
-
-        <!-- Windows: Target framework dependent layout under Libraries:
+        <!-- Target framework dependent layout under Libraries, on both platforms:
                .NET Framework (net4x) -> Libraries/MagnetarLegacy
                .NET (Core, net5+)     -> Libraries/MagnetarInterim
+             Linux builds are always single-target net5+ and so always get
+             MagnetarInterim, which is the only launcher shipped there.
              This is resolved here (props) rather than in Directory.Build.targets
              because the ServerPlugin PreBuildEvent (verify_props) consumes
              $(MagnetarBin), and PreBuildEvent is evaluated before the targets
              import. Unlike $(TargetFrameworkIdentifier) (derived after props),
              the raw $(TargetFramework) is available here: in a multi-targeting
              inner build it is passed as a global property. -->
-        <MagnetarBin Condition=" '$(MagnetarBin)' == '' AND '$(Magnetar)' != '' AND $([MSBuild]::IsOSPlatform('Windows')) AND $(TargetFramework.StartsWith('net4')) ">$([System.IO.Path]::Combine('$(Magnetar)', 'Libraries', 'MagnetarLegacy'))</MagnetarBin>
-        <MagnetarBin Condition=" '$(MagnetarBin)' == '' AND '$(Magnetar)' != '' AND $([MSBuild]::IsOSPlatform('Windows')) AND '$(TargetFramework)' != '' AND !$(TargetFramework.StartsWith('net4')) ">$([System.IO.Path]::Combine('$(Magnetar)', 'Libraries', 'MagnetarInterim'))</MagnetarBin>
+        <MagnetarBin Condition=" '$(MagnetarBin)' == '' AND '$(Magnetar)' != '' AND '$(TargetFramework)' != '' AND $(TargetFramework.StartsWith('net4')) ">$([System.IO.Path]::Combine('$(Magnetar)', 'Libraries', 'MagnetarLegacy'))</MagnetarBin>
+        <MagnetarBin Condition=" '$(MagnetarBin)' == '' AND '$(Magnetar)' != '' AND !$([MSBuild]::IsOSPlatform('Windows')) ">$([System.IO.Path]::Combine('$(Magnetar)', 'Libraries', 'MagnetarInterim'))</MagnetarBin>
+        <MagnetarBin Condition=" '$(MagnetarBin)' == '' AND '$(Magnetar)' != '' AND '$(TargetFramework)' != '' AND !$(TargetFramework.StartsWith('net4')) ">$([System.IO.Path]::Combine('$(Magnetar)', 'Libraries', 'MagnetarInterim'))</MagnetarBin>
     </PropertyGroup>
 
     <!-- Auto-detect Dedicated64 (Dedicated Server, Steam app 298740) when not explicitly set above -->

@@ -121,14 +121,6 @@
       <HintPath>$(Bin64)\Sandbox.RenderDirect.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="SixLabors.Core, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>$(Bin64)\SixLabors.Core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="SixLabors.ImageSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>$(Bin64)\SixLabors.ImageSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="SpaceEngineers.Game, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null">
       <HintPath>$(Bin64)\SpaceEngineers.Game.dll</HintPath>
       <Private>False</Private>
@@ -255,10 +247,18 @@
   <ItemGroup>
     <PackageReference Include="Lib.Harmony" Version="2.4.2" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+    <!-- Shipped next to the plugin and loaded under another name at runtime, never compiled against; see Shared/Patches/Image/ImageSharpRuntime.cs -->
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.13" ExcludeAssets="compile" GeneratePathProperty="true" />
     <PackageReference Include="Krafs.Publicizer" Version="2.3.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <!-- Ship the .NET Framework build of the library next to the plugin on every target
+       (it runs on .NET 10 too); the hub loaders restore it themselves from NuGet -->
+  <ItemGroup>
+    <None Include="$(PkgSixLabors_ImageSharp)\lib\net472\SixLabors.ImageSharp.dll" Link="SixLabors.ImageSharp.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -271,6 +271,8 @@
     <Publicize Include="Sandbox.Game"/>
     <Publicize Include="SpaceEngineers.Game"/>
     <Publicize Include="VRage.Math"/>
+    <Publicize Include="VRage.Platform.Windows"/>
+    <Publicize Include="VRage.Render"/>
     <Publicize Include="VRage.Scripting"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyEntities.OnEntityAdd"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyEntities.OnEntityRemove"/>

@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Server Plugin Entry Point](../../modules/server-plugin.md) |
-| **Source** | [`Preloader.cs`](../../../ServerPlugin/Preloader.cs) (24 lines) |
+| **Source** | [`Preloader.cs`](../../../ServerPlugin/Preloader.cs) (32 lines) |
 | **Kind** | Top-level class (no namespace) |
 | **Role** | Early bootstrap hook |
 

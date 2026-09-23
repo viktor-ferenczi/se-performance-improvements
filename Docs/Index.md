@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**87 files across 16 modules.**
+**102 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -10,6 +10,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`Config.cs`](files/ClientPlugin/Config.cs.md) | `ClientPlugin/Config.cs` | Declares all client-side performance-fix toggles as `bool` properties decorated with settings-framework attributes, forming the single source of truth for both the in-game dialog and the shared Harmony patch guards. |
 | [`Plugin.cs`](files/ClientPlugin/Plugin.cs.md) | `ClientPlugin/Plugin.cs` | Pulsar `IPlugin` entry point that initialises Harmony patches, registers the shared plugin common state, and opens the in-game settings dialog on demand. |
+| [`Preloader.cs`](files/ClientPlugin/Preloader.cs.md) | `ClientPlugin/Preloader.cs` | Namespace-less preloader hook Pulsar calls before the game starts; installs the early Harmony bootstrap so the `"Early"` patch category is applied before the game's own startup preloading. |
 
 ## [Client Settings UI Framework](modules/client-settings.md)
 
@@ -17,7 +18,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`ConfigStorage.cs`](files/ClientPlugin/Settings/ConfigStorage.cs.md) | `ClientPlugin/Settings/ConfigStorage.cs` | Serialises and deserialises `Config.Current` as an XML file in the user's Space Engineers storage folder. |
 | [`Button.cs`](files/ClientPlugin/Settings/Elements/Button.cs.md) | `ClientPlugin/Settings/Elements/Button.cs` | `[Button]` attribute and `IElement` implementation that exposes a `void`-returning `Action` method on `Config` as a clickable button in the settings dialog. |
-| [`Checkbox.cs`](files/ClientPlugin/Settings/Elements/Checkbox.cs.md) | `ClientPlugin/Settings/Elements/Checkbox.cs` | `[Checkbox]` attribute and `IElement` implementation that renders a `bool` config property as a label + checkbox row with immediate write-through to `Config.Current`. |
+| [`Checkbox.cs`](files/ClientPlugin/Settings/Elements/Checkbox.cs.md) | `ClientPlugin/Settings/Elements/Checkbox.cs` | `[Checkbox]` attribute and `IElement` implementation that renders a `bool` config property as a checkbox, label and description row with immediate write-through to `Config.Current`. |
 | [`Color.cs`](files/ClientPlugin/Settings/Elements/Color.cs.md) | `ClientPlugin/Settings/Elements/Color.cs` | `[Color]` attribute and `IElement` implementation that renders a `VRageMath.Color` property as a label, colour-preview button, and hex textbox. |
 | [`Control.cs`](files/ClientPlugin/Settings/Elements/Control.cs.md) | `ClientPlugin/Settings/Elements/Control.cs` | Immutable wrapper around a `MyGuiControlBase` that carries layout hints (`FixedWidth`, `FillFactor`, `MinWidth`, `RightMargin`, `Offset`, `OriginAlign`) consumed by the active `Layout.cs`. |
 | [`Dropdown.cs`](files/ClientPlugin/Settings/Elements/Dropdown.cs.md) | `ClientPlugin/Settings/Elements/Dropdown.cs` | `[Dropdown]` attribute and `IElement` implementation that renders an `enum`-typed config property as a label + combo-box, automatically populating items from enum member names. |
@@ -32,7 +33,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`SettingsGenerator.cs`](files/ClientPlugin/Settings/SettingsGenerator.cs.md) | `ClientPlugin/Settings/SettingsGenerator.cs` | Reflects over `Config` properties and methods at startup to build an `AttributeInfo` list, then drives the active `Layout` to materialise GUI controls and wire them to the live config. |
 | [`SettingsScreen.cs`](files/ClientPlugin/Settings/SettingsScreen.cs.md) | `ClientPlugin/Settings/SettingsScreen.cs` | `MyGuiScreenBase` subclass that hosts the plugin settings controls and triggers config persistence when the dialog is closed. |
 | [`Binding.cs`](files/ClientPlugin/Settings/Tools/Binding.cs.md) | `ClientPlugin/Settings/Tools/Binding.cs` | Value type representing a keyboard shortcut (key + Ctrl/Alt/Shift modifiers) with press-detection helpers. |
-| [`Tools.cs`](files/ClientPlugin/Settings/Tools/Tools.cs.md) | `ClientPlugin/Settings/Tools/Tools.cs` | Shared utility class providing automatic PascalCase-to-label conversion and hex-colour parsing/formatting helpers used across the settings element classes. |
+| [`Tools.cs`](files/ClientPlugin/Settings/Tools/Tools.cs.md) | `ClientPlugin/Settings/Tools/Tools.cs` | Shared utility class providing automatic PascalCase-to-label conversion, text wrapping for descriptions and tooltips, and hex-colour parsing/formatting helpers used across the settings element classes. |
 
 ## [Server Plugin Entry Point](modules/server-plugin.md)
 
@@ -41,14 +42,17 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`PerformanceConfig.cs`](files/ServerPlugin/Config/PerformanceConfig.cs.md) | `ServerPlugin/Config/PerformanceConfig.cs` | XML-serialized server configuration implementing `IPluginConfig.cs`; each property corresponds to one toggleable performance fix. |
 | [`Plugin.cs`](files/ServerPlugin/Plugin.cs.md) | `ServerPlugin/Plugin.cs` | Dedicated-server plugin entry point: applies the Harmony patches in two phases (uncategorized early via the Preloader bootstrap, the "Late" category from `Init`), loads config, and drives the per-tick update loop. |
 | [`Preloader.cs`](files/ServerPlugin/Preloader.cs.md) | `ServerPlugin/Preloader.cs` | Namespace-less preloader hook the Magnetar dedicated-server loader calls before the game starts; installs the early Harmony bootstrap so the plugin's patches are applied before world-load mod/script compilation. |
+| [`PerformanceStats.cs`](files/ServerPlugin/Stats/PerformanceStats.cs.md) | `ServerPlugin/Stats/PerformanceStats.cs` | Publishes each captured `StatisticsSnapshot.cs` through the Magnetar PluginSdk statistics API under the `Performance` provider name, so the Quasar Agent can collect and chart the plugin's cache hit rates and conveyor call counts. |
 
 ## [Shared Plugin Core](modules/shared-plugin-core.md)
 
 | File | Path | Summary |
 | --- | --- | --- |
-| [`IPluginConfig.cs`](files/Shared/Config/IPluginConfig.cs.md) | `Shared/Config/IPluginConfig.cs` | Shared configuration contract: one boolean toggle per performance fix, plus `INotifyPropertyChanged` so both platforms can react to live config updates. |
+| [`IPluginConfig.cs`](files/Shared/Config/IPluginConfig.cs.md) | `Shared/Config/IPluginConfig.cs` | Shared configuration contract: one toggle per performance fix (plus the Havok thread count mode and number), and `INotifyPropertyChanged` so both platforms can react to live config updates. |
 | [`Common.cs`](files/Shared/Plugin/Common.cs.md) | `Shared/Plugin/Common.cs` | Shared bootstrap and static state hub: `SetPlugin` wires up the logger, config, filesystem directories and patch configuration once per process; `AttachPlugin` (re)points the shared accessors, letting the server swap its early stand-in for the live instance. |
 | [`ICommonPlugin.cs`](files/Shared/Plugin/ICommonPlugin.cs.md) | `Shared/Plugin/ICommonPlugin.cs` | Contract that both client and server plugin classes must implement so `Common.cs` can accept either without a circular assembly reference. |
+| [`Statistics.cs`](files/Shared/Stats/Statistics.cs.md) | `Shared/Stats/Statistics.cs` | Central switch and driver for the plugin's runtime statistics: gates collection on the `CollectStatistics` option, captures the patch and cache counters into a `StatisticsSnapshot.cs` once per period and hands it to the host's `Publisher`. |
+| [`StatisticsSnapshot.cs`](files/Shared/Stats/StatisticsSnapshot.cs.md) | `Shared/Stats/StatisticsSnapshot.cs` | Host-agnostic, point-in-time capture of the plugin's runtime statistics: one `CacheStatEntry` per instrumented cache plus the conveyor `PullItem` / `PullItems` call counts for the period. |
 
 ## [Logging](modules/logging.md)
 
@@ -70,6 +74,8 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`GameAssembliesToPublicize.cs`](files/Shared/Tools/GameAssembliesToPublicize.cs.md) | `Shared/Tools/GameAssembliesToPublicize.cs` | Assembly-level `[IgnoresAccessChecksTo]` declarations listing every game assembly publicized by Krafs.Publicizer. |
 | [`Hashing.cs`](files/Shared/Tools/Hashing.cs.md) | `Shared/Tools/Hashing.cs` | Static utility providing FNV-1a string hashing, IL-body hashing for Harmony `MethodInfo`/`ConstructorInfo`, and a combining hash accumulator. |
 | [`IgnoresAccessChecksToAttribute.cs`](files/Shared/Tools/IgnoresAccessChecksToAttribute.cs.md) | `Shared/Tools/IgnoresAccessChecksToAttribute.cs` | Provides the `IgnoresAccessChecksToAttribute` class required at runtime when the plugin is loaded by Pulsar/Magnetar rather than built directly in an IDE. |
+| [`LegacyModRewriters.cs`](files/Shared/Tools/LegacyModRewriters.cs.md) | `Shared/Tools/LegacyModRewriters.cs` | Legacy fallback for `ModRewriterVersions.cs`: recognizes the pre-`Rewrite`-hook dotnet-compat and linux-compat builds loaded by old Pulsar and Magnetar releases by their compiler-hook marker types, so their MVIDs still feed the compilation cache keys. |
+| [`ModRewriterVersions.cs`](files/Shared/Tools/ModRewriterVersions.cs.md) | `Shared/Tools/ModRewriterVersions.cs` | Detects the loaded mod-rewriting plugins and hashes their module version IDs, so the exact build of each rewriter contributes to the mod and in-game script compilation cache keys. |
 | [`MySessionExtensions.cs`](files/Shared/Tools/MySessionExtensions.cs.md) | `Shared/Tools/MySessionExtensions.cs` | Extension methods on `MySession` exposing the internal `m_updateAllowed` flag through publicized direct access. |
 | [`ObjectPools.cs`](files/Shared/Tools/ObjectPools.cs.md) | `Shared/Tools/ObjectPools.cs` | Shared `StringBuilder` pool backed by the game's `MyConcurrentBucketPool`, reducing GC pressure from frequent string formatting. |
 | [`PreloaderHelpers.cs`](files/Shared/Tools/PreloaderHelpers.cs.md) | `Shared/Tools/PreloaderHelpers.cs` | Static helper class for Mono.Cecil-based preloader patches: IL index search, hash verification, and debug IL recording over `Collection<Instruction>`. |
@@ -86,7 +92,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 
 | File | Path | Summary |
 | --- | --- | --- |
-| [`PatchHelpers.cs`](files/Shared/Patches/PatchHelpers.cs.md) | `Shared/Patches/PatchHelpers.cs` | Central patch engine: verifies the targeted game methods (via `EnsureCode.cs`) then applies the Harmony patches — all at once on the client, or in two phases on the dedicated server — logging each applied patch, plus the per-tick update and configuration hooks for every patch module. |
+| [`PatchHelpers.cs`](files/Shared/Patches/PatchHelpers.cs.md) | `Shared/Patches/PatchHelpers.cs` | Central patch engine: verifies the targeted game methods (via `EnsureCode.cs`) then applies the Harmony patches in phases — the `"Early"` category from the preloader bootstrap, the uncategorized ones, then the deferred `"Late"` category — logging each applied patch, plus the per-tick update and configuration hooks for every patch module. |
 
 ## [Grid Merge & Paste Patches](modules/merge-and-paste.md)
 
@@ -101,7 +107,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 
 | File | Path | Summary |
 | --- | --- | --- |
-| [`MyAssemblerPatch.cs`](files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md) | `Shared/Patches/Conveyor/MyAssemblerPatch.cs` | Experimental (disabled) patch that replaces `MyAssembler.GetMasterAssembler` with a route-cache-based lookup, avoiding `Reachable` calls entirely. |
+| [`MyAssemblerPatch.cs`](files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md) | `Shared/Patches/Conveyor/MyAssemblerPatch.cs` | Caches the assemblers reachable from a cooperative-mode assembler, so the master lookup on every production tick no longer walks the whole conveyor network. |
 | [`MyCubeBlockPatchForConveyor.cs`](files/Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs.md) | `Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs` | Invalidates the conveyor reachability cache when a conveyor-endpoint block changes its functional state. |
 | [`MyCubeGridPatchForConveyor.cs`](files/Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs.md) | `Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs` | Invalidates or drops the conveyor reachability cache in response to grid lifecycle and topology events. |
 | [`MyGridConveyorSystemPatch.cs`](files/Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs.md) | `Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs` | Caches conveyor-network reachability results per logical grid group to eliminate redundant pathfinding on large ships and bases. |
@@ -117,7 +123,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`MyClusterTreePatch.cs`](files/Shared/Patches/Physics/MyClusterTreePatch.cs.md) | `Shared/Patches/Physics/MyClusterTreePatch.cs` | Replaces the O(N×M) nested loop in `MyClusterTree.ReorderClusters` with a set-union approach of lower time complexity. |
 | [`MyPhysicsBodyPatch.cs`](files/Shared/Patches/Physics/MyPhysicsBodyPatch.cs.md) | `Shared/Patches/Physics/MyPhysicsBodyPatch.cs` | Optimizes the `MyPhysicsBody.RigidBody` property getter by removing a redundant parent-body load sequence. |
-| [`MyPhysicsPatch.cs`](files/Shared/Patches/Physics/MyPhysicsPatch.cs.md) | `Shared/Patches/Physics/MyPhysicsPatch.cs` | Fixes the Havok thread count in `MyPhysics.LoadData` so all available CPU cores are used for physics simulation. |
+| [`MyWindowsSystemPatch.cs`](files/Shared/Patches/Physics/MyWindowsSystemPatch.cs.md) | `Shared/Patches/Physics/MyWindowsSystemPatch.cs` | Postfix answering `OptimalHavokThreadCount`, which decides how many worker threads the Havok physics job pool gets. |
 | [`PhysicsFixes.cs`](files/Shared/Patches/Physics/PhysicsFixes.cs.md) | `Shared/Patches/Physics/PhysicsFixes.cs` | Shared utility class exposing a helper to reconfigure `MyClusterTree` cluster-size parameters at runtime. |
 
 ## [Safe Zone Patches](modules/safe-zone.md)
@@ -133,6 +139,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`GcCollectPatch.cs`](files/Shared/Patches/Bullshit/GcCollectPatch.cs.md) | `Shared/Patches/Bullshit/GcCollectPatch.cs` | Removes explicit `GC.Collect` and `IVRageSystem.CollectGC` call sites from several game methods to eliminate multi-second GC pauses during world load, unload and gameplay. |
 | [`MyP2PQoSAdapterPatch.cs`](files/Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs.md) | `Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs` | Rate-limits `VRage.EOS.MyP2PQoSAdapter.UpdateStats` by skipping 48 out of every 49 calls and sleeping for 1 ms instead, eliminating its ~50% constant CPU core load. |
+| [`MyWindowsSystemPatchForStats.cs`](files/Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs.md) | `Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs` | Serves `MyWindowsSystem.ProcessPrivateMemory` from a cache refreshed once per second, so the per-frame statistics update stops reading procfs on Linux. |
 | [`PerfCountingRewriterPatch.cs`](files/Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs.md) | `Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs` | Disables `VRage.Scripting.Rewriters.PerfCountingRewriter.Rewrite` so mod Roslyn syntax trees are returned unchanged, removing the Mod API call-statistics instrumentation overhead. |
 
 ## [Memory Allocation Patches](modules/memory-allocation.md)
@@ -141,6 +148,8 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`MyDefinitionIdToStringPatch.cs`](files/Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs.md) | `Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs` | Caches `MyDefinitionId.ToString()` results in a two-layer cache to eliminate repeated string allocations from a hot path. |
 | [`MyPlayerCollectionPatch.cs`](files/Shared/Patches/Memory/MyPlayerCollectionPatch.cs.md) | `Shared/Patches/Memory/MyPlayerCollectionPatch.cs` | Rate-limits `MyPlayerCollection.SendDirtyBlockLimits` to once every 180 ticks (~3 seconds) to reduce network and CPU overhead from too-frequent block-limit syncs. |
+| [`MySandboxGamePatchForVoxelPreload.cs`](files/Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs.md) | `Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs` | Marks the window in which `MySandboxGame.PerformPreloading` runs, so the vanilla asteroid voxel storages it would eagerly load on game start can be skipped. |
+| [`MyStorageBasePatchForVoxelPreload.cs`](files/Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs.md) | `Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs` | Drops the voxel storage loads the startup preload asks for, and only those, by returning `null` from `MyStorageBase.LoadFromFile`. |
 | [`MyStorageExtensionsPatch.cs`](files/Shared/Patches/Voxel/MyStorageExtensionsPatch.cs.md) | `Shared/Patches/Voxel/MyStorageExtensionsPatch.cs` | Eliminates per-call `MyStorageData` allocations in `IMyStorageExtensions.GetMaterialAt` by maintaining a fixed-size pool of reusable storage objects. |
 
 ## [World Loading Patches](modules/world-loading.md)
@@ -148,7 +157,11 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | File | Path | Summary |
 | --- | --- | --- |
 | [`MyDefinitionManagerPatch.cs`](files/Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs.md) | `Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs` | Eliminates redundant double-lookup and log flooding in `MyDefinitionManager.GetBlueprintDefinition` via a transpiler that replaces the ContainsKey+indexer pattern with a single `GetValueOrDefault` call. |
+| [`ImageLoader.cs`](files/Shared/Patches/Image/ImageLoader.cs.md) | `Shared/Patches/Image/ImageLoader.cs` | Decodes an image through the bundled ImageSharp and, in debug builds, logs size, time and a hash of the decoded pixels for both this and the game's decoder. |
+| [`ImageSharpRuntime.cs`](files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | `Shared/Patches/Image/ImageSharpRuntime.cs` | Loads a renamed copy of the shipped ImageSharp 2.1.13 beside the game's own 2019 beta and decodes images through reflection with the same pixel format selection as `MyImage.Load`. |
+| [`MyImagePatch.cs`](files/Shared/Patches/Image/MyImagePatch.cs.md) | `Shared/Patches/Image/MyImagePatch.cs` | Prefix on `MyImage.Load` that routes image decoding to the bundled ImageSharp, falling back to the game's decoder on any failure. |
 | [`MyScriptCompilerPatch.cs`](files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) | `Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs` | Caches compiled mod and in-game script assemblies to disk, short-circuiting the Roslyn compilation step on subsequent world loads. |
+| [`XmlSerializationReaderPatch.cs`](files/Shared/Patches/Serialization/XmlSerializationReaderPatch.cs.md) | `Shared/Patches/Serialization/XmlSerializationReaderPatch.cs` | Reuses the name IDs of the game's generated XML readers per name table instead of rebuilding them for every polymorphic element. |
 
 ## [Simulation & Block Patches](modules/simulation-and-blocks.md)
 
@@ -161,8 +174,10 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`MyCharacterPatch.cs`](files/Shared/Patches/Character/MyCharacterPatch.cs.md) | `Shared/Patches/Character/MyCharacterPatch.cs` | Disables server-side character footprint rendering and body-contact audio by short-circuiting the relevant branches in `MyCharacter.RigidBody_ContactPointCallback` on dedicated servers. |
 | [`MyShipConnectorPatch.cs`](files/Shared/Patches/Connector/MyShipConnectorPatch.cs.md) | `Shared/Patches/Connector/MyShipConnectorPatch.cs` | Fixes a connector state-synchronisation bug by replacing `UpdateConnectionState` with a patched version that avoids redundant re-initialization and stale state on the server (file is currently compiled out via `#if UNTESTED`). |
 | [`MyEntityPatchForProjection.cs`](files/Shared/Patches/Projection/MyEntityPatchForProjection.cs.md) | `Shared/Patches/Projection/MyEntityPatchForProjection.cs` | Disables functional blocks on physics-less (projected) grids the moment they are added to the scene, preventing wasteful updates and projection-era bugs such as projected welders welding in creative mode. |
+| [`MyGridTargetingPatch.cs`](files/Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs.md) | `Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs` | Makes the per-frame refresh of a turret grid's target groups linear in the number of grids in range instead of quadratic. |
 | [`MyLargeTurretTargetingSystemPatch.cs`](files/Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs.md) | `Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs` | Reduces GC pressure in `MyLargeTurretTargetingSystem.SortTargetRoots` by reusing per-turret arrays instead of allocating a new one every call (entire file is currently disabled via `#if false`). |
-| [`MyGridTerminalSystemPatch.cs`](files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md) | `Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs` | Rate-limits `MyGridTerminalSystem.UpdateGridBlocksOwnership` to suppress redundant PB access-right syncs (file is currently compiled out via `#if BUGGY`). |
+| [`MyGridTerminalSystemPatch.cs`](files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md) | `Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs` | Skips the per-run refresh of `IsAccessibleForProgrammableBlock` on every terminal block when the owner, the blocks and their ownership have not changed since the last run. |
+| [`MyToolbarItemTerminalGroupPatch.cs`](files/Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs.md) | `Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs` | Caches the terminal actions collected for a block group on a cockpit toolbar, so the per-frame toolbar refresh stops walking every block of the group. |
 | [`MyWindTurbinePatch.cs`](files/Shared/Patches/WindTurbine/MyWindTurbinePatch.cs.md) | `Shared/Patches/WindTurbine/MyWindTurbinePatch.cs` | Caches the result of the `MyWindTurbine.IsInAtmosphere` property getter per turbine entity for approximately 30 seconds to avoid repeated atmosphere checks. |
 
 ## [Tests](modules/tests.md)

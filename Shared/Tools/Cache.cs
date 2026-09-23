@@ -45,6 +45,8 @@ namespace Shared.Tools
 
         private readonly RwLockDictionary<TK, Item> cache = new RwLockDictionary<TK, Item>();
 
+        public int Count => cache.Count;
+
         public Cache(int cleanupPeriod, int maxDeleteCount = 64)
         {
             this.cleanupPeriod = cleanupPeriod;

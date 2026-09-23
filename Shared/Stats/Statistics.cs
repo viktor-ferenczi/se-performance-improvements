@@ -80,6 +80,9 @@ namespace Shared.Stats
             MySessionComponentSafeZonesPatch.CaptureStatistics(snapshot);
             MyWindTurbinePatch.CaptureStatistics(snapshot);
             MyGridConveyorSystemPatch.CaptureStatistics(snapshot);
+            MyAssemblerPatch.CaptureStatistics(snapshot);
+            MyToolbarItemTerminalGroupPatch.CaptureStatistics(snapshot);
+            MyGridTerminalSystemPatch.CaptureStatistics(snapshot);
 
             return snapshot;
         }

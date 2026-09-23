@@ -19,6 +19,14 @@ Verify links: `python3 Docs/data/scripts/check_links.py`
 
 ## Update history
 
+- Synced with the `auto-research` branch: new `MyToolbarItemTerminalGroupPatch` page (simulation-and-blocks), `MyAssemblerPatch` rewritten as the active master assembler cache, `Generation` and the `FlagForRecomputation` hook on the conveyor cache core, `FixToolbar` on the config pages. Later in the same branch: the image loading
+pages (`ImageLoader`, `ImageSharpRuntime`, `MyImagePatch`), the asteroid voxel
+preload pages (`MySandboxGamePatchForVoxelPreload`,
+`MyStorageBasePatchForVoxelPreload`), `MyGridTargetingPatch`,
+`MyWindowsSystemPatchForStats`, and `MyPhysicsPatch` replaced by
+`MyWindowsSystemPatch` (configurable Havok thread count). Now 101 files,
+16 modules.
+
 - Initial generation: 87 files, 16 modules (commit `ca1c1ee`).
 - Synced with code commit `ffc18d6` ("Fixes"): removed `WineDetector` doc;
   relocated `MyWheelPatch` / `MyLcdSurfaceComponentPatch` docs to
@@ -41,6 +49,24 @@ Verify links: `python3 Docs/data/scripts/check_links.py`
   `keen-overhead-removal` module pages. Regenerated `manifest.jsonl` (LF-based),
   `linkmap.json` and `Index.md`. Back to 87 files, 16 modules.
 
+- Backfilled the five pages the manifest listed without a doc, which made
+  `build_index.py` fail with `FileNotFoundError` and forced hand edits of
+  `Index.md`: `Shared/Stats/Statistics.cs`, `Shared/Stats/StatisticsSnapshot.cs`
+  and `ServerPlugin/Stats/PerformanceStats.cs` (runtime statistics pipeline,
+  added by the Telemetry change `ad4dd79`) and `Shared/Tools/ModRewriterVersions.cs`
+  / `Shared/Tools/LegacyModRewriters.cs` (compilation cache keys, `748f70c` and
+  `ab8cdab`). Added a `Shared/Stats/` rule to `build_manifest.py` assigning the
+  statistics driver to `shared-plugin-core` (it was `unclassified`); refreshed the
+  `shared-plugin-core`, `server-plugin` and `tools` module pages, `modules.json`
+  and the TOC. Now 98 files, 16 modules, `Index.md` generated again.
+
+- Consistency check after `d221973`: regenerated `manifest.jsonl` (it predated the
+  settings wrapping change `1f3e985` and the thread slider changes), refreshed the
+  line counts of ten pages and `Index.md` (the `XmlSerializationReaderPatch` row was
+  hand-inserted), and corrected the pages still calling `Game` the server default of
+  the Havok thread count and the memory statistics and target group fixes off on the
+  server (reverted in `9bbbc24`). Now 102 files, 16 modules.
+
 ## Incremental re-run
 
 On a code change, re-run `build_manifest.py` then `generate_scaffolds.py`: only files
@@ -54,5 +80,5 @@ scaffold, re-document it, then run `resolve_wikilinks.py`, `build_index.py`, `ch
 - `Docs/Index.md` — flat file index (generated)
 - `Docs/PerformanceFixes.md` — per-fix rationale (pre-existing, integrated)
 - `Docs/modules/<module>.md` — 16 module pages
-- `Docs/files/<source-path>.md` — 87 per-file pages (mirror the source tree)
+- `Docs/files/<source-path>.md` — 102 per-file pages (mirror the source tree)
 - `Docs/data/` — manifest, module map, link map, authoring guide, generator scripts

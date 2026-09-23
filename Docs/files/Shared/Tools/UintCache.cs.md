@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Tools & Data Structures](../../../modules/tools.md) |
-| **Source** | [`UintCache.cs`](../../../../Shared/Tools/UintCache.cs) (128 lines) |
+| **Source** | [`UintCache.cs`](../../../../Shared/Tools/UintCache.cs) (140 lines) |
 | **Kind** | Generic class `UintCache<TK>` |
 | **Role** | Cache primitive |
 

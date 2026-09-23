@@ -14,7 +14,7 @@ Please consider supporting my work on [Patreon](https://www.patreon.com/semods) 
 - Optimized grid operations (less redundant calculations)
 - Optimized world loading (compilation cache)
 - Improved algorithms (simulation, data structures)
-- Less memory allocation (lower GC pressule)
+- Less memory allocation (lower GC pressure)
 
 <details>
 <summary>Details</summary>
@@ -29,20 +29,26 @@ the code that implements them is organized.
 
 **World loading**
 - Cache compiled mods and in-game (PB) scripts
+- Decode planet maps and PNG textures with a newer ImageSharp
+- Skip the preloading of the vanilla asteroid voxels on game start
+- Parse worlds, blueprints and definitions from XML several times faster
 - Eliminate long pauses from explicit `GC.Collect` calls
 - Disable Mod API call statistics overhead
 
 **Simulation & CPU**
 - Eliminate the constant EOS P2P `UpdateStats` core load
+- Read the process memory statistic once per second instead of every frame
 - Cache safe zone checks (`IsSafe`, `IsActionAllowed`, optimized `IsOutside`)
 - Cache wind turbine atmosphere checks
-- Cache conveyor network reachability lookups
-- Physics optimizations (`RigidBody` getter, Havok thread count, faster cluster reordering)
+- Cache conveyor network reachability lookups and the cooperative assembler master lookup
+- Cache the toolbar actions of large block groups while seated
+- Physics optimizations (`RigidBody` getter, configurable Havok thread count, faster cluster reordering)
 - Reduce frequent memory allocations (`MyDefinitionId.ToString`, turret targeting, voxel material lookups)
-- Less frequent sync of block counts, block access rights and PB access to blocks
+- Linear instead of quadratic refresh of turret target groups
+- Less frequent sync of block counts and block access rights; PB access to blocks refreshed only when something changed
 - Disable server-side character footprints and wheel trail tracking
 - Disable functional blocks in projected grids
-- Rate limit log flooding from `GetBlueprintDefinition`
+- Eliminate the blueprint-not-found log flooding from `GetBlueprintDefinition`
 
 </details>
 
@@ -64,7 +70,7 @@ to regenerate it after changing the code.
 
 Have [Pulsar](https://github.com/SpaceGT/Pulsar) installed. Link to the Installer is in the README there.
 
-1. Enable the **Performance Improvements** plugin from the **Plugins** dialog.
+1. Enable the **Performance** plugin from the **Plugins** dialog.
 2. Apply and restart the game.
 
 ### Server
@@ -74,35 +80,38 @@ Have [Pulsar](https://github.com/SpaceGT/Pulsar) installed. Link to the Installe
 
 Have [Quasar](https://github.com/CometWorks/quasar) installed and a server created.
 
-1. Enable the **Performance Improvements** plugin in your config profile(s).
+1. Enable the **Performance** plugin in your config profile(s).
 2. Restart the server, so it picks up the plugin
 
 The configuration is on Quasar's Web UI.
 
-The client enables all newly added performance fixes by default.
+The server leaves off the fixes an admin may notice in the game - mostly the ones
+that serve a cached value for a while instead of recomputing it - and enables the
+rest; the client enables everything.
 </details>
 
 <details>
 <summary>Magnetar</summary>
 
 For standalone [Magnetar](https://github.com/CometWorks/magnetar) 
-you need to reference the Performance Improvements plugin from the `Current` profile.
+you need to reference the Performance plugin from the `Current` profile.
 
 Edit the profile:
 - Linux: `~/.config/Magnetar/Profiles/Current.xml`
-- Windows: `%AppData%\Magnetar\Logacy\Profiles\Current.xml`
+- Windows: `%AppData%\Magnetar\Legacy\Profiles\Current.xml`
 
 Directly inside the `<GitHub>` element insert:
 ```xml
     <GitHubPluginConfig>
-      <Id>viktor-ferenczi/se-performance-improvements</Id>
+      <Id>454B0F55-C727-4DAB-B1A9-5AE6050A0932</Id>
     </GitHubPluginConfig>
 ```
 
 Configuration file is `Performance.cfg`, created in the `SpaceEngineersDedicated` folder.
 **FIXME:** Include a default config here, because only the ones with non-default values are saved.
 
-The server uses conservative defaults and does not enable any recently added performance fixes.
+The server leaves off the fixes an admin may notice in the game - mostly the ones that
+serve a cached value for a while instead of recomputing it - and enables the rest.
 </details>
 
 ## Community & support
@@ -162,15 +171,18 @@ is shared by all contributors and stays under version control. Bump the version 
 
 ### Folder path overrides
 
-`Directory.Build.props.template` is a template for `Directory.Build.props`. The latter is a
-local config file you can use to override the reference folder paths (`Bin64` for the Space
-Engineers client, `Pulsar` and `Magnetar` for the two plugin loaders, and `Dedicated64` for
-the Dedicated Server). It is **not committed** to the repository, so each contributor keeps
-their own local paths.
+`Directory.Build.props` **is** committed and holds the auto-detection for every reference
+folder path (`Bin64` for the Space Engineers client, `Pulsar` and `Magnetar` for the two
+plugin loaders, and `Dedicated64` for the Dedicated Server). It works unmodified on both
+Windows and Linux, so a fresh clone normally builds without any setup at all.
 
-`setup.py` copies `Directory.Build.props.template` to `Directory.Build.props` if the latter
-does not exist yet, then fills in the auto-detected paths. Because the override is not
-committed, anyone else who clones the repo and runs `setup.py` gets their own
-`Directory.Build.props` with paths properly auto-detected for their machine. Leaving a path
-empty in `Directory.Build.props` falls back to the platform-specific auto-detection further
-down in the same file (Windows and Linux), so the build works on both operating systems.
+`Directory.Build.props.user` is where you override those paths when the auto-detection does
+not find your install. It is **not committed** (`*.user` is git-ignored), so each contributor
+keeps their own local paths while still getting improvements to the committed file. Copy the
+first `PropertyGroup` of `Directory.Build.props` into it, wrapped into a top-level `Project`
+element, and fill in what you need; `setup.py` writes the file for you with the paths it
+auto-detects, and leaves any other overrides in it alone on a re-run.
+
+The overrides are imported before the auto-detection, and every auto-detection step is
+conditional on the property still being empty, so a path set in `Directory.Build.props.user`
+always wins and an empty one falls back to the auto-detection.

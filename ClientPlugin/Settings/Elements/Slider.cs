@@ -22,7 +22,10 @@ internal class SliderAttribute : Attribute, IElement
     public readonly string Label;
     public readonly string Description;
 
-    public SliderAttribute(float min, float max, float step = 1f, SliderType type = SliderType.Float, string label = null, string description = null)
+    // Name of a bool property of Config; the slider is disabled while it is false
+    public readonly string EnabledBy;
+
+    public SliderAttribute(float min, float max, float step = 1f, SliderType type = SliderType.Float, string label = null, string description = null, string enabledBy = null)
     {
         Min = min;
         Max = max;
@@ -30,6 +33,32 @@ internal class SliderAttribute : Attribute, IElement
         Type = type;
         Label = label;
         Description = description;
+        EnabledBy = enabledBy;
+    }
+
+    // Follows the config on every update, so a value the config changes on its own (or an
+    // option which disables the slider) shows up while the dialog is open
+    private class ConfigSlider : MyGuiControlSlider
+    {
+        public Func<object> Getter;
+        public Func<bool> IsEnabled;
+
+        public ConfigSlider(string toolTip, float defaultValue, float minValue, float maxValue, bool intValue)
+            : base(toolTip: toolTip, defaultValue: defaultValue, minValue: minValue, maxValue: maxValue, intValue: intValue)
+        {
+        }
+
+        public override void Update()
+        {
+            if (IsEnabled != null)
+                Enabled = IsEnabled();
+
+            var value = Convert.ToSingle(Getter());
+            if (Value != value)
+                Value = value;
+
+            base.Update();
+        }
     }
 
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
@@ -78,14 +107,17 @@ internal class SliderAttribute : Attribute, IElement
             return true;
         }
 
-        var slider = new MyGuiControlSlider(
-            toolTip: Description,
+        var enabledBy = EnabledBy == null ? null : typeof(Config).GetProperty(EnabledBy);
+        var slider = new ConfigSlider(
+            toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth),
             defaultValue: Convert.ToSingle(propertyGetter()),
             minValue: Min,
             maxValue: Max,
             intValue: Type == SliderType.Integer)
         {
             MinimumStepOverride = Step,
+            Getter = propertyGetter,
+            IsEnabled = enabledBy == null ? null : () => (bool)enabledBy.GetValue(Config.Current),
         };
 
         if (Type == SliderType.Float)

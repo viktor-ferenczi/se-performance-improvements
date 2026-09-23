@@ -1,40 +1,45 @@
 # `Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs`
 
-*Rate-limits `MyGridTerminalSystem.UpdateGridBlocksOwnership` to suppress redundant PB access-right syncs (file is currently compiled out via `#if BUGGY`).*
+*Skips the per-run refresh of `IsAccessibleForProgrammableBlock` on every terminal block when the owner, the blocks and their ownership have not changed since the last run.*
 
 |  |  |
 | --- | --- |
 | **Module** | [Simulation & Block Patches](../../../../modules/simulation-and-blocks.md) |
-| **Source** | [`MyGridTerminalSystemPatch.cs`](../../../../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs) (80 lines) |
-| **Kind** | Static Harmony patch class (currently disabled — file wrapped in `#if BUGGY`) |
+| **Source** | [`MyGridTerminalSystemPatch.cs`](../../../../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs) (162 lines) |
+| **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 
 ## Purpose
 
-`MyGridTerminalSystem.UpdateGridBlocksOwnership` is called from `MyProgrammableBlock.RunSandboxedProgramAction` on every PB execution to refresh `IsAccessibleForProgrammableBlock` for every block in the grid. On busy servers with many active PBs this method runs far too often — ownership changes rarely, making the bulk of these calls redundant (see the "Less frequent update of PB access to blocks" section in `Docs/PerformanceFixes.md`).
+`MyGridTerminalSystem.UpdateGridBlocksOwnership` runs before every programmable block execution and sets `IsAccessibleForProgrammableBlock` on every terminal block of the grid group from the owner's access rights (`HasPlayerAccessWithNobodyCheck`). With a script running every tick on a large grid that walk is most of the main thread's time (42% on a 33000 block grid). See the *Skipping redundant updates of PB access to blocks* section in `Docs/PerformanceFixes.md`.
 
-A Prefix uses a [`UintCache.cs`](../../Tools/UintCache.cs.md) keyed by `GetHashCode() ^ ownerID` as an inhibitor: the first call for a given `(terminal-system, owner)` pair goes through normally and records a cache entry; subsequent calls within the TTL (approximately 4 seconds, 4 × 60 + jitter ticks) are skipped. The stored value is `(uint)ownerID` so that key collisions are detected and allowed through. The patch is governed by `Config.FixTerminal` and cleared when that flag is toggled off.
+The Prefix keeps one entry per terminal system in a `ConditionalWeakTable` (keyed by the instance itself, so a hash collision can never skip a needed walk) with the owner the flags were last computed for, the generation they were computed at and an expiry. A call with the same owner and generation before the expiry is skipped; otherwise the original runs and the Postfix records it. The generation is bumped by Postfixes on `MyGridTerminalSystem.Add` / `Remove` and on `MyCubeGrid.NotifyBlockOwnershipChange` / `ChangeGridOwnership`, which covers everything but faction relation and admin setting changes; those are covered by the two second expiry. Gated by `Config.FixTerminal`; the hit rate is published as `Terminal.PbAccess`.
 
 ## Key members
 
 | Member | Kind | Description |
 | --- | --- | --- |
-| `Inhibitor` | `UintCache<long>` | Rate-limiter keyed by hash of terminal system + owner; TTL ~4 s. |
-| `UpdateGridBlocksOwnershipPrefix` | Prefix | Suppresses the call when a valid inhibitor entry exists; stores a new entry on the first allowed call. |
-| `Configure()` / `OnConfigChanged` | Static methods | Gate the patch on `Config.FixTerminal` and clear the inhibitor on disable. |
-| `Update()` | Static method | Advances inhibitor TTL cleanup each simulation tick. |
+| `Applied` | Private class | Owner, generation and expiry of the last walk of one terminal system. |
+| `Entries` | `ConditionalWeakTable<MyGridTerminalSystem, Applied>` | The per terminal system entries; die with the terminal system. |
+| `generation` | `long` | Bumped by the invalidation Postfixes. |
+| `UpdateGridBlocksOwnershipPrefix` / `Postfix` | Prefix / Postfix | Skip the walk on a valid entry; record the walk otherwise. |
+| `AddPostfix`, `RemovePostfix`, `NotifyBlockOwnershipChangePostfix`, `ChangeGridOwnershipPostfix` | Postfixes | Invalidate every entry. |
+| `CaptureStatistics(StatisticsSnapshot)` | Static method | Reports the hit rate as `Terminal.PbAccess`. |
 
 ## Patch targets
 
 | Target | Patch | Effect |
 | --- | --- | --- |
-| `MyGridTerminalSystem.UpdateGridBlocksOwnership` | Prefix | Skips redundant ownership sync calls; allows through at most once per ~4 seconds per (grid terminal system, owner) pair. |
+| `MyGridTerminalSystem.UpdateGridBlocksOwnership` | Prefix | Skips the walk when nothing it depends on changed. |
+| `MyGridTerminalSystem.UpdateGridBlocksOwnership` | Postfix | Records the owner and generation of a walk that ran. |
+| `MyGridTerminalSystem.Add` / `Remove` | Postfix | Invalidate (blocks joined or left a terminal system). |
+| `MyCubeGrid.NotifyBlockOwnershipChange` / `ChangeGridOwnership` | Postfix | Invalidate (ownership or share mode changed). |
 
 ## References
 
-- [`MyCubeBlockPatch.cs`](../Block/MyCubeBlockPatch.cs.md) — related block access-rights caching
-- [`MyTerminalBlockPatch.cs`](../Block/MyTerminalBlockPatch.cs.md) — related terminal access-rights caching
-- [simulation-and-blocks](../../../../modules/simulation-and-blocks.md)
+- [`CacheStat.cs`](../../Tools/CacheStat.cs.md) — hit rate counters published through [`Statistics.cs`](../../Stats/Statistics.cs.md)
+- [`MyCubeGridPatchForConveyor.cs`](../Conveyor/MyCubeGridPatchForConveyor.cs.md) — hooks the same ownership events for the conveyor caches
+- [simulation-and-blocks](../../../../modules/simulation-and-blocks.md) — module overview
 
 ---
 

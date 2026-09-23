@@ -32,7 +32,9 @@ MODULE_RULES = [
     ("server-plugin",   lambda p: p.startswith("ServerPlugin/")),
     ("logging",         lambda p: p.startswith("Shared/Logging/")),
     ("tools",           lambda p: p.startswith("Shared/Tools/")),
-    ("shared-plugin-core", lambda p: p.startswith("Shared/Plugin/") or p.startswith("Shared/Config/")),
+    # The runtime statistics driver is host-agnostic glue wired up from Common /
+    # PatchHelpers with a host-supplied publisher, so it is documented with the core.
+    ("shared-plugin-core", lambda p: p.startswith("Shared/Plugin/") or p.startswith("Shared/Config/") or p.startswith("Shared/Stats/")),
     ("patch-infrastructure", lambda p: p == "Shared/Patches/PatchHelpers.cs"),
     ("merge-and-paste", lambda p: p.startswith("Shared/Patches/MergeAndPaste/")),
     ("conveyor",        lambda p: p.startswith("Shared/Patches/Conveyor/")),
@@ -40,7 +42,7 @@ MODULE_RULES = [
     ("safe-zone",       lambda p: p.startswith("Shared/Patches/SafeZone/")),
     ("keen-overhead-removal", lambda p: p.startswith("Shared/Patches/Bullshit/")),
     ("memory-allocation", lambda p: p.startswith("Shared/Patches/Memory/") or p.startswith("Shared/Patches/Voxel/")),
-    ("world-loading",   lambda p: p.startswith("Shared/Patches/ScriptCompiler/") or p.startswith("Shared/Patches/DefinitionManager/")),
+    ("world-loading",   lambda p: p.startswith("Shared/Patches/ScriptCompiler/") or p.startswith("Shared/Patches/DefinitionManager/") or p.startswith("Shared/Patches/Image/") or p.startswith("Shared/Patches/Serialization/")),
     ("simulation-and-blocks", lambda p: p.startswith("Shared/Patches/")),
     ("tests",           lambda p: p.startswith("Tests/")),
 ]

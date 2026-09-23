@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Settings UI Framework](../../../../modules/client-settings.md) |
-| **Source** | [`Control.cs`](../../../../../ClientPlugin/Settings/Elements/Control.cs) (30 lines) |
+| **Source** | [`Control.cs`](../../../../../ClientPlugin/Settings/Elements/Control.cs) (50 lines) |
 | **Kind** | `Internal class` |
 | **Role** | Layout-hint wrapper |
 
@@ -20,13 +20,17 @@
 - `Offset` — fine-tune nudge applied on top of the computed position.
 - `OriginAlign` — the `MyGuiDrawAlignEnum` used when setting the control's `Position`.
 
-The static `LabelMinWidth` constant (`0.18f`) is a shared minimum width applied to all label columns across all element types.
+The static fields describe the dialog's own geometry, measured on the dialog rather than derived from it (see the `FIXME` in the file). `RowLeft` (`0.04f`) and `RowRight` (`0.94f`) are where a row starts and where it has to end — a little short of the `0.95` at which the scrolled area is clipped by the scrollbar, since a glyph's ink can reach slightly past the width it is measured at. `LabelMinWidth` (`0.3f`) is the shared minimum width of the label column, `LabelGap` (`0.01f`) keeps a long label from touching what follows it, and `DescriptionMinWidth` is what a checkbox row has left for its description once those have taken theirs. `ToolTipWidth` (`0.6f`) is the width tooltips are wrapped to; they are drawn next to the cursor rather than inside the dialog, so they get a width of their own.
 
 ## Key members
 
 | Member | Kind | Description |
 | --- | --- | --- |
+| `RowLeft` / `RowRight` | `static float` | Where a row starts and where it has to end, inside the clipped scroll area. |
 | `LabelMinWidth` | `static float` | Global minimum width for label controls; used by all element `GetControls` implementations. |
+| `LabelGap` | `static float` | Gap kept between a label and the control or description after it. |
+| `DescriptionMinWidth` | `static float` | What is left of a checkbox row for its description when the label is at its minimum width. |
+| `ToolTipWidth` | `static float` | Width tooltips are wrapped to. |
 | `GuiControl` | `MyGuiControlBase` | The underlying game GUI widget. |
 | `FixedWidth` | `float?` | If set, [`Simple.cs`](../Layouts/Simple.cs.md) forces this exact width. |
 | `FillFactor` | `float?` | Proportional share of remaining width; used by [`Simple.cs`](../Layouts/Simple.cs.md)'s distribution algorithm. |

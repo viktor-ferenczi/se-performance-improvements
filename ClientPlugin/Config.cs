@@ -50,6 +50,13 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(label: "Fix memory statistics", description: "Reads the process memory size for the statistics once per second instead of on every frame (MyWindowsSystem.ProcessPrivateMemory)")]
+    public bool FixMemoryStats
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Checkbox(label: "Fix P2P update stats", description: "Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)")]
     public bool FixP2PUpdateStats
     {
@@ -87,6 +94,27 @@ public class Config : IPluginConfig
 
     [Checkbox(label: "Disable Mod API statistics", description: "Disable the collection of Mod API call statistics to eliminate the overhead")]
     public bool DisableModApiStatistics
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Faster image loading", description: "Decodes planet maps and PNG textures with a newer ImageSharp than the game ships")]
+    public bool UpgradeImageSharp
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Skip asteroid voxel preloading", description: "Skips loading the vanilla asteroid voxel files on game start, they are loaded on first use instead (needs restart)")]
+    public bool SkipVoxelPreload
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Faster XML loading", description: "Loads worlds, blueprints and definitions from XML faster by setting up the XML reader's name lookup once per file instead of once per block")]
+    public bool FixXmlDeserialization
     {
         get;
         set => SetField(ref field, value);
@@ -142,8 +170,15 @@ public class Config : IPluginConfig
         set { }
     }
 
+    [Checkbox(label: "Fix turret target groups", description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)")]
+    public bool FixTargetGroups
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Separator("Requires server restart")]
-    [Checkbox(label: "Fix targeting allocations (needs restart)", description: "Reduces memory allocations in the turret targeting system (needs restart)")]
+    [Checkbox(label: "Fix turret targeting (needs restart)", description: "Reduces memory allocations in the turret targeting system (needs restart)")]
     public bool FixTargeting
     {
         get;
@@ -156,6 +191,27 @@ public class Config : IPluginConfig
         get;
         set => SetField(ref field, value);
     } = true;
+
+    [Dropdown(label: "Physics thread count", description: "Game: leaves the sizing of the Havok worker thread pool to the game.\r\nAuto: one worker per physical CPU core, minus one to leave the main thread a core of its own. Hyper-threading siblings are not counted, they only add contention.\r\nManual: exactly the number below. Needs a restart.")]
+    public HavokThreadCountMode HavokThreadCountMode
+    {
+        get;
+        set
+        {
+            if (SetField(ref field, value) && value == HavokThreadCountMode.Auto)
+                HavokThreadCount = HavokThreads.Auto;
+        }
+    } = HavokThreadCountMode.Auto;
+
+    // In the Auto mode the count is always this machine's number, whatever was stored or set
+    [Slider(HavokThreads.Min, HavokThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "Physics threads", description: "Number of Havok worker threads used in the Manual mode. It can only be changed in the Manual mode. In the Auto mode it shows the number this machine gets, in the Game mode it is unused. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference. Needs a restart.", enabledBy: nameof(HavokThreadCountEditable))]
+    public int HavokThreadCount
+    {
+        get;
+        set => SetField(ref field, HavokThreadCountMode == HavokThreadCountMode.Auto ? HavokThreads.Auto : value);
+    } = HavokThreads.Auto;
+
+    public bool HavokThreadCountEditable => HavokThreadCountMode == HavokThreadCountMode.Manual;
 
     [Checkbox(label: "Fix character performance (needs restart)", description: "Disables character footprint logic on server side (needs restart)")]
     public bool FixCharacter
@@ -172,7 +228,7 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Less frequent update of PB access to blocks", description: "Suppresses frequent calls to MyGridTerminalSystem.UpdateGridBlocksOwnership updating IsAccessibleForProgrammableBlock unnecessarily often")]
+    [Checkbox(label: "Skip redundant updates of PB access to blocks", description: "Skips MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)")]
     public bool FixTerminal
     {
         get;
@@ -193,8 +249,8 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Rate limit logs with flooding potential", description: "Rate limited excessive logging from MyDefinitionManager.GetBlueprintDefinition")]
-    public bool FixLogFlooding
+    [Checkbox(label: "Fix toolbar group updates", description: "Caches the terminal actions of block groups on the toolbar for a second (MyToolbarItemTerminalGroup.GetActionsWithGenericDuplicates)")]
+    public bool FixToolbar
     {
         get;
         set => SetField(ref field, value);

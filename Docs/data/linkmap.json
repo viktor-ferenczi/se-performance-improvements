@@ -12,6 +12,12 @@
       "toc": "../../TOC.md",
       "index": "../../Index.md"
     },
+    "ClientPlugin/Preloader.cs": {
+      "module": "../../modules/client-plugin.md",
+      "source": "../../../ClientPlugin/Preloader.cs",
+      "toc": "../../TOC.md",
+      "index": "../../Index.md"
+    },
     "ClientPlugin/Settings/ConfigStorage.cs": {
       "module": "../../../modules/client-settings.md",
       "source": "../../../../ClientPlugin/Settings/ConfigStorage.cs",
@@ -150,6 +156,12 @@
       "toc": "../../TOC.md",
       "index": "../../Index.md"
     },
+    "ServerPlugin/Stats/PerformanceStats.cs": {
+      "module": "../../../modules/server-plugin.md",
+      "source": "../../../../ServerPlugin/Stats/PerformanceStats.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
     "Shared/Config/IPluginConfig.cs": {
       "module": "../../../modules/shared-plugin-core.md",
       "source": "../../../../Shared/Config/IPluginConfig.cs",
@@ -195,6 +207,12 @@
     "Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs": {
       "module": "../../../../modules/keen-overhead-removal.md",
       "source": "../../../../../Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs": {
+      "module": "../../../../modules/keen-overhead-removal.md",
+      "source": "../../../../../Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs",
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
@@ -276,6 +294,24 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
+    "Shared/Patches/Image/ImageLoader.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/Image/ImageLoader.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Image/ImageSharpRuntime.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/Image/ImageSharpRuntime.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Image/MyImagePatch.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/Image/MyImagePatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs": {
       "module": "../../../../modules/memory-allocation.md",
       "source": "../../../../../Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs",
@@ -330,9 +366,9 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
-    "Shared/Patches/Physics/MyPhysicsPatch.cs": {
+    "Shared/Patches/Physics/MyWindowsSystemPatch.cs": {
       "module": "../../../../modules/physics.md",
-      "source": "../../../../../Shared/Patches/Physics/MyPhysicsPatch.cs",
+      "source": "../../../../../Shared/Patches/Physics/MyWindowsSystemPatch.cs",
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
@@ -366,6 +402,12 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
+    "Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs": {
       "module": "../../../../modules/simulation-and-blocks.md",
       "source": "../../../../../Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
@@ -375,6 +417,24 @@
     "Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs": {
       "module": "../../../../modules/simulation-and-blocks.md",
       "source": "../../../../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs": {
+      "module": "../../../../modules/memory-allocation.md",
+      "source": "../../../../../Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs": {
+      "module": "../../../../modules/memory-allocation.md",
+      "source": "../../../../../Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs",
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
@@ -399,6 +459,18 @@
     "Shared/Plugin/ICommonPlugin.cs": {
       "module": "../../../modules/shared-plugin-core.md",
       "source": "../../../../Shared/Plugin/ICommonPlugin.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Stats/Statistics.cs": {
+      "module": "../../../modules/shared-plugin-core.md",
+      "source": "../../../../Shared/Stats/Statistics.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Stats/StatisticsSnapshot.cs": {
+      "module": "../../../modules/shared-plugin-core.md",
+      "source": "../../../../Shared/Stats/StatisticsSnapshot.cs",
       "toc": "../../../TOC.md",
       "index": "../../../Index.md"
     },
@@ -447,6 +519,18 @@
     "Shared/Tools/IgnoresAccessChecksToAttribute.cs": {
       "module": "../../../modules/tools.md",
       "source": "../../../../Shared/Tools/IgnoresAccessChecksToAttribute.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/LegacyModRewriters.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/LegacyModRewriters.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/ModRewriterVersions.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/ModRewriterVersions.cs",
       "toc": "../../../TOC.md",
       "index": "../../../Index.md"
     },
@@ -535,7 +619,7 @@
           "doc_link": "../files/ClientPlugin/Config.cs.md",
           "source_link": "../../ClientPlugin/Config.cs",
           "tier": 1,
-          "lines": 224
+          "lines": 273
         },
         {
           "path": "ClientPlugin/Plugin.cs",
@@ -543,7 +627,15 @@
           "doc_link": "../files/ClientPlugin/Plugin.cs.md",
           "source_link": "../../ClientPlugin/Plugin.cs",
           "tier": 1,
-          "lines": 122
+          "lines": 201
+        },
+        {
+          "path": "ClientPlugin/Preloader.cs",
+          "name": "Preloader.cs",
+          "doc_link": "../files/ClientPlugin/Preloader.cs.md",
+          "source_link": "../../ClientPlugin/Preloader.cs",
+          "tier": 3,
+          "lines": 20
         }
       ]
     },
@@ -573,8 +665,8 @@
           "name": "Checkbox.cs",
           "doc_link": "../files/ClientPlugin/Settings/Elements/Checkbox.cs.md",
           "source_link": "../../ClientPlugin/Settings/Elements/Checkbox.cs",
-          "tier": 3,
-          "lines": 35
+          "tier": 2,
+          "lines": 36
         },
         {
           "path": "ClientPlugin/Settings/Elements/Color.cs",
@@ -590,7 +682,7 @@
           "doc_link": "../files/ClientPlugin/Settings/Elements/Control.cs.md",
           "source_link": "../../ClientPlugin/Settings/Elements/Control.cs",
           "tier": 3,
-          "lines": 30
+          "lines": 31
         },
         {
           "path": "ClientPlugin/Settings/Elements/Dropdown.cs",
@@ -709,7 +801,7 @@
           "doc_link": "../files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md",
           "source_link": "../../Shared/Patches/Conveyor/MyAssemblerPatch.cs",
           "tier": 2,
-          "lines": 78
+          "lines": 159
         },
         {
           "path": "Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs",
@@ -733,7 +825,7 @@
           "doc_link": "../files/Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs.md",
           "source_link": "../../Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs",
           "tier": 1,
-          "lines": 319
+          "lines": 295
         },
         {
           "path": "Shared/Patches/Conveyor/MyPathFindingSystemEnumeratorPatch.cs",
@@ -772,8 +864,8 @@
           "name": "PullItemStats.cs",
           "doc_link": "../files/Shared/Patches/Conveyor/PullItemStats.cs.md",
           "source_link": "../../Shared/Patches/Conveyor/PullItemStats.cs",
-          "tier": 3,
-          "lines": 32
+          "tier": 2,
+          "lines": 42
         }
       ]
     },
@@ -797,6 +889,14 @@
           "source_link": "../../Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs",
           "tier": 2,
           "lines": 41
+        },
+        {
+          "path": "Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs",
+          "name": "MyWindowsSystemPatchForStats.cs",
+          "doc_link": "../files/Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs.md",
+          "source_link": "../../Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs",
+          "tier": 2,
+          "lines": 65
         },
         {
           "path": "Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs",
@@ -861,6 +961,22 @@
           "lines": 26
         },
         {
+          "path": "Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs",
+          "name": "MySandboxGamePatchForVoxelPreload.cs",
+          "doc_link": "../files/Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs.md",
+          "source_link": "../../Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs",
+          "tier": 2,
+          "lines": 120
+        },
+        {
+          "path": "Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs",
+          "name": "MyStorageBasePatchForVoxelPreload.cs",
+          "doc_link": "../files/Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs.md",
+          "source_link": "../../Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs",
+          "tier": 2,
+          "lines": 37
+        },
+        {
           "path": "Shared/Patches/Voxel/MyStorageExtensionsPatch.cs",
           "name": "MyStorageExtensionsPatch.cs",
           "doc_link": "../files/Shared/Patches/Voxel/MyStorageExtensionsPatch.cs.md",
@@ -920,7 +1036,7 @@
           "doc_link": "../files/Shared/Patches/PatchHelpers.cs.md",
           "source_link": "../../Shared/Patches/PatchHelpers.cs",
           "tier": 1,
-          "lines": 207
+          "lines": 234
         }
       ]
     },
@@ -946,12 +1062,12 @@
           "lines": 49
         },
         {
-          "path": "Shared/Patches/Physics/MyPhysicsPatch.cs",
-          "name": "MyPhysicsPatch.cs",
-          "doc_link": "../files/Shared/Patches/Physics/MyPhysicsPatch.cs.md",
-          "source_link": "../../Shared/Patches/Physics/MyPhysicsPatch.cs",
+          "path": "Shared/Patches/Physics/MyWindowsSystemPatch.cs",
+          "name": "MyWindowsSystemPatch.cs",
+          "doc_link": "../files/Shared/Patches/Physics/MyWindowsSystemPatch.cs.md",
+          "source_link": "../../Shared/Patches/Physics/MyWindowsSystemPatch.cs",
           "tier": 2,
-          "lines": 51
+          "lines": 115
         },
         {
           "path": "Shared/Patches/Physics/PhysicsFixes.cs",
@@ -974,7 +1090,7 @@
           "doc_link": "../files/Shared/Patches/SafeZone/MySafeZonePatch.cs.md",
           "source_link": "../../Shared/Patches/SafeZone/MySafeZonePatch.cs",
           "tier": 1,
-          "lines": 180
+          "lines": 183
         },
         {
           "path": "Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs",
@@ -982,7 +1098,7 @@
           "doc_link": "../files/Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs.md",
           "source_link": "../../Shared/Patches/SafeZone/MySessionComponentSafeZonesPatch.cs",
           "tier": 2,
-          "lines": 92
+          "lines": 96
         }
       ]
     },
@@ -997,7 +1113,7 @@
           "doc_link": "../files/ServerPlugin/Config/PerformanceConfig.cs.md",
           "source_link": "../../ServerPlugin/Config/PerformanceConfig.cs",
           "tier": 2,
-          "lines": 108
+          "lines": 133
         },
         {
           "path": "ServerPlugin/Plugin.cs",
@@ -1005,7 +1121,7 @@
           "doc_link": "../files/ServerPlugin/Plugin.cs.md",
           "source_link": "../../ServerPlugin/Plugin.cs",
           "tier": 1,
-          "lines": 284
+          "lines": 297
         },
         {
           "path": "ServerPlugin/Preloader.cs",
@@ -1013,7 +1129,15 @@
           "doc_link": "../files/ServerPlugin/Preloader.cs.md",
           "source_link": "../../ServerPlugin/Preloader.cs",
           "tier": 3,
-          "lines": 24
+          "lines": 32
+        },
+        {
+          "path": "ServerPlugin/Stats/PerformanceStats.cs",
+          "name": "PerformanceStats.cs",
+          "doc_link": "../files/ServerPlugin/Stats/PerformanceStats.cs.md",
+          "source_link": "../../ServerPlugin/Stats/PerformanceStats.cs",
+          "tier": 2,
+          "lines": 88
         }
       ]
     },
@@ -1028,7 +1152,7 @@
           "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
           "source_link": "../../Shared/Config/IPluginConfig.cs",
           "tier": 2,
-          "lines": 87
+          "lines": 153
         },
         {
           "path": "Shared/Plugin/Common.cs",
@@ -1036,7 +1160,7 @@
           "doc_link": "../files/Shared/Plugin/Common.cs.md",
           "source_link": "../../Shared/Plugin/Common.cs",
           "tier": 1,
-          "lines": 90
+          "lines": 99
         },
         {
           "path": "Shared/Plugin/ICommonPlugin.cs",
@@ -1045,6 +1169,22 @@
           "source_link": "../../Shared/Plugin/ICommonPlugin.cs",
           "tier": 3,
           "lines": 11
+        },
+        {
+          "path": "Shared/Stats/Statistics.cs",
+          "name": "Statistics.cs",
+          "doc_link": "../files/Shared/Stats/Statistics.cs.md",
+          "source_link": "../../Shared/Stats/Statistics.cs",
+          "tier": 2,
+          "lines": 90
+        },
+        {
+          "path": "Shared/Stats/StatisticsSnapshot.cs",
+          "name": "StatisticsSnapshot.cs",
+          "doc_link": "../files/Shared/Stats/StatisticsSnapshot.cs.md",
+          "source_link": "../../Shared/Stats/StatisticsSnapshot.cs",
+          "tier": 2,
+          "lines": 41
         }
       ]
     },
@@ -1110,6 +1250,14 @@
           "lines": 42
         },
         {
+          "path": "Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs",
+          "name": "MyGridTargetingPatch.cs",
+          "doc_link": "../files/Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs.md",
+          "source_link": "../../Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs",
+          "tier": 2,
+          "lines": 104
+        },
+        {
           "path": "Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
           "name": "MyLargeTurretTargetingSystemPatch.cs",
           "doc_link": "../files/Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs.md",
@@ -1123,7 +1271,15 @@
           "doc_link": "../files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md",
           "source_link": "../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs",
           "tier": 2,
-          "lines": 80
+          "lines": 162
+        },
+        {
+          "path": "Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",
+          "name": "MyToolbarItemTerminalGroupPatch.cs",
+          "doc_link": "../files/Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs.md",
+          "source_link": "../../Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",
+          "tier": 2,
+          "lines": 149
         },
         {
           "path": "Shared/Patches/WindTurbine/MyWindTurbinePatch.cs",
@@ -1131,7 +1287,7 @@
           "doc_link": "../files/Shared/Patches/WindTurbine/MyWindTurbinePatch.cs.md",
           "source_link": "../../Shared/Patches/WindTurbine/MyWindTurbinePatch.cs",
           "tier": 2,
-          "lines": 83
+          "lines": 87
         }
       ]
     },
@@ -1161,7 +1317,7 @@
           "doc_link": "../files/Shared/Tools/Cache.cs.md",
           "source_link": "../../Shared/Tools/Cache.cs",
           "tier": 1,
-          "lines": 147
+          "lines": 149
         },
         {
           "path": "Shared/Tools/CacheStat.cs",
@@ -1169,7 +1325,7 @@
           "doc_link": "../files/Shared/Tools/CacheStat.cs.md",
           "source_link": "../../Shared/Tools/CacheStat.cs",
           "tier": 2,
-          "lines": 82
+          "lines": 107
         },
         {
           "path": "Shared/Tools/CodeChange.cs",
@@ -1201,7 +1357,7 @@
           "doc_link": "../files/Shared/Tools/GameAssembliesToPublicize.cs.md",
           "source_link": "../../Shared/Tools/GameAssembliesToPublicize.cs",
           "tier": 3,
-          "lines": 8
+          "lines": 10
         },
         {
           "path": "Shared/Tools/Hashing.cs",
@@ -1218,6 +1374,22 @@
           "source_link": "../../Shared/Tools/IgnoresAccessChecksToAttribute.cs",
           "tier": 3,
           "lines": 20
+        },
+        {
+          "path": "Shared/Tools/LegacyModRewriters.cs",
+          "name": "LegacyModRewriters.cs",
+          "doc_link": "../files/Shared/Tools/LegacyModRewriters.cs.md",
+          "source_link": "../../Shared/Tools/LegacyModRewriters.cs",
+          "tier": 2,
+          "lines": 76
+        },
+        {
+          "path": "Shared/Tools/ModRewriterVersions.cs",
+          "name": "ModRewriterVersions.cs",
+          "doc_link": "../files/Shared/Tools/ModRewriterVersions.cs.md",
+          "source_link": "../../Shared/Tools/ModRewriterVersions.cs",
+          "tier": 2,
+          "lines": 147
         },
         {
           "path": "Shared/Tools/MySessionExtensions.cs",
@@ -1297,7 +1469,7 @@
           "doc_link": "../files/Shared/Tools/UintCache.cs.md",
           "source_link": "../../Shared/Tools/UintCache.cs",
           "tier": 1,
-          "lines": 128
+          "lines": 140
         },
         {
           "path": "Shared/Tools/Workarounds.cs",
@@ -1323,12 +1495,36 @@
           "lines": 68
         },
         {
+          "path": "Shared/Patches/Image/ImageLoader.cs",
+          "name": "ImageLoader.cs",
+          "doc_link": "../files/Shared/Patches/Image/ImageLoader.cs.md",
+          "source_link": "../../Shared/Patches/Image/ImageLoader.cs",
+          "tier": 2,
+          "lines": 84
+        },
+        {
+          "path": "Shared/Patches/Image/ImageSharpRuntime.cs",
+          "name": "ImageSharpRuntime.cs",
+          "doc_link": "../files/Shared/Patches/Image/ImageSharpRuntime.cs.md",
+          "source_link": "../../Shared/Patches/Image/ImageSharpRuntime.cs",
+          "tier": 2,
+          "lines": 305
+        },
+        {
+          "path": "Shared/Patches/Image/MyImagePatch.cs",
+          "name": "MyImagePatch.cs",
+          "doc_link": "../files/Shared/Patches/Image/MyImagePatch.cs.md",
+          "source_link": "../../Shared/Patches/Image/MyImagePatch.cs",
+          "tier": 2,
+          "lines": 84
+        },
+        {
           "path": "Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
           "name": "MyScriptCompilerPatch.cs",
           "doc_link": "../files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md",
           "source_link": "../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
           "tier": 1,
-          "lines": 295
+          "lines": 301
         }
       ]
     }

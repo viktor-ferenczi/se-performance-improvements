@@ -32,6 +32,7 @@ Shared/
   Plugin/             Common bootstrap shared by both plugins
   Config/             IPluginConfig contract (each side has its own config object)
   Logging/            Environment-agnostic logger
+  Stats/              Runtime statistics driver (host-agnostic snapshot, host-supplied publisher)
   Tools/              Caches, RW-locks, IL/transpiler helpers, publicizer support
   Patches/            The performance patches, one folder per game subsystem
 Tests/                Unit tests for the shared tooling
@@ -54,15 +55,15 @@ transpiler helpers).
 | --- | --- |
 | [Client Plugin Entry Point](modules/client-plugin.md) | The Pulsar `IPlugin` that boots the plugin in the game client and owns the client config (the single source of truth for the toggles). |
 | [Client Settings UI Framework](modules/client-settings.md) | A declarative framework that turns the client config's attributes into the in-game settings dialog (typed elements, layouts, binding, persistence). |
-| [Server Plugin Entry Point](modules/server-plugin.md) | The dedicated-server entry point and its XML-serialized performance configuration. |
+| [Server Plugin Entry Point](modules/server-plugin.md) | The dedicated-server entry point, its XML-serialized performance configuration and the PluginSdk statistics publisher. |
 
 ### Shared infrastructure
 
 | Module | What it covers |
 | --- | --- |
-| [Shared Plugin Core](modules/shared-plugin-core.md) | The `Common` bootstrap and the `ICommonPlugin` / `IPluginConfig` contracts shared by both plugins. |
+| [Shared Plugin Core](modules/shared-plugin-core.md) | The `Common` bootstrap, the `ICommonPlugin` / `IPluginConfig` contracts shared by both plugins, and the runtime statistics driver whose snapshots the dedicated server publishes to the PluginSdk. |
 | [Logging](modules/logging.md) | An environment-agnostic logger so the same patch code logs on client and server alike. |
-| [Shared Tools & Data Structures](modules/tools.md) | The toolbox the patches build on: time-bounded caches, RW-locked collections, Harmony IL/transpiler helpers, IL verification, hashing, object pools, publicizer support and Wine detection. |
+| [Shared Tools & Data Structures](modules/tools.md) | The toolbox the patches build on: time-bounded caches, RW-locked collections, Harmony IL/transpiler helpers, IL verification, hashing, object pools, mod-rewriter detection for the compilation cache keys and publicizer support. |
 | [Patch Infrastructure](modules/patch-infrastructure.md) | `PatchHelpers`: discovers, verifies and applies every Harmony patch in a controlled order. The engine every patch module depends on. |
 
 ### Performance patches
@@ -74,11 +75,11 @@ each lives in [PerformanceFixes.md](PerformanceFixes.md).
 | --- | --- |
 | [Grid Merge & Paste Patches](modules/merge-and-paste.md) | Suppresses redundant conveyor/world updates during grid merge, paste and group changes (~60–70% faster on heavy grids). |
 | [Conveyor System Patches](modules/conveyor.md) | Caches conveyor-network reachability and pathfinding for large conveyor systems; avoids redundant `IsWorking` recomputation. |
-| [Physics Patches](modules/physics.md) | Fixed Havok thread count, faster `RigidBody` getter, better-complexity cluster reordering. |
+| [Physics Patches](modules/physics.md) | Configurable Havok thread count, faster `RigidBody` getter, better-complexity cluster reordering. |
 | [Safe Zone Patches](modules/safe-zone.md) | Caches `IsSafe` / `IsActionAllowed`; allocation-free `IsOutside`. |
 | [Keen Overhead Removal](modules/keen-overhead-removal.md) | Removes constant background overhead: `GC.Collect` pauses, EOS P2P `UpdateStats` core load, Mod API call-statistics rewriter. |
 | [Memory Allocation Patches](modules/memory-allocation.md) | Cuts GC pressure: cached `MyDefinitionId.ToString`, less frequent block-limit sync, allocation-free voxel material lookups. |
-| [World Loading Patches](modules/world-loading.md) | Caches compiled mods and in-game scripts on disk; rate-limits blueprint log flooding. |
+| [World Loading Patches](modules/world-loading.md) | Caches compiled mods and in-game scripts on disk; eliminates blueprint log flooding. |
 | [Simulation & Block Patches](modules/simulation-and-blocks.md) | Assorted per-block/per-subsystem fixes: turret targeting, access-right caching, wind-turbine atmosphere caching, projected-block disabling, server-side footprint/wheel-trail removal. |
 
 ### Testing

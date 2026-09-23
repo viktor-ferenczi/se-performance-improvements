@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Server Plugin Entry Point](../../modules/server-plugin.md) |
-| **Source** | [`Plugin.cs`](../../../ServerPlugin/Plugin.cs) (284 lines) |
+| **Source** | [`Plugin.cs`](../../../ServerPlugin/Plugin.cs) (297 lines) |
 | **Kind** | Class implementing `IPlugin`, `ICommonPlugin` |
 | **Role** | Plugin entry point |
 

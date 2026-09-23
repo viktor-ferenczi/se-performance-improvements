@@ -17,16 +17,29 @@ class CheckboxAttribute : Attribute, IElement
 
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
     {               
-        var label = Tools.Tools.GetLabelOrDefault(name, Label);
+        var checkbox = new MyGuiControlCheckbox(toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth))
+        {
+            IsChecked = (bool)propertyGetter(),
+            IsCheckedChanged = x => propertySetter(x.IsChecked),
+        };
+
+        var nameLabel = new MyGuiControlLabel(text: Tools.Tools.GetLabelOrDefault(name, Label));
+
+        // The description shares the row with the checkbox and the label, so it is wrapped to
+        // whatever they leave of the row instead of running off the right edge of the dialog.
+        // Both controls have measured themselves by now, and the layout gives the label the
+        // wider of its text and the minimum, so the width left over is known here. A label
+        // longer than the minimum simply leaves the description less room. The row grows in
+        // height to fit, since the layout takes the height of its tallest control.
+        var labelWidth = Math.Max(Control.LabelMinWidth, nameLabel.Size.X) + Control.LabelGap;
+        var descriptionWidth = Control.RowRight - Control.RowLeft - checkbox.Size.X - labelWidth;
+        var description = new MyGuiControlLabel(text: Tools.Tools.Wrap(Description ?? "", descriptionWidth));
+
         return new List<Control>
         {
-            new Control(new MyGuiControlCheckbox(toolTip: Description)
-            {
-                IsChecked = (bool)propertyGetter(),
-                IsCheckedChanged = x => propertySetter(x.IsChecked),
-            }),
-            new Control(new MyGuiControlLabel(text: label), minWidth: Control.LabelMinWidth),
-            new Control(new MyGuiControlLabel(text: Description ?? ""), minWidth: Control.DescriptionMinWidth),
+            new Control(checkbox),
+            new Control(nameLabel, minWidth: Control.LabelMinWidth, rightMargin: Control.LabelGap),
+            new Control(description, minWidth: descriptionWidth),
         };
     }
     public List<Type> SupportedTypes { get; } = new List<Type>()

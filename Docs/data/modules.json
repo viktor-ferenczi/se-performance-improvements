@@ -32,7 +32,7 @@
     },
     "shared-plugin-core": {
       "title": "Shared Plugin Core",
-      "summary": "Code shared by both the client and server plugins: the `Common` bootstrap that applies patches and wires up logging/config, plus the `ICommonPlugin` and `IPluginConfig` contracts."
+      "summary": "Code shared by both the client and server plugins: the `Common` bootstrap that applies patches and wires up logging/config, the `ICommonPlugin` and `IPluginConfig` contracts, and the host-agnostic runtime statistics driver."
     },
     "logging": {
       "title": "Logging",
@@ -40,7 +40,7 @@
     },
     "tools": {
       "title": "Shared Tools & Data Structures",
-      "summary": "The reusable toolbox the patches build on: time-bounded caches, reader/writer-locked collections, Harmony IL/transpiler helpers, IL verification, hashing, object pools and the assembly publicizer support types."
+      "summary": "The reusable toolbox the patches build on: time-bounded caches, reader/writer-locked collections, Harmony IL/transpiler helpers, IL verification, hashing, object pools, the mod-rewriter detection behind the compilation cache keys and the assembly publicizer support types."
     },
     "patch-infrastructure": {
       "title": "Patch Infrastructure",
