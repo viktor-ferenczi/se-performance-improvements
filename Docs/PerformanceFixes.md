@@ -79,8 +79,6 @@ once a minute and the replication statistics are sampled per second.
 Measured in the "Conveyor Test Heavy" test world on a headless Linux client, main
 thread frame time at idle went from 2.0 ms to 1.8 ms with all other fixes on.
 
-Off by default on the server; opt in deliberately.
-
 ## Mod API call statistics overhead
 
 *Contributed by zznty.*
@@ -163,8 +161,8 @@ quite a bit of GC pressure:
 
 ### Linear target group refresh
 
-A separate option from the allocation fix above, off by default on the server; opt
-in deliberately. A grid with turrets refreshes its list of target groups
+A separate option from the allocation fix above. A grid with turrets refreshes its
+list of target groups
 once per frame in `MyGridTargeting.RefreshGridConnections`: every top-most entity in
 the turrets' range, grouped by physical connection. The game pops entities off the
 query result and, for every grid, removes each physically connected grid from that
@@ -249,12 +247,12 @@ the pool's.
 
 Two options control it:
 
-- **Game** leaves the sizing to the game: the property keeps answering what it
-  answers without the plugin. This is the server default, so a server only changes
-  its physics threading when an admin says so.
-- **Auto** (the client default) uses one worker per physical CPU core, minus one
-  (see below), and keeps the thread count option updated with the number this machine
+- **Auto** (the default) uses one worker per physical CPU core, minus one (see
+  below), and keeps the thread count option updated with the number this machine
   gets, so the configuration always shows the count the game will actually be given.
+- **Game** leaves the sizing to the game: the property keeps answering what it
+  answers without the plugin. This is the way back to the stock behaviour for an
+  admin who would rather tune the pool by measuring than take the default.
 - **Manual** uses exactly the configured number, between 2 and 64.
 
 The minimum is 2 rather than 1, because a pool of one is *not* single threaded
@@ -479,8 +477,6 @@ threads during world load), the planet map phase went from about 1.2 s to about
 because the game's decoder, once dotnet-compat has fixed its stream handling for
 .NET, is already reasonable at this; the fix mostly removes the remaining decoder
 overhead and brings a maintained PNG decoder into the game.
-
-Off by default on the server; opt in deliberately.
 
 
 ## Asteroid voxel preloading on game start

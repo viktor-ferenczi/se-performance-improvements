@@ -9,12 +9,15 @@ namespace ServerPlugin.Config;
 // Shared project gate on it via Plugin.Common.Config. INotifyPropertyChanged is
 // provided by PluginSdk.Config.PluginConfig.
 //
-// The defaults are the conservative server defaults: the fixes which affect
-// gameplay or visuals (block access rights, PB access, LCD visibility, conveyor
-// caching, projected blocks) and the ones which are new and not yet proven on
-// production servers (voxel preload skip, target group refresh, memory
-// statistics, ImageSharp upgrade, Havok thread count) are left OFF so an admin
-// opts into them deliberately. The client defaults everything ON.
+// The defaults are the conservative server defaults: what is left OFF is what an
+// admin may notice in the game, not what is merely new. That is mostly the fixes
+// which serve a value from a cache for a while instead of recomputing it, so a
+// change can take up to a couple of seconds to be seen (block access rights, PB
+// access, conveyor lookups), plus the two which change what players see outright
+// (LCD surface visibility, functional blocks in projected grids). Everything else
+// defaults ON, including the fixes which only trade eager work for lazy work or
+// replace an algorithm with a faster one of the same result. The client defaults
+// everything ON.
 [Tab("general", caption: "General")]
 [Tab("worldload", caption: "World load & networking")]
 [Tab("simulation", caption: "Simulation")]
@@ -39,6 +42,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable updates during grid paste (MyCubeGrid.PasteBlocksServer)", Parent = "worldload")]
     public bool FixGridPaste { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Read the process memory size for the statistics once per second instead of on every frame", Parent = "worldload")]
+    public bool FixMemoryStats { get; set => SetField(ref field, value); } = true;
+
     [BoolOption("Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)", Parent = "worldload")]
     public bool FixP2PUpdateStats { get; set => SetField(ref field, value); } = true;
 
@@ -56,6 +62,12 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [BoolOption("Disable the collection of Mod API call statistics to eliminate the overhead", Parent = "worldload")]
     public bool DisableModApiStatistics { get; set => SetField(ref field, value); } = true;
+
+    [BoolOption("Decode planet maps and PNG textures with a newer ImageSharp than the game ships", Parent = "worldload")]
+    public bool UpgradeImageSharp { get; set => SetField(ref field, value); } = true;
+
+    [BoolOption("Skip loading the vanilla asteroid voxel files on server start, they are loaded on first use instead (needs restart)", Parent = "worldload")]
+    public bool SkipVoxelPreload { get; set => SetField(ref field, value); } = true;
 
     // ---- Simulation -----------------------------------------------------
 
@@ -80,6 +92,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable tracking of wheel trails on the server, where they are not needed (trails are only visual)", Parent = "simulation")]
     public bool FixWheelTrail { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Refresh the turret target groups in linear instead of quadratic time", Parent = "simulation")]
+    public bool FixTargetGroups { get; set => SetField(ref field, value); } = true;
+
     // ---- Requires server restart ---------------------------------------
 
     [BoolOption("Reduce memory allocations in the turret targeting system (needs restart)", Parent = "restart")]
@@ -89,7 +104,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     public bool FixPhysics { get; set => SetField(ref field, value); } = true;
 
     [EnumOption("Physics thread count: Game leaves the sizing of the Havok worker thread pool to the game; Auto is one worker per physical CPU core, minus one to leave the main thread a core of its own, not counting hyper-threading siblings which only add contention; Manual is exactly the number below (needs restart)", Parent = "restart")]
-    public HavokThreadCountMode HavokThreadCountMode { get; set => SetField(ref field, value); } = HavokThreadCountMode.Game;
+    public HavokThreadCountMode HavokThreadCountMode { get; set => SetField(ref field, value); } = HavokThreadCountMode.Auto;
 
     [IntOption(HavokThreads.Min, HavokThreads.Max, "Number of Havok worker threads used in the Manual mode; in the Auto mode it shows the number this machine gets. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference (needs restart)", Parent = "restart")]
     public int HavokThreadCount { get; set => SetField(ref field, value); } = HavokThreads.Auto;
@@ -120,16 +135,4 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [BoolOption("Disable functional blocks in projected grids without affecting the blocks built from the projection", Parent = "optional")]
     public bool FixProjection { get; set => SetField(ref field, value); } = false;
-
-    [BoolOption("Skip loading the vanilla asteroid voxel files on server start, they are loaded on first use instead (needs restart)", Parent = "optional")]
-    public bool SkipVoxelPreload { get; set => SetField(ref field, value); } = false;
-
-    [BoolOption("Refresh the turret target groups in linear instead of quadratic time", Parent = "optional")]
-    public bool FixTargetGroups { get; set => SetField(ref field, value); } = false;
-
-    [BoolOption("Read the process memory size for the statistics once per second instead of on every frame", Parent = "optional")]
-    public bool FixMemoryStats { get; set => SetField(ref field, value); } = false;
-
-    [BoolOption("Decode planet maps and PNG textures with a newer ImageSharp than the game ships", Parent = "optional")]
-    public bool UpgradeImageSharp { get; set => SetField(ref field, value); } = false;
 }

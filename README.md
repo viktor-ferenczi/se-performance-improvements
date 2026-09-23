@@ -84,8 +84,9 @@ Have [Quasar](https://github.com/CometWorks/quasar) installed and a server creat
 
 The configuration is on Quasar's Web UI.
 
-The server uses conservative defaults and does not enable any recently added
-performance fixes; the client enables all of them by default.
+The server leaves off the fixes an admin may notice in the game - mostly the ones
+that serve a cached value for a while instead of recomputing it - and enables the
+rest; the client enables everything.
 </details>
 
 <details>
@@ -108,7 +109,8 @@ Directly inside the `<GitHub>` element insert:
 Configuration file is `Performance.cfg`, created in the `SpaceEngineersDedicated` folder.
 **FIXME:** Include a default config here, because only the ones with non-default values are saved.
 
-The server uses conservative defaults and does not enable any recently added performance fixes.
+The server leaves off the fixes an admin may notice in the game - mostly the ones that
+serve a cached value for a while instead of recomputing it - and enables the rest.
 </details>
 
 ## Community & support

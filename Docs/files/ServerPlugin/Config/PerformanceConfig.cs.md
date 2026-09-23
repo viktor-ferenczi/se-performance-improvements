@@ -13,7 +13,7 @@
 
 `PerformanceConfig` is the single source of truth for all performance fix toggles on the server. It derives from `PluginSdk.Config.PluginConfig` (which supplies `INotifyPropertyChanged` via `SetField`) and implements [`IPluginConfig.cs`](../../Shared/Config/IPluginConfig.cs.md) so Harmony patches in the `Shared` project can gate on it through [`Common.cs`](../../Shared/Plugin/Common.cs.md).`Config` without any direct reference to the server assembly.
 
-The class is decorated with `[Tab]` and `[Section]` attributes from PluginSdk so Quasar can render a structured admin UI automatically. Properties are grouped into five sections: **Core** (global enable), **World load & networking**, **Simulation**, **Requires server restart**, and **Optional (off by default)**. The "optional" group contains fixes that have visible gameplay consequences (conveyor caching, block access caching, LCD visibility, projected block disabling) and the ones which are new and not yet proven on production servers (voxel preload skip, target group refresh, memory statistics, ImageSharp upgrade); all of them default to `false` on the server, while the client defaults everything to `true`. Fixes that require a server restart are grouped separately to make the constraint explicit in the UI.
+The class is decorated with `[Tab]` and `[Section]` attributes from PluginSdk so Quasar can render a structured admin UI automatically. Properties are grouped into five sections: **Core** (global enable), **World load & networking**, **Simulation**, **Requires server restart**, and **Optional (off by default)**. The "optional" group contains the fixes an admin may notice in the game: the ones that serve a value from a cache for a while instead of recomputing it, so a change takes up to a couple of seconds to be seen (conveyor lookups, block access, PB access), and the two that change what players see outright (LCD surface visibility, projected block disabling). They default to `false` on the server, while everything else — including a fix that is merely new — defaults to `true`, as it does on the client. Fixes that require a server restart are grouped separately to make the constraint explicit in the UI.
 
 Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) to fire `PropertyChanged` on mutation, which [`Plugin.cs`](../Plugin.cs.md) subscribes to in order to persist the updated file immediately via `ConfigStorage.SaveXml`.
 
@@ -29,11 +29,11 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 | `FixSafeZone` / `FixSafeAction` | Properties | Cache safe-zone `IsSafe` and `IsActionAllowed` results. Default: `true`. |
 | `FixConveyor` | Property | Caches conveyor network reachability lookups. Default: `false` (optional). |
 | `FixAccess` / `FixTerminal` | Properties | Cache block access rights and PB access checks. Default: `false` (optional). |
-| `FixMemoryStats` | Property | Reads the process memory size for the statistics once per second. Default: `false` (optional). |
-| `FixTargetGroups` | Property | Refreshes the turret target groups in linear instead of quadratic time. Default: `false` (optional). |
-| `UpgradeImageSharp` | Property | Decodes planet maps and PNG textures with the bundled newer ImageSharp. Default: `false` (optional). |
-| `SkipVoxelPreload` | Property | Skips loading the vanilla asteroid voxel files on start (needs restart). Default: `false` (optional). |
-| `HavokThreadCountMode` / `HavokThreadCount` | Properties | Sizing of the Havok worker thread pool (needs restart). Default: `Game`, which leaves the sizing to the game. |
+| `FixMemoryStats` | Property | Reads the process memory size for the statistics once per second. Default: `true`. |
+| `FixTargetGroups` | Property | Refreshes the turret target groups in linear instead of quadratic time. Default: `true`. |
+| `UpgradeImageSharp` | Property | Decodes planet maps and PNG textures with the bundled newer ImageSharp. Default: `true`. |
+| `SkipVoxelPreload` | Property | Skips loading the vanilla asteroid voxel files on start (needs restart). Default: `true`. |
+| `HavokThreadCountMode` / `HavokThreadCount` | Properties | Sizing of the Havok worker thread pool (needs restart). Default: `Auto`, one worker per physical core minus one; `Game` leaves the sizing to the game. |
 | `FixToolbar` | Property | Server-side stub (`get => false; set { }`): the toolbar is client only, so the option is not offered. |
 | `FixProjection` | Property | Disables functional blocks in projected grids. Default: `false` (optional). |
 

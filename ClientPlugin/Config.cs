@@ -163,16 +163,16 @@ public class Config : IPluginConfig
         set { }
     }
 
-    [Separator("Requires server restart")]
-    [Checkbox(label: "Fix turret targeting (needs restart)", description: "Reduces memory allocations in the turret targeting system (needs restart)")]
-    public bool FixTargeting
+    [Checkbox(label: "Fix turret target groups", description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)")]
+    public bool FixTargetGroups
     {
         get;
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Fix turret target groups", description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)")]
-    public bool FixTargetGroups
+    [Separator("Requires server restart")]
+    [Checkbox(label: "Fix turret targeting (needs restart)", description: "Reduces memory allocations in the turret targeting system (needs restart)")]
+    public bool FixTargeting
     {
         get;
         set => SetField(ref field, value);
