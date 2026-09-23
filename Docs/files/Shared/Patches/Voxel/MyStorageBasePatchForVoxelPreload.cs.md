@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Memory Allocation Patches](../../../../modules/memory-allocation.md) |
-| **Source** | [`MyStorageBasePatchForVoxelPreload.cs`](../../../../../Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs) |
+| **Source** | [`MyStorageBasePatchForVoxelPreload.cs`](../../../../../Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs) (37 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

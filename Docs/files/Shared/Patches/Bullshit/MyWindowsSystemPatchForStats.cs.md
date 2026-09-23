@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Keen Overhead Removal](../../../../modules/keen-overhead-removal.md) |
-| **Source** | [`MyWindowsSystemPatchForStats.cs`](../../../../../Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs) (63 lines) |
+| **Source** | [`MyWindowsSystemPatchForStats.cs`](../../../../../Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs) (65 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Memory Allocation Patches](../../../../modules/memory-allocation.md) |
-| **Source** | [`MySandboxGamePatchForVoxelPreload.cs`](../../../../../Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs) |
+| **Source** | [`MySandboxGamePatchForVoxelPreload.cs`](../../../../../Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs) (120 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

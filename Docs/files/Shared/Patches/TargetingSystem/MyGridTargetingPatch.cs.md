@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Simulation & Block Patches](../../../../modules/simulation-and-blocks.md) |
-| **Source** | [`MyGridTargetingPatch.cs`](../../../../../Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs) (101 lines) |
+| **Source** | [`MyGridTargetingPatch.cs`](../../../../../Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs) (104 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

@@ -19,7 +19,13 @@ Verify links: `python3 Docs/data/scripts/check_links.py`
 
 ## Update history
 
-- Synced with the `auto-research` branch: new `MyToolbarItemTerminalGroupPatch` page (simulation-and-blocks), `MyAssemblerPatch` rewritten as the active master assembler cache, `Generation` and the `FlagForRecomputation` hook on the conveyor cache core, `FixToolbar` on the config pages. Now 99 files, 16 modules.
+- Synced with the `auto-research` branch: new `MyToolbarItemTerminalGroupPatch` page (simulation-and-blocks), `MyAssemblerPatch` rewritten as the active master assembler cache, `Generation` and the `FlagForRecomputation` hook on the conveyor cache core, `FixToolbar` on the config pages. Later in the same branch: the image loading
+pages (`ImageLoader`, `ImageSharpRuntime`, `MyImagePatch`), the asteroid voxel
+preload pages (`MySandboxGamePatchForVoxelPreload`,
+`MyStorageBasePatchForVoxelPreload`), `MyGridTargetingPatch`,
+`MyWindowsSystemPatchForStats`, and `MyPhysicsPatch` replaced by
+`MyWindowsSystemPatch` (configurable Havok thread count). Now 101 files,
+16 modules.
 
 - Initial generation: 87 files, 16 modules (commit `ca1c1ee`).
 - Synced with code commit `ffc18d6` ("Fixes"): removed `WineDetector` doc;
@@ -67,5 +73,5 @@ scaffold, re-document it, then run `resolve_wikilinks.py`, `build_index.py`, `ch
 - `Docs/Index.md` — flat file index (generated)
 - `Docs/PerformanceFixes.md` — per-fix rationale (pre-existing, integrated)
 - `Docs/modules/<module>.md` — 16 module pages
-- `Docs/files/<source-path>.md` — 98 per-file pages (mirror the source tree)
+- `Docs/files/<source-path>.md` — 101 per-file pages (mirror the source tree)
 - `Docs/data/` — manifest, module map, link map, authoring guide, generator scripts

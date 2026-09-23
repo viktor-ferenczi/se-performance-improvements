@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Simulation & Block Patches](../../../../modules/simulation-and-blocks.md) |
-| **Source** | [`MyToolbarItemTerminalGroupPatch.cs`](../../../../../Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs) (136 lines) |
+| **Source** | [`MyToolbarItemTerminalGroupPatch.cs`](../../../../../Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs) (149 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch (client only) |
 

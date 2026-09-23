@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Conveyor System Patches](../../../../modules/conveyor.md) |
-| **Source** | [`MyGridConveyorSystemPatch.cs`](../../../../../Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs) (319 lines) |
+| **Source** | [`MyGridConveyorSystemPatch.cs`](../../../../../Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs) (295 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

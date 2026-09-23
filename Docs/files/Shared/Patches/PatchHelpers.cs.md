@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Patch Infrastructure](../../../modules/patch-infrastructure.md) |
-| **Source** | [`PatchHelpers.cs`](../../../../Shared/Patches/PatchHelpers.cs) (207 lines) |
+| **Source** | [`PatchHelpers.cs`](../../../../Shared/Patches/PatchHelpers.cs) (234 lines) |
 | **Kind** | Static utility class |
 | **Role** | Plugin entry point (patch lifecycle) |
 

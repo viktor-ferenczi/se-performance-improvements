@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Conveyor System Patches](../../../../modules/conveyor.md) |
-| **Source** | [`PullItemStats.cs`](../../../../../Shared/Patches/Conveyor/PullItemStats.cs) (32 lines) |
+| **Source** | [`PullItemStats.cs`](../../../../../Shared/Patches/Conveyor/PullItemStats.cs) (42 lines) |
 | **Kind** | Class (conditionally compiled `#if DEBUG`) |
 | **Role** | Debug instrumentation helper |
 
