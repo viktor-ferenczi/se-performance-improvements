@@ -196,15 +196,22 @@ public class Config : IPluginConfig
     public HavokThreadCountMode HavokThreadCountMode
     {
         get;
-        set => SetField(ref field, value);
+        set
+        {
+            if (SetField(ref field, value) && value == HavokThreadCountMode.Auto)
+                HavokThreadCount = HavokThreads.Auto;
+        }
     } = HavokThreadCountMode.Auto;
 
-    [Slider(HavokThreads.Min, HavokThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "Physics threads", description: "Number of Havok worker threads used in the Manual mode. In the Auto mode it shows the number this machine gets, in the Game mode it is unused. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference. Needs a restart.")]
+    // In the Auto mode the count is always this machine's number, whatever was stored or set
+    [Slider(HavokThreads.Min, HavokThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "Physics threads", description: "Number of Havok worker threads used in the Manual mode. In the Auto mode it shows the number this machine gets and cannot be changed, in the Game mode it is unused. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference. Needs a restart.", enabledBy: nameof(HavokThreadCountEditable))]
     public int HavokThreadCount
     {
         get;
-        set => SetField(ref field, value);
+        set => SetField(ref field, HavokThreadCountMode == HavokThreadCountMode.Auto ? HavokThreads.Auto : value);
     } = HavokThreads.Auto;
+
+    public bool HavokThreadCountEditable => HavokThreadCountMode != HavokThreadCountMode.Auto;
 
     [Checkbox(label: "Fix character performance (needs restart)", description: "Disables character footprint logic on server side (needs restart)")]
     public bool FixCharacter

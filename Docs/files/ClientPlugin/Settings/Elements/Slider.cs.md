@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Settings UI Framework](../../../../modules/client-settings.md) |
-| **Source** | [`Slider.cs`](../../../../../ClientPlugin/Settings/Elements/Slider.cs) (115 lines) |
+| **Source** | [`Slider.cs`](../../../../../ClientPlugin/Settings/Elements/Slider.cs) (146 lines) |
 | **Kind** | `Internal class : Attribute, IElement` |
 | **Role** | UI element — slider |
 
@@ -17,6 +17,8 @@ The slider supports two modes controlled by the `SliderType` enum: `Float` (defa
 
 Clicking the slider (via `SliderSetValueManual`) opens a `MyGuiScreenDialogAmount` that lets the user type an exact numeric value, providing accessibility beyond drag interaction. The dialog is set `CanHideOthers = true` via reflection (the property is `protected` in the game's type).
 
+The slider control is a `ConfigSlider`, a `MyGuiControlSlider` which re-reads the property on every `Update` and moves to its value when it differs, so a value the config changes on its own shows up while the dialog is open. With `enabledBy` set to the name of a `bool` property of `Config`, the slider is also disabled while that property is false; the Havok thread count uses it to lock the slider in the `Auto` mode.
+
 `SupportedTypes` is `[typeof(float), typeof(int)]`.
 
 ## Key members
@@ -26,6 +28,8 @@ Clicking the slider (via `SliderSetValueManual`) opens a `MyGuiScreenDialogAmoun
 | `Min` / `Max` / `Step` | `float` | Range and step size for the slider. |
 | `Type` | `SliderType` | `Integer` or `Float`; controls rounding and label formatting. |
 | `Label` / `Description` | `string` | Display label and tooltip. |
+| `EnabledBy` | `string` | Optional name of a `bool` property of `Config` which enables the slider. |
+| `ConfigSlider` | nested class | Slider which follows the property value and the `EnabledBy` condition on every `Update`. |
 | `GetControls(...)` | method | Returns `[label, MyGuiControlSlider, value label]`; wires `ValueChanged` and `SliderSetValueManual`. |
 | `ValueUpdate(MyGuiControlSlider)` | `local method` | Reads slider value, calls `propertySetter`, updates value label. |
 | `SpecifyValue(MyGuiControlSlider)` | `local method` | Opens `MyGuiScreenDialogAmount` for keyboard entry; sets slider value on confirm. |
