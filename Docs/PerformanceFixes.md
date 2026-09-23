@@ -187,9 +187,10 @@ the pool's.
 
 Two options control it, both under the physics fix:
 
-- **Auto** (the default) uses one worker per logical processor, capped at 16, and
-  keeps the thread count option updated with the number this machine gets, so the
-  configuration always shows the count the game will actually be given.
+- **Auto** (the default) uses one worker per logical processor, capped at 16, on
+  Windows, and two workers on Linux (see below), and keeps the thread count option
+  updated with the number this machine gets, so the configuration always shows the
+  count the game will actually be given.
 - **Manual** uses exactly the configured number, between 2 and 64.
 
 The minimum is 2 rather than 1, because a pool of one is *not* single threaded
@@ -222,6 +223,33 @@ So the shipped library has an internal maximum of its own — 11 workers plus th
 thread — and a number above that is neither an error nor an improvement, it simply stops
 making a difference. The resolved count is logged at the DEBUG log level when the world
 loads, which is the way to see what a setting actually asked for.
+
+### Fewer workers on Linux
+
+On Linux the game runs the Windows build of Havok through the native wrappers, where
+the pool's workers wait on emulated Win32 events and semaphores (ntsync) and spin
+between jobs. There every extra worker makes the step slower. Measured in the "Many
+Lifters Slowness" test world, a lattice of 602 small grids resting on each other with
+1206 landing gears and 116 turrets, headless Linux client on an 8 core / 16 thread
+host, simulation speed at idle with the lattice awake:
+
+| Havok workers | Sim speed | Frame time |
+| --- | --- | --- |
+| game's own sizing (7) | 0.57 | 30 ms |
+| 11 (Auto asking for 16) | 0.55 | 30 ms |
+| 8 | 0.55 | 30 ms |
+| 6 | 0.60 | 28 ms |
+| 4 | 0.62 | 27 ms |
+| 3 | 0.65 | 26 ms |
+| 2 | 0.72 | 23 ms |
+
+The other direction was checked too: 300 independent 21 block grids pasted at once
+and falling onto a planet, where a big pool could in principle solve the islands in
+parallel, ran at the same simulation speed with 2 workers as with 11 (median frame 2.6
+against 4.6 ms, 90th percentile 14 against 16 ms). So Auto asks for two workers on
+Linux. A Manual setting still asks for exactly what it says. Whether the Windows
+build of the game shows the same trend was not measured, so the Windows default is
+unchanged.
 
 Until this was reworked the same thing was done by a transpiler on `MyPhysics.LoadData`
 which wrote an `int` into a `Nullable<int>` local — invalid IL, which is why it had to be

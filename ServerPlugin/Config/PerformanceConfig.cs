@@ -89,7 +89,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Optimize the MyPhysicsBody.RigidBody getter and set the Havok physics thread count (needs restart)", Parent = "restart")]
     public bool FixPhysics { get; set => SetField(ref field, value); } = true;
 
-    [EnumOption("Physics thread count: Auto is one Havok worker thread per logical processor capped at 16, Manual is exactly the number below (needs restart)", Parent = "restart")]
+    [EnumOption("Physics thread count: Auto is one Havok worker thread per logical processor capped at 16 on Windows and two on Linux, where more workers only make the step slower; Manual is exactly the number below (needs restart)", Parent = "restart")]
     public HavokThreadCountMode HavokThreadCountMode { get; set => SetField(ref field, value); } = HavokThreadCountMode.Auto;
 
     [IntOption(HavokThreads.Min, HavokThreads.Max, "Number of Havok worker threads used in the Manual mode; in the Auto mode it shows the number this machine gets. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference (needs restart)", Parent = "restart")]
