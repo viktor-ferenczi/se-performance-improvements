@@ -164,28 +164,35 @@ public class Config : IPluginConfig
     }
 
     [Separator("Requires server restart")]
-    [Checkbox(label: "Fix turret targeting (needs restart)", description: "Optimizes the turret targeting system: fewer memory allocations (needs restart) and a linear refresh of the target groups instead of a quadratic one")]
+    [Checkbox(label: "Fix turret targeting (needs restart)", description: "Reduces memory allocations in the turret targeting system (needs restart)")]
     public bool FixTargeting
     {
         get;
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Fix physics performance (needs restart)", description: "Optimizes the MyPhysicsBody.RigidBody getter and sets the Havok physics thread count (needs restart)")]
+    [Checkbox(label: "Fix turret target groups", description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)")]
+    public bool FixTargetGroups
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Fix physics performance (needs restart)", description: "Optimizes the MyPhysicsBody.RigidBody getter (needs restart)")]
     public bool FixPhysics
     {
         get;
         set => SetField(ref field, value);
     } = true;
 
-    [Dropdown(label: "Physics thread count", description: "Auto: one Havok worker thread per logical processor capped at 16 on Windows, two on Linux where more workers only make the step slower. Manual: exactly the number below. Needs the physics fix enabled and a restart.")]
+    [Dropdown(label: "Physics thread count", description: "Game: leaves the sizing of the Havok worker thread pool to the game. Auto: one worker per logical processor capped at 16 on Windows, two on Linux where more workers only make the step slower. Manual: exactly the number below. Needs a restart.")]
     public HavokThreadCountMode HavokThreadCountMode
     {
         get;
         set => SetField(ref field, value);
     } = HavokThreadCountMode.Auto;
 
-    [Slider(HavokThreads.Min, HavokThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "Physics threads", description: "Number of Havok worker threads used in the Manual mode. In the Auto mode it shows the number this machine gets. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference. Needs a restart.")]
+    [Slider(HavokThreads.Min, HavokThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "Physics threads", description: "Number of Havok worker threads used in the Manual mode. In the Auto mode it shows the number this machine gets, in the Game mode it is unused. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference. Needs a restart.")]
     public int HavokThreadCount
     {
         get;

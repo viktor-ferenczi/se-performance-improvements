@@ -41,7 +41,7 @@ namespace Shared.Patches
         [EnsureCode("9cc69ebe")]
         private static bool RefreshGridConnectionsPrefix(MyGridTargeting __instance)
         {
-            if (!Config.FixTargeting)
+            if (!Config.Enabled || !Config.FixTargetGroups)
             {
                 return true;
             }

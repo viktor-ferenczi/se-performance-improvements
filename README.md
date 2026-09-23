@@ -84,7 +84,8 @@ Have [Quasar](https://github.com/CometWorks/quasar) installed and a server creat
 
 The configuration is on Quasar's Web UI.
 
-The client enables all newly added performance fixes by default.
+The server uses conservative defaults and does not enable any recently added
+performance fixes; the client enables all of them by default.
 </details>
 
 <details>

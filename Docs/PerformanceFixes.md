@@ -79,6 +79,8 @@ once a minute and the replication statistics are sampled per second.
 Measured in the "Conveyor Test Heavy" test world on a headless Linux client, main
 thread frame time at idle went from 2.0 ms to 1.8 ms with all other fixes on.
 
+Off by default on the server; opt in deliberately.
+
 ## Mod API call statistics overhead
 
 *Contributed by zznty.*
@@ -161,7 +163,8 @@ quite a bit of GC pressure:
 
 ### Linear target group refresh
 
-Part of the same option. A grid with turrets refreshes its list of target groups
+A separate option from the allocation fix above, off by default on the server; opt
+in deliberately. A grid with turrets refreshes its list of target groups
 once per frame in `MyGridTargeting.RefreshGridConnections`: every top-most entity in
 the turrets' range, grouped by physical connection. The game pops entities off the
 query result and, for every grid, removes each physically connected grid from that
@@ -244,10 +247,13 @@ point for this answer and `MyPhysics.LoadData` is the only place it is read, so 
 postfix on it is the whole fix; the job queue follows, since its size is derived from
 the pool's.
 
-Two options control it, both under the physics fix:
+Two options control it:
 
-- **Auto** (the default) uses one worker per logical processor, capped at 16, on
-  Windows, and two workers on Linux (see below), and keeps the thread count option
+- **Game** leaves the sizing to the game: the property keeps answering what it
+  answers without the plugin. This is the server default, so a server only changes
+  its physics threading when an admin says so.
+- **Auto** (the client default) uses one worker per logical processor, capped at 16,
+  on Windows, and two workers on Linux (see below), and keeps the thread count option
   updated with the number this machine gets, so the configuration always shows the
   count the game will actually be given.
 - **Manual** uses exactly the configured number, between 2 and 64.
@@ -306,7 +312,8 @@ The other direction was checked too: 300 independent 21 block grids pasted at on
 and falling onto a planet, where a big pool could in principle solve the islands in
 parallel, ran at the same simulation speed with 2 workers as with 11 (median frame 2.6
 against 4.6 ms, 90th percentile 14 against 16 ms). So Auto asks for two workers on
-Linux. A Manual setting still asks for exactly what it says. Whether the Windows
+Linux. A Manual setting still asks for exactly what it says, and Game asks for
+nothing. Whether the Windows
 build of the game shows the same trend was not measured, so the Windows default is
 unchanged.
 
@@ -447,6 +454,8 @@ threads during world load), the planet map phase went from about 1.2 s to about
 because the game's decoder, once dotnet-compat has fixed its stream handling for
 .NET, is already reasonable at this; the fix mostly removes the remaining decoder
 overhead and brings a maintained PNG decoder into the game.
+
+Off by default on the server; opt in deliberately.
 
 
 ## Asteroid voxel preloading on game start

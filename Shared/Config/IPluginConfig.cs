@@ -14,6 +14,10 @@ public enum HavokThreadCountMode
 
     // Exactly the configured number of workers
     Manual,
+
+    // Leaves the game's own sizing alone: MyWindowsSystem keeps answering null and Havok
+    // sizes the pool on its own terms, exactly as without the plugin
+    Game,
 }
 
 // The range and the automatic value of the Havok physics thread count. It lives next to the
@@ -90,9 +94,11 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Caches frequent recalculations in safe zones
     bool FixSafeZone { get; set; }
 
-    // Optimizes the turret targeting system: fewer allocations (needs restart) and a linear
-    // target group refresh
+    // Reduces memory allocations in the turret targeting system (needs restart)
     bool FixTargeting { get; set; }
+
+    // Refreshes the turret target groups in linear instead of quadratic time
+    bool FixTargetGroups { get; set; }
 
     // Caches the result of MyWindTurbine.IsInAtmosphere
     bool FixWindTurbine { get; set; }
@@ -100,14 +106,16 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Reduces memory allocations in IMyStorageExtensions.GetMaterialAt
     bool FixVoxel { get; set; }
 
-    // Optimizes the MyPhysicsBody.RigidBody getter and sets the Havok physics thread count (needs restart)
+    // Optimizes the MyPhysicsBody.RigidBody getter (needs restart)
     bool FixPhysics { get; set; }
 
-    // Whether the Havok physics thread count is decided automatically or taken from HavokThreadCount
+    // Whether the Havok physics thread count is left to the game, decided automatically or
+    // taken from HavokThreadCount
     HavokThreadCountMode HavokThreadCountMode { get; set; }
 
     // Number of Havok physics worker threads. In the Auto mode the plugin keeps this updated
-    // with the number it decided, so the configuration always shows the effective count.
+    // with the number it decided, so the configuration always shows the effective count. It is
+    // not used in the Game mode.
     int HavokThreadCount { get; set; }
 
     // Disables character footprint logic on server side (needs restart)

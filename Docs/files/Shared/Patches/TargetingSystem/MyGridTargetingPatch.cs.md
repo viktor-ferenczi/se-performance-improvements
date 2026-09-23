@@ -13,7 +13,7 @@
 
 A grid with turrets refreshes its list of target groups once per frame in `MyGridTargeting.RefreshGridConnections`: every top-most entity in the turrets' range, grouped by physical connection. The game pops entities off the query result and, for every grid, removes each physically connected grid from that list with `List.Remove`, a linear search, so N grids in range cost N x N comparisons per turret grid per frame. In the "Many Lifters Slowness" test world (600 grids in range) that was 2% of the main thread per turret grid.
 
-The Prefix replaces the method with the same grouping over a `HashSet` for the "not yet grouped" test, which makes it linear. It walks the query result in the same order (from the last entity backwards), asks `GetConnectedGrids` for the same groups, fills the same pooled lists and empties the shared query buffer the way the game does, so the result is identical (verified group by group against the game's own algorithm with a probe over thousands of refreshes). Gated by `FixTargeting`.
+The Prefix replaces the method with the same grouping over a `HashSet` for the "not yet grouped" test, which makes it linear. It walks the query result in the same order (from the last entity backwards), asks `GetConnectedGrids` for the same groups, fills the same pooled lists and empties the shared query buffer the way the game does, so the result is identical (verified group by group against the game's own algorithm with a probe over thousands of refreshes). Gated by `FixTargetGroups`, which is on by default on the client and off on the server.
 
 See the *Reducing memory allocations in the turret targeting system* section of `Docs/PerformanceFixes.md`.
 

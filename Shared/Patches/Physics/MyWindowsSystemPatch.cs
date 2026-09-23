@@ -74,7 +74,9 @@ namespace Shared.Patches
                 subscribed = true;
             }
 
-            if (!config.Enabled || !config.FixPhysics)
+            // The Game mode is the hands-off one: the getter keeps answering what the game
+            // answers, so Havok sizes the pool exactly as it does without the plugin.
+            if (!config.Enabled || config.HavokThreadCountMode == HavokThreadCountMode.Game)
             {
                 threadCount = 0;
                 return;
