@@ -17,7 +17,7 @@ The slider supports two modes controlled by the `SliderType` enum: `Float` (defa
 
 Clicking the slider (via `SliderSetValueManual`) opens a `MyGuiScreenDialogAmount` that lets the user type an exact numeric value, providing accessibility beyond drag interaction. The dialog is set `CanHideOthers = true` via reflection (the property is `protected` in the game's type).
 
-The slider control is a `ConfigSlider`, a `MyGuiControlSlider` which re-reads the property on every `Update` and moves to its value when it differs, so a value the config changes on its own shows up while the dialog is open. With `enabledBy` set to the name of a `bool` property of `Config`, the slider is also disabled while that property is false; the Havok thread count uses it to lock the slider in the `Auto` mode.
+The slider control is a `ConfigSlider`, a `MyGuiControlSlider` which re-reads the property on every `Update` and moves to its value when it differs, so a value the config changes on its own shows up while the dialog is open. With `enabledBy` set to the name of a `bool` property of `Config`, the slider is also disabled while that property is false; the Havok thread count uses it to enable the slider only in the `Manual` mode.
 
 `SupportedTypes` is `[typeof(float), typeof(int)]`.
 
