@@ -78,6 +78,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Disables Mod API call statistics collection to eliminate the overhead
     bool DisableModApiStatistics { get; set; }
 
+    // Refreshes the process memory size read for the statistics once per second instead of every frame
+    bool FixMemoryStats { get; set; }
+
     // Decodes planet maps and PNG textures with a newer ImageSharp than the game ships
     bool UpgradeImageSharp { get; set; }
 

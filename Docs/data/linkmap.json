@@ -210,6 +210,12 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
+    "Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs": {
+      "module": "../../../../modules/keen-overhead-removal.md",
+      "source": "../../../../../Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs": {
       "module": "../../../../modules/keen-overhead-removal.md",
       "source": "../../../../../Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs",
@@ -613,7 +619,7 @@
           "doc_link": "../files/ClientPlugin/Config.cs.md",
           "source_link": "../../ClientPlugin/Config.cs",
           "tier": 1,
-          "lines": 266
+          "lines": 273
         },
         {
           "path": "ClientPlugin/Plugin.cs",
@@ -885,6 +891,14 @@
           "lines": 41
         },
         {
+          "path": "Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs",
+          "name": "MyWindowsSystemPatchForStats.cs",
+          "doc_link": "../files/Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs.md",
+          "source_link": "../../Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs",
+          "tier": 2,
+          "lines": 65
+        },
+        {
           "path": "Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs",
           "name": "PerfCountingRewriterPatch.cs",
           "doc_link": "../files/Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs.md",
@@ -1099,7 +1113,7 @@
           "doc_link": "../files/ServerPlugin/Config/PerformanceConfig.cs.md",
           "source_link": "../../ServerPlugin/Config/PerformanceConfig.cs",
           "tier": 2,
-          "lines": 130
+          "lines": 133
         },
         {
           "path": "ServerPlugin/Plugin.cs",
@@ -1138,7 +1152,7 @@
           "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
           "source_link": "../../Shared/Config/IPluginConfig.cs",
           "tier": 2,
-          "lines": 150
+          "lines": 153
         },
         {
           "path": "Shared/Plugin/Common.cs",
@@ -1257,7 +1271,7 @@
           "doc_link": "../files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md",
           "source_link": "../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs",
           "tier": 2,
-          "lines": 151
+          "lines": 162
         },
         {
           "path": "Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",

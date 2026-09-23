@@ -61,6 +61,24 @@ gameplay. The patched calls are logged at the DEBUG log level.
 Parallel GC should happen later and free up memory anyway. Consider disabling
 this setting if your PC or server does not have at least 8 GB RAM.
 
+## Process memory statistics read every frame
+
+`MyGeneralStats.Update` runs once per frame and reads the process' private memory
+size through `MyVRage.Platform.System.ProcessPrivateMemory`, which only feeds the
+statistics log lines and the replication statistics. On Windows that is a single
+`GetProcessMemoryInfo` call. On Linux the compatibility layer answers it with
+`Process.PrivateMemorySize64`, which creates a `Process` object and parses
+`/proc/<pid>/stat` and `status` on every call: with the other fixes in place it was
+the largest remaining item on the main thread in three test worlds, about 0.5 ms
+per frame, on the client and the dedicated server alike.
+
+The fix refreshes the value at most once per second and serves it from a cache in
+between. Nothing reads it more precisely than that: the statistics line is logged
+once a minute and the replication statistics are sampled per second.
+
+Measured in the "Conveyor Test Heavy" test world on a headless Linux client, main
+thread frame time at idle went from 2.0 ms to 1.8 ms with all other fixes on.
+
 ## Mod API call statistics overhead
 
 *Contributed by zznty.*

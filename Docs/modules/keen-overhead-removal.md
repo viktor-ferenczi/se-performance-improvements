@@ -11,6 +11,7 @@ This module targets three categories of constant, unconditional overhead baked i
 | File | Summary |
 | --- | --- |
 | [`GcCollectPatch.cs`](../files/Shared/Patches/Bullshit/GcCollectPatch.cs.md) | Transpiles multiple game methods to remove `GC.Collect` / `CollectGC` call sites, eliminating GC-induced pauses. |
+| [`MyWindowsSystemPatchForStats.cs`](../files/Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs.md) | Serves `ProcessPrivateMemory` from a cache refreshed once per second, so the per-frame statistics update stops reading procfs on Linux. |
 | [`MyP2PQoSAdapterPatch.cs`](../files/Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs.md) | Rate-limits `UpdateStats` to one real call in 49, inserting `Thread.Sleep(1)` for the rest to kill the constant EOS CPU load. |
 | [`PerfCountingRewriterPatch.cs`](../files/Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs.md) | Short-circuits the Roslyn mod-script rewriter so API call-statistics instrumentation is never injected. |
 

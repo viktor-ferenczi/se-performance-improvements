@@ -29,6 +29,7 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 | `FixSafeZone` / `FixSafeAction` | Properties | Cache safe-zone `IsSafe` and `IsActionAllowed` results. Default: `true`. |
 | `FixConveyor` | Property | Caches conveyor network reachability lookups. Default: `false` (optional). |
 | `FixAccess` / `FixTerminal` | Properties | Cache block access rights and PB access checks. Default: `false` (optional). |
+| `FixMemoryStats` | Property | Reads the process memory size for the statistics once per second (expensive on Linux). Default: `true`. |
 | `FixToolbar` | Property | Server-side stub (`get => false; set { }`): the toolbar is client only, so the option is not offered. |
 | `FixLogFlooding` | Property | Rate-limits `GetBlueprintDefinition` log spam. Default: `false` (optional). |
 | `FixProjection` | Property | Disables functional blocks in projected grids. Default: `false` (optional). |
