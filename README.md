@@ -43,7 +43,7 @@ the code that implements them is organized.
 - Physics optimizations (`RigidBody` getter, configurable Havok thread count, faster cluster reordering)
 - Reduce frequent memory allocations (`MyDefinitionId.ToString`, turret targeting, voxel material lookups)
 - Linear instead of quadratic refresh of turret target groups
-- Less frequent sync of block counts, block access rights and PB access to blocks
+- Less frequent sync of block counts and block access rights; PB access to blocks refreshed only when something changed
 - Disable server-side character footprints and wheel trail tracking
 - Disable functional blocks in projected grids
 - Rate limit log flooding from `GetBlueprintDefinition`

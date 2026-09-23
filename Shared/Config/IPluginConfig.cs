@@ -122,7 +122,7 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Caches the result of MySafeZone.IsActionAllowed and MySessionComponentSafeZones.IsActionAllowedForSafezone for 2 seconds
     bool FixSafeAction { get; set; }
 
-    // Suppresses frequent calls to MyGridTerminalSystem.UpdateGridBlocksOwnership updating IsAccessibleForProgrammableBlock unnecessarily often
+    // Skips MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when nothing it depends on changed
     bool FixTerminal { get; set; }
 
     // Disables UpdateVisibility of LCD surfaces on multiplayer servers

@@ -178,10 +178,34 @@ Caches the result of `MySafeZone.IsActionAllowed` and
 
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/24391-performance-safe-zone-isactionallowed)
 
-## Less frequent update of PB access to blocks
+## Skipping redundant updates of PB access to blocks
 
-Suppresses frequent calls to `MyGridTerminalSystem.UpdateGridBlocksOwnership`
-updating `IsAccessibleForProgrammableBlock` unnecessarily often.
+Before every run of a programmable block the game calls
+`MyGridTerminalSystem.UpdateGridBlocksOwnership` with the block's owner, which sets
+`IsAccessibleForProgrammableBlock` on every terminal block of the grid group from the
+owner's access rights. With a script running every tick on a large grid that walk is
+most of the main thread's simulation time: 42% on the 33000 block grid of the "Grid
+Size Scalability Test" world.
+
+The flags depend on the owner asked for, on the blocks of the terminal system, on
+block ownership and share modes, on faction relations and on the admin settings. The
+first three are tracked exactly: an entry per terminal system remembers the owner the
+flags were last computed for and a generation counter bumped when a block joins or
+leaves a terminal system (`MyGridTerminalSystem.Add` / `Remove`) or ownership changes
+(`MyCubeGrid.NotifyBlockOwnershipChange` / `ChangeGridOwnership`). A call with the
+same owner and the same generation is skipped. Faction relation and admin setting
+changes are not hooked, so an entry is also dropped after two seconds, which is the
+longest a programmable block can keep access it should have lost, or lack access it
+should have gained, for those two reasons. Two programmable blocks with different
+owners on one grid still get a fresh walk each, as before.
+
+An earlier version of this fix inhibited the calls per owner for four seconds
+regardless of what happened in between, which was wrong when programmable blocks
+with different owners alternated, and was compiled out; this one was verified with a
+probe recomputing the flags after every skipped call (no wrong flag over thousands
+of runs). Measured on that world, headless Linux client: main thread frame time
+3.5 ms to 1.9 ms at 1920 programmable block runs per second, the walk gone from the
+profile, hit rate 99.97%.
 
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/24389-performance-frequent-update-of-pb-access-rights-to-blocks)
 
