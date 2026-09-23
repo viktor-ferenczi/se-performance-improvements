@@ -33,6 +33,7 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 | `FixTargetGroups` | Property | Refreshes the turret target groups in linear instead of quadratic time. Default: `true`. |
 | `UpgradeImageSharp` | Property | Decodes planet maps and PNG textures with the bundled newer ImageSharp. Default: `true`. |
 | `SkipVoxelPreload` | Property | Skips loading the vanilla asteroid voxel files on start (needs restart). Default: `true`. |
+| `FixXmlDeserialization` | Property | Reuses the XML readers' name IDs so worlds, blueprints and definitions parse faster from XML. Default: `true`. |
 | `HavokThreadCountMode` / `HavokThreadCount` | Properties | Sizing of the Havok worker thread pool (needs restart). Default: `Auto`, one worker per physical core minus one; `Game` leaves the sizing to the game. |
 | `FixToolbar` | Property | Server-side stub (`get => false; set { }`): the toolbar is client only, so the option is not offered. |
 | `FixProjection` | Property | Disables functional blocks in projected grids. Default: `false` (optional). |

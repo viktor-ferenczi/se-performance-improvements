@@ -42,7 +42,7 @@ MODULE_RULES = [
     ("safe-zone",       lambda p: p.startswith("Shared/Patches/SafeZone/")),
     ("keen-overhead-removal", lambda p: p.startswith("Shared/Patches/Bullshit/")),
     ("memory-allocation", lambda p: p.startswith("Shared/Patches/Memory/") or p.startswith("Shared/Patches/Voxel/")),
-    ("world-loading",   lambda p: p.startswith("Shared/Patches/ScriptCompiler/") or p.startswith("Shared/Patches/DefinitionManager/") or p.startswith("Shared/Patches/Image/")),
+    ("world-loading",   lambda p: p.startswith("Shared/Patches/ScriptCompiler/") or p.startswith("Shared/Patches/DefinitionManager/") or p.startswith("Shared/Patches/Image/") or p.startswith("Shared/Patches/Serialization/")),
     ("simulation-and-blocks", lambda p: p.startswith("Shared/Patches/")),
     ("tests",           lambda p: p.startswith("Tests/")),
 ]

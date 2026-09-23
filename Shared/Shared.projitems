@@ -53,6 +53,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Toolbar\MyToolbarItemTerminalGroupPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Serialization\XmlSerializationReaderPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MySandboxGamePatchForVoxelPreload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MyStorageBasePatchForVoxelPreload.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Voxel\MyStorageExtensionsPatch.cs" />

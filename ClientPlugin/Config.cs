@@ -113,6 +113,13 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(label: "Faster XML loading", description: "Loads worlds, blueprints and definitions from XML faster by setting up the XML reader's name lookup once per file instead of once per block")]
+    public bool FixXmlDeserialization
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Separator("Simulation")]
     [Checkbox(label: "Lower safe zone CPU load", description: "Caches frequent recalculations in safe zones")]
     public bool FixSafeZone

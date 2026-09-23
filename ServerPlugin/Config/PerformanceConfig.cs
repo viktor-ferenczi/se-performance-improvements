@@ -69,6 +69,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Skip loading the vanilla asteroid voxel files on server start, they are loaded on first use instead (needs restart)", Parent = "worldload")]
     public bool SkipVoxelPreload { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Load worlds, blueprints and definitions from XML faster by setting up the XML reader's name lookup once per file instead of once per block", Parent = "worldload")]
+    public bool FixXmlDeserialization { get; set => SetField(ref field, value); } = true;
+
     // ---- Simulation -----------------------------------------------------
 
     [BoolOption("Cache frequent recalculations in safe zones", Parent = "simulation")]

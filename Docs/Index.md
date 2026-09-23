@@ -160,6 +160,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`ImageLoader.cs`](files/Shared/Patches/Image/ImageLoader.cs.md) | `Shared/Patches/Image/ImageLoader.cs` | Decodes an image through the bundled ImageSharp and, in debug builds, logs size, time and a hash of the decoded pixels for both this and the game's decoder. |
 | [`ImageSharpRuntime.cs`](files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | `Shared/Patches/Image/ImageSharpRuntime.cs` | Loads a renamed copy of the shipped ImageSharp 2.1.13 beside the game's own 2019 beta and decodes images through reflection with the same pixel format selection as `MyImage.Load`. |
 | [`MyImagePatch.cs`](files/Shared/Patches/Image/MyImagePatch.cs.md) | `Shared/Patches/Image/MyImagePatch.cs` | Prefix on `MyImage.Load` that routes image decoding to the bundled ImageSharp, falling back to the game's decoder on any failure. |
+| [`XmlSerializationReaderPatch.cs`](files/Shared/Patches/Serialization/XmlSerializationReaderPatch.cs.md) | `Shared/Patches/Serialization/XmlSerializationReaderPatch.cs` | Reuses the name IDs of the game's generated XML readers per name table instead of rebuilding them for every polymorphic element. |
 | [`MyScriptCompilerPatch.cs`](files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) | `Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs` | Caches compiled mod and in-game script assemblies to disk, short-circuiting the Roslyn compilation step on subsequent world loads. |
 
 ## [Simulation & Block Patches](modules/simulation-and-blocks.md)

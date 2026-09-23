@@ -252,6 +252,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Skips the eager preloading of the vanilla asteroid voxel storages on game start
     bool SkipVoxelPreload { get; set; }
 
+    // Sets up the XML readers' name IDs once per file instead of once per block
+    bool FixXmlDeserialization { get; set; }
+
     // Caches frequent recalculations in safe zones
     bool FixSafeZone { get; set; }
 

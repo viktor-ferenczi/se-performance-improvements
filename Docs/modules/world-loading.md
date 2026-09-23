@@ -1,6 +1,6 @@
 # World Loading Patches
 
-Speeds up world load by caching compiled mods and in-game scripts, decoding planet maps and PNG textures with a newer ImageSharp, and eliminates the blueprint-not-found log flooding from `GetBlueprintDefinition`.
+Speeds up world load by caching compiled mods and in-game scripts, decoding planet maps and PNG textures with a newer ImageSharp, reusing the XML readers' name IDs, and eliminates the blueprint-not-found log flooding from `GetBlueprintDefinition`.
 
 World load time is dominated by two independent costs: Roslyn compilation of all mod and PB script assemblies, and log flooding from a dictionary double-lookup in `GetBlueprintDefinition`. This module addresses both.
 
@@ -15,6 +15,7 @@ World load time is dominated by two independent costs: Roslyn compilation of all
 | [`ImageLoader.cs`](../files/Shared/Patches/Image/ImageLoader.cs.md) | Decodes an image through the bundled ImageSharp and, in debug builds, logs size, time and a hash of the pixels for both decoders. |
 | [`ImageSharpRuntime.cs`](../files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | Renames the shipped ImageSharp 2.1.13 with Cecil, loads it beside the game's copy and decodes through reflection with the same pixel format selection as `MyImage.Load`. |
 | [`MyImagePatch.cs`](../files/Shared/Patches/Image/MyImagePatch.cs.md) | Prefix on `MyImage.Load` that routes decoding to the bundled library, falling back to the game's decoder on any failure. |
+| [`XmlSerializationReaderPatch.cs`](../files/Shared/Patches/Serialization/XmlSerializationReaderPatch.cs.md) | Transpiler on `XmlSerializationReader.Init` that reuses the generated readers' name IDs per name table. |
 
 ## How it fits together
 
@@ -28,7 +29,9 @@ Cache directories (`CompiledMods/`, `CompiledInGameScripts/`) live under `Common
 
 The image loading fix is the third, independent part. `MyImagePatch` prefixes the one `MyImage.Load` overload every image load funnels into and hands the stream to `ImageLoader`, which decodes through `ImageSharpRuntime`. That class is the only place that knows about the newer ImageSharp: it renames the shipped library with Cecil (so it can be loaded beside the game's own copy on .NET, which allows one assembly per simple name), caches the renamed file under `Common.CacheDir/ImageSharp`, and binds the handful of members it needs by reflection. The pixel format selection is a mirror of `MyImage.Load`, which is what keeps the decoded arrays byte-identical to the game's; planet height maps are terrain, so this is a correctness requirement, not a nicety.
 
-There is no interaction between the three parts of this module; they are co-located here because all affect world-load performance.
+`XmlSerializationReaderPatch` is the fourth part. It hooks the runtime's `XmlSerializationReader.Init` rather than game code, and it is applied in the `"Early"` category so XML the game reads during its own startup already goes through it. Its cache lives in the name tables' lifetime: a `ConditionalWeakTable` entry disappears with the XML document that owned the name table.
+
+There is no interaction between the parts of this module; they are co-located here because all affect world-load performance.
 
 ---
 

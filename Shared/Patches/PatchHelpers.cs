@@ -162,6 +162,7 @@ namespace Shared.Patches
         public static void ConfigureEarly()
         {
             MySandboxGamePatchForVoxelPreload.Configure();
+            XmlSerializationReaderPatch.Configure();
         }
 
         // Called after loading configuration, but before patching

@@ -528,3 +528,45 @@ job.
 
 The fix is ported from the `--bare-bones` mode of the Remote API plugin, where it was
 first measured.
+
+
+## XML deserialization
+
+The game reads worlds, blueprints, the world checkpoint and all definition files
+(including those of mods) with the pregenerated XML serializers in the
+`*.XmlSerializers` assemblies. Polymorphic elements, which means every cube block,
+inventory, entity component and definition, are read one by one: `MyXmlSerializerBase`
+calls `XmlSerializer.Deserialize` for each of them. Every such call creates a new
+generated reader, and the runtime's `XmlSerializationReader.Init` calls the reader's
+`InitIDs`, which adds every element and attribute name the whole assembly knows to the
+XML reader's name table. That is 4941 names for VRage.Game and 2065 for
+SpaceEngineers.ObjectBuilders, repeated for every block.
+
+`InitIDs` only stores the strings `NameTable.Add` returns, and for the same name table
+those are always the same atomized strings. All nested readers of one document share the
+document's name table, so the fix runs `InitIDs` once per name table and generated reader
+class, captures the result, and copies it into every later reader instead. The patch is a
+transpiler on the runtime's `XmlSerializationReader.Init`, which reroutes its `InitIDs`
+call; patching the generated `InitIDs` methods themselves would work too, but Harmony
+takes about two seconds of every game start to rewrite their huge bodies. The captured
+values are held in a `ConditionalWeakTable` keyed by the name table, so they go away with
+the document.
+
+The long `if (type == typeof(...)) else if ...` chains in the same generated code are not
+a problem: they only handle values declared as `object`, which world files do not use.
+They never ran while loading or saving the test worlds below.
+
+Measured on a headless Linux client, same build with the fix off and on. Worlds loaded
+from XML only (without their `.sbsB5`, which is how the game loads a world the first time
+if it has none), the game's own `Loading duration`, first and second load in a session:
+
+| World | fix off | fix on |
+| --- | --- | --- |
+| Conveyor Test Heavy (26 MB, 20810 blocks) | 12.2 s / 9.3 s | 5.9 s / 3.0 s |
+| Many Lifters Slowness (52 MB, 699 grids) | 12.0 s / 11.6 s | 3.8 s / 3.4 s |
+
+The CPU time of the XML parsing itself went from 11.3 s to 0.9 s and from 11.5 s to 0.7 s.
+Normal loads, where the sector comes from the `.sbsB5` and only the checkpoint and the
+definitions are XML, gain less: the median of four loads went from 5.6 s to 5.2 s and from
+4.3 s to 4.1 s. The `.sbsB5` the game writes straight from the parsed XML sector was
+byte-identical with the fix off and on for both worlds.
