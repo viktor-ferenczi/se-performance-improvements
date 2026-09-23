@@ -19,7 +19,7 @@ internal class TextboxAttribute : Attribute, IElement
     {
         var textBox = new MyGuiControlTextbox(defaultText: (string)propertyGetter());
         textBox.TextChanged += box => propertySetter(box.Text);
-        textBox.SetToolTip(Description);
+        textBox.SetToolTip(Tools.Tools.Wrap(Description, Control.ToolTipWidth));
 
         var label = Tools.Tools.GetLabelOrDefault(name, Label);
         return new List<Control>()

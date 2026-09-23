@@ -20,7 +20,8 @@
 | Member | Kind | Description |
 | --- | --- | --- |
 | `VisibleRows` | `int` | Maximum visible rows in the expanded dropdown (default `20`). |
-| `Label` / `Description` | `string` | Display label and tooltip. |
+| `Label` / `Description` | `string` | Display label and tooltip; the tooltip is wrapped by [Tools.Wrap](../Tools/Tools.cs.md). |
+| `DropdownWidth` | `const float` | Fixed width of the combobox (`0.2f`), enough for the few words of an enum value. |
 | `UnCamelCase(string)` | `private static method` | Inserts spaces before each uppercase letter boundary for readable enum member display. |
 | `GetControls(...)` | method | Populates `MyGuiControlCombobox` from enum names; wires `ItemSelected` to `propertySetter`. |
 | `SupportedTypes` | property | `[typeof(Enum)]`. |

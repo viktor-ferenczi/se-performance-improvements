@@ -65,7 +65,7 @@ internal class ColorAttribute : Attribute, IElement
             }
         };
 
-        textBox.SetToolTip(Description);
+        textBox.SetToolTip(Tools.Tools.Wrap(Description, Control.ToolTipWidth));
 
         var label = Tools.Tools.GetLabelOrDefault(name, Label);
         return new List<Control>()

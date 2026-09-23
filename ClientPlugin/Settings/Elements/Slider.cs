@@ -79,7 +79,7 @@ internal class SliderAttribute : Attribute, IElement
         }
 
         var slider = new MyGuiControlSlider(
-            toolTip: Description,
+            toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth),
             defaultValue: Convert.ToSingle(propertyGetter()),
             minValue: Min,
             maxValue: Max,

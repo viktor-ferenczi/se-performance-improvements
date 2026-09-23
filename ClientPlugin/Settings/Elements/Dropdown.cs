@@ -7,6 +7,8 @@ namespace ClientPlugin.Settings.Elements;
 
 internal class DropdownAttribute : Attribute, IElement
 {
+    private const float DropdownWidth = 0.2f;
+
     public readonly int VisibleRows;
     public readonly string Label;
     public readonly string Description;
@@ -36,7 +38,7 @@ internal class DropdownAttribute : Attribute, IElement
         object selectedEnum = propertyGetter();
         Type choiceEnum = selectedEnum.GetType();
 
-        var dropdown = new MyGuiControlCombobox(toolTip: Description);
+        var dropdown = new MyGuiControlCombobox(toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth));
         string[] elements = Enum.GetNames(choiceEnum);
 
         for (int i = 0; i < elements.Length; i++)
@@ -60,7 +62,9 @@ internal class DropdownAttribute : Attribute, IElement
         return new List<Control>()
         {
             new Control(new MyGuiControlLabel(text: label), minWidth: Control.LabelMinWidth),
-            new Control(dropdown, fillFactor: 1f),
+            // A fixed, narrow width: filling the row would stretch the box far wider than the
+            // few words of an enum value need. Widen this if a longer value ever gets clipped.
+            new Control(dropdown, fixedWidth: DropdownWidth),
         };
     }
     public List<Type> SupportedTypes { get; } = new List<Type>()

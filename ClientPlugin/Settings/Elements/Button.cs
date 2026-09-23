@@ -20,7 +20,7 @@ internal class ButtonAttribute : Attribute, IElement
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
     {
         var label = Tools.Tools.GetLabelOrDefault(name, Label);
-        var button = new MyGuiControlButton(text: new StringBuilder(label), toolTip: Description);
+        var button = new MyGuiControlButton(text: new StringBuilder(label), toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth));
         button.ButtonClicked += (_)=>((Action)propertyGetter())();
 
         return new List<Control>()

@@ -73,7 +73,7 @@ internal class KeybindAttribute : Attribute, IElement
             text: output,
             onButtonClick: OnRebindClick,
             onSecondaryButtonClick: OnUnbindClick,
-            toolTip: Description)
+            toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth))
         {
             VisualStyle = MyGuiControlButtonStyleEnum.ControlSetting,
             UserData = new ControlButtonData(control, MyGuiInputDeviceEnum.Keyboard),
