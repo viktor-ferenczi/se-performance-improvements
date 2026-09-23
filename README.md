@@ -42,6 +42,7 @@ the code that implements them is organized.
 - Cache the toolbar actions of large block groups while seated
 - Physics optimizations (`RigidBody` getter, configurable Havok thread count, faster cluster reordering)
 - Reduce frequent memory allocations (`MyDefinitionId.ToString`, turret targeting, voxel material lookups)
+- Linear instead of quadratic refresh of turret target groups
 - Less frequent sync of block counts, block access rights and PB access to blocks
 - Disable server-side character footprints and wheel trail tracking
 - Disable functional blocks in projected grids

@@ -87,7 +87,8 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Caches frequent recalculations in safe zones
     bool FixSafeZone { get; set; }
 
-    // Reduces memory allocations in the turret targeting system (needs restart)
+    // Optimizes the turret targeting system: fewer allocations (needs restart) and a linear
+    // target group refresh
     bool FixTargeting { get; set; }
 
     // Caches the result of MyWindTurbine.IsInAtmosphere

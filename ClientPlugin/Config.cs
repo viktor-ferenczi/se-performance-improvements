@@ -157,7 +157,7 @@ public class Config : IPluginConfig
     }
 
     [Separator("Requires server restart")]
-    [Checkbox(label: "Fix targeting allocations (needs restart)", description: "Reduces memory allocations in the turret targeting system (needs restart)")]
+    [Checkbox(label: "Fix turret targeting (needs restart)", description: "Optimizes the turret targeting system: fewer memory allocations (needs restart) and a linear refresh of the target groups instead of a quadratic one")]
     public bool FixTargeting
     {
         get;

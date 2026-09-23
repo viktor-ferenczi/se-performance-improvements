@@ -141,6 +141,23 @@ quite a bit of GC pressure:
 
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/24145-excessive-memory-allocation-in-mylargeturrettargetingsystem)
 
+### Linear target group refresh
+
+Part of the same option. A grid with turrets refreshes its list of target groups
+once per frame in `MyGridTargeting.RefreshGridConnections`: every top-most entity in
+the turrets' range, grouped by physical connection. The game pops entities off the
+query result and, for every grid, removes each physically connected grid from that
+list with `List.Remove`, a linear search, so N grids in range cost N x N comparisons
+per turret grid per frame. On a busy server with hundreds of grids around a few
+turret grids that is real main thread time.
+
+The fix does the same grouping with a set for the "not yet grouped" test, walking
+the query result in the same order and asking the game for the same groups, so the
+result is identical; it was checked group by group against the game's own algorithm
+over thousands of refreshes with a probe. Measured in the "Many Lifters Slowness"
+test world (600 grids in range of the turret grids), the refresh went from 2.3% of
+the main thread's time to under 0.1%.
+
 ## Caching the result of wind turbine atmosphere checks
 
 Since the result of `MyWindTurbine.IsInAtmosphere` does not change often, it can

@@ -83,7 +83,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     // ---- Requires server restart ---------------------------------------
 
-    [BoolOption("Reduce memory allocations in the turret targeting system (needs restart)", Parent = "restart")]
+    [BoolOption("Optimize the turret targeting system: fewer memory allocations (needs restart) and a linear refresh of the target groups instead of a quadratic one", Parent = "restart")]
     public bool FixTargeting { get; set => SetField(ref field, value); } = true;
 
     [BoolOption("Optimize the MyPhysicsBody.RigidBody getter and set the Havok physics thread count (needs restart)", Parent = "restart")]
