@@ -118,6 +118,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Caches conveyor network lookups
     bool FixConveyor { get; set; }
 
+    // Caches the terminal actions of block groups on the toolbar (client only)
+    bool FixToolbar { get; set; }
+
     // Rate limits excessive logging from MyDefinitionManager.GetBlueprintDefinition
     bool FixLogFlooding { get; set; }
 

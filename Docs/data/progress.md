@@ -19,6 +19,8 @@ Verify links: `python3 Docs/data/scripts/check_links.py`
 
 ## Update history
 
+- Synced with the `auto-research` branch: new `MyToolbarItemTerminalGroupPatch` page (simulation-and-blocks), `MyAssemblerPatch` rewritten as the active master assembler cache, `Generation` and the `FlagForRecomputation` hook on the conveyor cache core, `FixToolbar` on the config pages. Now 99 files, 16 modules.
+
 - Initial generation: 87 files, 16 modules (commit `ca1c1ee`).
 - Synced with code commit `ffc18d6` ("Fixes"): removed `WineDetector` doc;
   relocated `MyWheelPatch` / `MyLcdSurfaceComponentPatch` docs to

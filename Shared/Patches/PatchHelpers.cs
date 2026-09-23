@@ -199,6 +199,7 @@ namespace Shared.Patches
             MyWindTurbinePatch.Update();
             MyGridConveyorSystemPatch.Update();
             MyAssemblerPatch.Update();
+            MyToolbarItemTerminalGroupPatch.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
             // MyGridTerminalSystemPatch.Update();

@@ -112,6 +112,13 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Cache conveyor network lookups", Parent = "optional")]
     public bool FixConveyor { get; set => SetField(ref field, value); } = false;
 
+    // Client only: the dedicated server has no toolbar updates
+    public bool FixToolbar
+    {
+        get => false;
+        set { }
+    }
+
     [BoolOption("Rate limit excessive logging from MyDefinitionManager.GetBlueprintDefinition", Parent = "optional")]
     public bool FixLogFlooding { get; set => SetField(ref field, value); } = false;
 

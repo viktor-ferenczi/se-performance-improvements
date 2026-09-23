@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**98 files across 16 modules.**
+**99 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -107,7 +107,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 
 | File | Path | Summary |
 | --- | --- | --- |
-| [`MyAssemblerPatch.cs`](files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md) | `Shared/Patches/Conveyor/MyAssemblerPatch.cs` | Experimental (disabled) patch that replaces `MyAssembler.GetMasterAssembler` with a route-cache-based lookup, avoiding `Reachable` calls entirely. |
+| [`MyAssemblerPatch.cs`](files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md) | `Shared/Patches/Conveyor/MyAssemblerPatch.cs` | Caches the assemblers reachable from a cooperative-mode assembler, so the master lookup on every production tick no longer walks the whole conveyor network. |
 | [`MyCubeBlockPatchForConveyor.cs`](files/Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs.md) | `Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs` | Invalidates the conveyor reachability cache when a conveyor-endpoint block changes its functional state. |
 | [`MyCubeGridPatchForConveyor.cs`](files/Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs.md) | `Shared/Patches/Conveyor/MyCubeGridPatchForConveyor.cs` | Invalidates or drops the conveyor reachability cache in response to grid lifecycle and topology events. |
 | [`MyGridConveyorSystemPatch.cs`](files/Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs.md) | `Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs` | Caches conveyor-network reachability results per logical grid group to eliminate redundant pathfinding on large ships and bases. |
@@ -174,6 +174,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`MyEntityPatchForProjection.cs`](files/Shared/Patches/Projection/MyEntityPatchForProjection.cs.md) | `Shared/Patches/Projection/MyEntityPatchForProjection.cs` | Disables functional blocks on physics-less (projected) grids the moment they are added to the scene, preventing wasteful updates and projection-era bugs such as projected welders welding in creative mode. |
 | [`MyLargeTurretTargetingSystemPatch.cs`](files/Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs.md) | `Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs` | Reduces GC pressure in `MyLargeTurretTargetingSystem.SortTargetRoots` by reusing per-turret arrays instead of allocating a new one every call (entire file is currently disabled via `#if false`). |
 | [`MyGridTerminalSystemPatch.cs`](files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md) | `Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs` | Rate-limits `MyGridTerminalSystem.UpdateGridBlocksOwnership` to suppress redundant PB access-right syncs (file is currently compiled out via `#if BUGGY`). |
+| [`MyToolbarItemTerminalGroupPatch.cs`](files/Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs.md) | `Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs` | Caches the terminal actions collected for a block group on a cockpit toolbar, so the per-frame toolbar refresh stops walking every block of the group. |
 | [`MyWindTurbinePatch.cs`](files/Shared/Patches/WindTurbine/MyWindTurbinePatch.cs.md) | `Shared/Patches/WindTurbine/MyWindTurbinePatch.cs` | Caches the result of the `MyWindTurbine.IsInAtmosphere` property getter per turbine entity for approximately 30 seconds to avoid repeated atmosphere checks. |
 
 ## [Tests](modules/tests.md)

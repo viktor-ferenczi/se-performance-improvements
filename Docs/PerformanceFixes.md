@@ -278,6 +278,30 @@ Measured on that test world with the plugin's other fixes on, main thread frame
 time at idle went from about 2.9 ms to 2.4 ms, and the lock contention seen in the
 profiler dropped by two thirds. Cache hit rate 80 to 90%.
 
+## Toolbar block group actions
+
+While the player sits in a cockpit, the game refreshes every item of its toolbar
+on every frame. An item which is a block group (`MyToolbarItemTerminalGroup`)
+rebuilds the group's block list and collects the terminal actions valid for the
+group, which walks every block of the group and every component of every block.
+For a group of hundreds of blocks (all refineries of a base, all lifters of a
+carrier) that is milliseconds per frame, paid only while the seat is occupied,
+which is exactly when the player notices. The result changes only when a block is
+added to or removed from the group.
+
+The fix caches the collected actions per toolbar item for one second, keyed by a
+fingerprint of the group's block list, so a change to the group is picked up on
+the next frame regardless of the cache age. The enabled state, icons and value
+text of the item still refresh on every frame from the live blocks. An action
+which appears or disappears without the membership changing (a rare kind of
+action, enabled by block state) can lag by up to a second. Client only, since a
+dedicated server never updates toolbars.
+
+Measured in the "Conveyor Test Heavy" test world in a flight seat whose toolbar
+holds four groups of several hundred blocks: main thread frame time while seated
+went from about 5 ms to 2.4 ms, the same as standing next to the seat. Cache hit
+rate 98%.
+
 ## Rate limited excessive logging
 
 Rate limits excessive logging from `MyDefinitionManager.GetBlueprintDefinition`.
