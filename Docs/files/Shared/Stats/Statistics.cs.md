@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Plugin Core](../../../modules/shared-plugin-core.md) |
-| **Source** | [`Statistics.cs`](../../../../Shared/Stats/Statistics.cs) (87 lines) |
+| **Source** | [`Statistics.cs`](../../../../Shared/Stats/Statistics.cs) (90 lines) |
 | **Kind** | Static class `Statistics` |
 | **Role** | Statistics driver |
 

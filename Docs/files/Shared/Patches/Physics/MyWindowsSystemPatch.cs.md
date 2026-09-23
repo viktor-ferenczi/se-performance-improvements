@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Physics Patches](../../../../modules/physics.md) |
-| **Source** | [`MyWindowsSystemPatch.cs`](../../../../../Shared/Patches/Physics/MyWindowsSystemPatch.cs) |
+| **Source** | [`MyWindowsSystemPatch.cs`](../../../../../Shared/Patches/Physics/MyWindowsSystemPatch.cs) (115 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

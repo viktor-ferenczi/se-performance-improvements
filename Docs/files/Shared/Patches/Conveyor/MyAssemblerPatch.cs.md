@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Conveyor System Patches](../../../../modules/conveyor.md) |
-| **Source** | [`MyAssemblerPatch.cs`](../../../../../Shared/Patches/Conveyor/MyAssemblerPatch.cs) (140 lines) |
+| **Source** | [`MyAssemblerPatch.cs`](../../../../../Shared/Patches/Conveyor/MyAssemblerPatch.cs) (159 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

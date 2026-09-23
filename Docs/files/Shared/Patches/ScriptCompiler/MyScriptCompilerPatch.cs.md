@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [World Loading Patches](../../../../modules/world-loading.md) |
-| **Source** | [`MyScriptCompilerPatch.cs`](../../../../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs) (295 lines) |
+| **Source** | [`MyScriptCompilerPatch.cs`](../../../../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs) (301 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

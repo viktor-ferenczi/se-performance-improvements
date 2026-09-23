@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Settings UI Framework](../../../../modules/client-settings.md) |
-| **Source** | [`Checkbox.cs`](../../../../../ClientPlugin/Settings/Elements/Checkbox.cs) (35 lines) |
+| **Source** | [`Checkbox.cs`](../../../../../ClientPlugin/Settings/Elements/Checkbox.cs) (36 lines) |
 | **Kind** | `Internal class : Attribute, IElement` |
 | **Role** | UI element — checkbox |
 

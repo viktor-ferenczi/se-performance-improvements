@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Tools & Data Structures](../../../modules/tools.md) |
-| **Source** | [`CacheStat.cs`](../../../../Shared/Tools/CacheStat.cs) (82 lines) |
+| **Source** | [`CacheStat.cs`](../../../../Shared/Tools/CacheStat.cs) (107 lines) |
 | **Kind** | Class `CacheStat` |
 | **Role** | Diagnostics helper |
 

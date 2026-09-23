@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Plugin Entry Point](../../modules/client-plugin.md) |
-| **Source** | [`Config.cs`](../../../ClientPlugin/Config.cs) (224 lines) |
+| **Source** | [`Config.cs`](../../../ClientPlugin/Config.cs) (266 lines) |
 | **Kind** | `class Config : IPluginConfig` (which extends `INotifyPropertyChanged`) |
 | **Role** | Configuration |
 

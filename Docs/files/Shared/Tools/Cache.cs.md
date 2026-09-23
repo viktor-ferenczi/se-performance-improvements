@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Tools & Data Structures](../../../modules/tools.md) |
-| **Source** | [`Cache.cs`](../../../../Shared/Tools/Cache.cs) (147 lines) |
+| **Source** | [`Cache.cs`](../../../../Shared/Tools/Cache.cs) (149 lines) |
 | **Kind** | Generic class `Cache<TK, TV>` |
 | **Role** | Cache primitive |
 

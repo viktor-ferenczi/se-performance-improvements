@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Settings UI Framework](../../../../modules/client-settings.md) |
-| **Source** | [`Control.cs`](../../../../../ClientPlugin/Settings/Elements/Control.cs) (30 lines) |
+| **Source** | [`Control.cs`](../../../../../ClientPlugin/Settings/Elements/Control.cs) (31 lines) |
 | **Kind** | `Internal class` |
 | **Role** | Layout-hint wrapper |
 

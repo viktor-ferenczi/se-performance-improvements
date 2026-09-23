@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Simulation & Block Patches](../../../../modules/simulation-and-blocks.md) |
-| **Source** | [`MyWindTurbinePatch.cs`](../../../../../Shared/Patches/WindTurbine/MyWindTurbinePatch.cs) (83 lines) |
+| **Source** | [`MyWindTurbinePatch.cs`](../../../../../Shared/Patches/WindTurbine/MyWindTurbinePatch.cs) (87 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

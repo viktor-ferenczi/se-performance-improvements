@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Safe Zone Patches](../../../../modules/safe-zone.md) |
-| **Source** | [`MySafeZonePatch.cs`](../../../../../Shared/Patches/SafeZone/MySafeZonePatch.cs) (180 lines) |
+| **Source** | [`MySafeZonePatch.cs`](../../../../../Shared/Patches/SafeZone/MySafeZonePatch.cs) (183 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

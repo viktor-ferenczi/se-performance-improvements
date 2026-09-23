@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Simulation & Block Patches](../../../../modules/simulation-and-blocks.md) |
-| **Source** | [`MyGridTerminalSystemPatch.cs`](../../../../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs) (146 lines) |
+| **Source** | [`MyGridTerminalSystemPatch.cs`](../../../../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs) (162 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 
