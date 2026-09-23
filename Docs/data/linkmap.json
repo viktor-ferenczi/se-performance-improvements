@@ -396,6 +396,12 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
+    "Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs": {
       "module": "../../../../modules/simulation-and-blocks.md",
       "source": "../../../../../Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
@@ -1228,6 +1234,14 @@
           "source_link": "../../Shared/Patches/Projection/MyEntityPatchForProjection.cs",
           "tier": 2,
           "lines": 42
+        },
+        {
+          "path": "Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs",
+          "name": "MyGridTargetingPatch.cs",
+          "doc_link": "../files/Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs.md",
+          "source_link": "../../Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs",
+          "tier": 2,
+          "lines": 98
         },
         {
           "path": "Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
