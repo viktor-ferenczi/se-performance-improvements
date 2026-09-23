@@ -253,9 +253,9 @@ Two options control it:
   answers without the plugin. This is the server default, so a server only changes
   its physics threading when an admin says so.
 - **Auto** (the client default) uses one worker per logical processor, capped at 16,
-  on Windows, and two workers on Linux (see below), and keeps the thread count option
-  updated with the number this machine gets, so the configuration always shows the
-  count the game will actually be given.
+  on Windows, and one worker per physical core minus one on Linux (see below), and
+  keeps the thread count option updated with the number this machine gets, so the
+  configuration always shows the count the game will actually be given.
 - **Manual** uses exactly the configured number, between 2 and 64.
 
 The minimum is 2 rather than 1, because a pool of one is *not* single threaded
@@ -289,11 +289,21 @@ thread — and a number above that is neither an error nor an improvement, it si
 making a difference. The resolved count is logged at the DEBUG log level when the world
 loads, which is the way to see what a setting actually asked for.
 
-### Fewer workers on Linux
+### One worker per physical core on Linux
 
 On Linux the game runs the Windows build of Havok through the native wrappers, where
 the pool's workers wait on emulated Win32 events and semaphores (ntsync) and spin
-between jobs. There every extra worker makes the step slower. Measured in the "Many
+between jobs. A worker that spins shares the execution units of its hyper-threading
+sibling, so counting sibling threads as if they were cores inflates the pool without
+adding throughput. Auto therefore asks for one worker per *physical* core, minus one
+so the main thread keeps a core of its own — on an 8 core / 16 thread host, 7 workers.
+The physical count comes from the kernel's hyper-threading sibling groups
+(`/sys/devices/system/cpu/cpu*/topology/thread_siblings_list`, with the "physical id"
+plus "core id" pairs in `/proc/cpuinfo` as a fallback); when neither can be read the
+logical count minus one is used, capped at 7.
+
+How far down the count should go is load dependent, and a heavily jointed scene wants
+fewer workers than this. Measured in the "Many
 Lifters Slowness" test world, a lattice of 602 small grids resting on each other with
 1206 landing gears and 116 turrets, headless Linux client on an 8 core / 16 thread
 host, simulation speed at idle with the lattice awake:
@@ -311,11 +321,16 @@ host, simulation speed at idle with the lattice awake:
 The other direction was checked too: 300 independent 21 block grids pasted at once
 and falling onto a planet, where a big pool could in principle solve the islands in
 parallel, ran at the same simulation speed with 2 workers as with 11 (median frame 2.6
-against 4.6 ms, 90th percentile 14 against 16 ms). So Auto asks for two workers on
-Linux. A Manual setting still asks for exactly what it says, and Game asks for
-nothing. Whether the Windows
-build of the game shows the same trend was not measured, so the Windows default is
-unchanged.
+against 4.6 ms, 90th percentile 14 against 16 ms).
+
+So on this particular world a smaller pool than Auto's is better still, and a server
+whose load looks like that lattice should set **Manual** and measure. Auto stops at
+one worker per physical core because that is the count which cannot be wrong for the
+usual reason — it never counts a sibling thread as a core, and it never takes the last
+core away from the main thread — rather than because it is the optimum for every
+scene. A Manual setting still asks for exactly what it says, and Game asks for nothing.
+Whether the Windows build of the game shows the same trend was not measured, so the
+Windows default is unchanged.
 
 Until this was reworked the same thing was done by a transpiler on `MyPhysics.LoadData`
 which wrote an `int` into a `Nullable<int>` local — invalid IL, which is why it had to be

@@ -185,7 +185,7 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Dropdown(label: "Physics thread count", description: "Game: leaves the sizing of the Havok worker thread pool to the game. Auto: one worker per logical processor capped at 16 on Windows, two on Linux where more workers only make the step slower. Manual: exactly the number below. Needs a restart.")]
+    [Dropdown(label: "Physics thread count", description: "Game: leaves the sizing of the Havok worker thread pool to the game. Auto: one worker per logical processor capped at 16 on Windows, one per physical core minus one on Linux where the extra workers only make the step slower. Manual: exactly the number below. Needs a restart.")]
     public HavokThreadCountMode HavokThreadCountMode
     {
         get;

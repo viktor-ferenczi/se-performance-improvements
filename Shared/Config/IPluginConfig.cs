@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.ComponentModel;
 
@@ -9,7 +11,7 @@ namespace Shared.Config;
 public enum HavokThreadCountMode
 {
     // The platform's number: one worker per logical processor capped at 16 on Windows,
-    // two on Linux (HavokThreads.Auto)
+    // one per physical core minus one on Linux (HavokThreads.Auto)
     Auto,
 
     // Exactly the configured number of workers
@@ -32,19 +34,122 @@ public static class HavokThreads
     public const int Min = 2;
     public const int Max = 64;
 
+    // The cap on the automatic count. The shipped Havok build caps the pool below this on
+    // its own (11 workers on a 16 core host), so this is the plugin's own upper bound.
+    private const int AutoMax = 16;
+
+    // The fallback cap on Linux when the physical core count cannot be determined, so a
+    // hyper-threaded host does not end up with a worker per sibling thread.
+    private const int LinuxFallbackMax = 7;
+
     // On Windows one worker per logical processor, capped. The cap is what the plugin has
     // always used here; beyond it the pool costs more in scheduling than the physics step
     // wins back.
     //
-    // On Linux the game runs the Windows build of Havok through the native wrappers, and
-    // there every extra worker makes the step slower, not faster: the pool's workers wait
-    // on emulated Win32 events and semaphores and spin between jobs, and a large jointed
-    // scene (a lattice of 600 small grids resting on each other) stepped 30% faster with
-    // two workers than with eleven, while 300 independent falling grids were no worse.
-    // See the Havok section of Docs/PerformanceFixes.md for the measurements.
-    public static int Auto => Linux ? Min : Math.Max(Min, Math.Min(16, Environment.ProcessorCount));
+    // On Linux the game runs the Windows build of Havok through the native wrappers, where
+    // the pool's workers wait on emulated Win32 events and semaphores and spin between jobs,
+    // so an oversized pool costs more than it wins: a large jointed scene (a lattice of 600
+    // small grids resting on each other) stepped 30% faster with two workers than with
+    // eleven, while 300 independent falling grids were no worse. See the Havok section of
+    // Docs/PerformanceFixes.md for the measurements.
+    //
+    // The count here is therefore one worker per *physical* core, minus one to leave the
+    // main thread a core of its own: hyper-threading siblings share the execution units a
+    // spinning physics worker is using, so they add contention rather than throughput. When
+    // the topology cannot be read the logical count minus one is used, capped, which is the
+    // same answer on a host without hyper-threading and a conservative one on a host with it.
+    public static int Auto => Math.Max(Min, Math.Min(AutoMax, Linux ? LinuxAuto : Environment.ProcessorCount));
+
+    private static int LinuxAuto
+    {
+        get
+        {
+            var physical = PhysicalCoreCount;
+            return physical > 0
+                ? physical - 1
+                : Math.Min(LinuxFallbackMax, Environment.ProcessorCount - 1);
+        }
+    }
 
     private static readonly bool Linux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+
+    // Number of physical cores on Linux, or 0 when it cannot be determined. Read once: the
+    // topology does not change while the process runs.
+    private static readonly int PhysicalCoreCount = Linux ? CountPhysicalCores() : 0;
+
+    // Counts the distinct hyper-threading sibling groups the kernel reports. Each group is
+    // one physical core, and the list is identical for every thread of the core, so the
+    // number of distinct lists is the number of cores.
+    //
+    // /sys is the primary source because it is architecture independent. /proc/cpuinfo is
+    // the fallback for kernels or containers which do not expose the topology there; its
+    // "physical id" plus "core id" pair identifies a core, and it is x86 specific, which is
+    // why it is not the first choice. Anything unreadable answers 0 and the caller falls
+    // back to the logical count.
+    private static int CountPhysicalCores()
+    {
+        try
+        {
+            var cores = new HashSet<string>();
+
+            foreach (var cpu in Directory.EnumerateDirectories("/sys/devices/system/cpu", "cpu[0-9]*"))
+            {
+                var siblings = Path.Combine(cpu, "topology", "thread_siblings_list");
+                if (File.Exists(siblings))
+                    cores.Add(File.ReadAllText(siblings).Trim());
+            }
+
+            if (cores.Count > 0)
+                return cores.Count;
+
+            return CountPhysicalCoresFromCpuInfo();
+        }
+        catch (Exception)
+        {
+            // Nothing here is worth failing a config object's construction over, and the
+            // logger is not available yet at this point anyway.
+            return 0;
+        }
+    }
+
+    private static int CountPhysicalCoresFromCpuInfo()
+    {
+        if (!File.Exists("/proc/cpuinfo"))
+            return 0;
+
+        var cores = new HashSet<string>();
+        string package = null;
+        string core = null;
+
+        foreach (var line in File.ReadLines("/proc/cpuinfo"))
+        {
+            if (line.Length == 0)
+            {
+                package = core = null;
+                continue;
+            }
+
+            var colon = line.IndexOf(':');
+            if (colon < 0)
+                continue;
+
+            var key = line.Substring(0, colon).Trim();
+            var value = line.Substring(colon + 1).Trim();
+
+            if (key == "physical id")
+                package = value;
+            else if (key == "core id")
+                core = value;
+
+            if (package != null && core != null)
+            {
+                cores.Add($"{package}/{core}");
+                package = core = null;
+            }
+        }
+
+        return cores.Count;
+    }
 }
 
 // Configuration properties shared by the patches in the Shared project.
