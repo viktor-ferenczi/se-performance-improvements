@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**87 files across 16 modules.**
+**98 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -42,14 +42,17 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`PerformanceConfig.cs`](files/ServerPlugin/Config/PerformanceConfig.cs.md) | `ServerPlugin/Config/PerformanceConfig.cs` | XML-serialized server configuration implementing `IPluginConfig.cs`; each property corresponds to one toggleable performance fix. |
 | [`Plugin.cs`](files/ServerPlugin/Plugin.cs.md) | `ServerPlugin/Plugin.cs` | Dedicated-server plugin entry point: applies the Harmony patches in two phases (uncategorized early via the Preloader bootstrap, the "Late" category from `Init`), loads config, and drives the per-tick update loop. |
 | [`Preloader.cs`](files/ServerPlugin/Preloader.cs.md) | `ServerPlugin/Preloader.cs` | Namespace-less preloader hook the Magnetar dedicated-server loader calls before the game starts; installs the early Harmony bootstrap so the plugin's patches are applied before world-load mod/script compilation. |
+| [`PerformanceStats.cs`](files/ServerPlugin/Stats/PerformanceStats.cs.md) | `ServerPlugin/Stats/PerformanceStats.cs` | Publishes each captured `StatisticsSnapshot.cs` through the Magnetar PluginSdk statistics API under the `Performance` provider name, so the Quasar Agent can collect and chart the plugin's cache hit rates and conveyor call counts. |
 
 ## [Shared Plugin Core](modules/shared-plugin-core.md)
 
 | File | Path | Summary |
 | --- | --- | --- |
-| [`IPluginConfig.cs`](files/Shared/Config/IPluginConfig.cs.md) | `Shared/Config/IPluginConfig.cs` | Shared configuration contract: one boolean toggle per performance fix, plus `INotifyPropertyChanged` so both platforms can react to live config updates. |
+| [`IPluginConfig.cs`](files/Shared/Config/IPluginConfig.cs.md) | `Shared/Config/IPluginConfig.cs` | Shared configuration contract: one toggle per performance fix (plus the Havok thread count mode and number), and `INotifyPropertyChanged` so both platforms can react to live config updates. |
 | [`Common.cs`](files/Shared/Plugin/Common.cs.md) | `Shared/Plugin/Common.cs` | Shared bootstrap and static state hub: `SetPlugin` wires up the logger, config, filesystem directories and patch configuration once per process; `AttachPlugin` (re)points the shared accessors, letting the server swap its early stand-in for the live instance. |
 | [`ICommonPlugin.cs`](files/Shared/Plugin/ICommonPlugin.cs.md) | `Shared/Plugin/ICommonPlugin.cs` | Contract that both client and server plugin classes must implement so `Common.cs` can accept either without a circular assembly reference. |
+| [`Statistics.cs`](files/Shared/Stats/Statistics.cs.md) | `Shared/Stats/Statistics.cs` | Central switch and driver for the plugin's runtime statistics: gates collection on the `CollectStatistics` option, captures the patch and cache counters into a `StatisticsSnapshot.cs` once per period and hands it to the host's `Publisher`. |
+| [`StatisticsSnapshot.cs`](files/Shared/Stats/StatisticsSnapshot.cs.md) | `Shared/Stats/StatisticsSnapshot.cs` | Host-agnostic, point-in-time capture of the plugin's runtime statistics: one `CacheStatEntry` per instrumented cache plus the conveyor `PullItem` / `PullItems` call counts for the period. |
 
 ## [Logging](modules/logging.md)
 
@@ -71,6 +74,8 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`GameAssembliesToPublicize.cs`](files/Shared/Tools/GameAssembliesToPublicize.cs.md) | `Shared/Tools/GameAssembliesToPublicize.cs` | Assembly-level `[IgnoresAccessChecksTo]` declarations listing every game assembly publicized by Krafs.Publicizer. |
 | [`Hashing.cs`](files/Shared/Tools/Hashing.cs.md) | `Shared/Tools/Hashing.cs` | Static utility providing FNV-1a string hashing, IL-body hashing for Harmony `MethodInfo`/`ConstructorInfo`, and a combining hash accumulator. |
 | [`IgnoresAccessChecksToAttribute.cs`](files/Shared/Tools/IgnoresAccessChecksToAttribute.cs.md) | `Shared/Tools/IgnoresAccessChecksToAttribute.cs` | Provides the `IgnoresAccessChecksToAttribute` class required at runtime when the plugin is loaded by Pulsar/Magnetar rather than built directly in an IDE. |
+| [`LegacyModRewriters.cs`](files/Shared/Tools/LegacyModRewriters.cs.md) | `Shared/Tools/LegacyModRewriters.cs` | Legacy fallback for `ModRewriterVersions.cs`: recognizes the pre-`Rewrite`-hook dotnet-compat and linux-compat builds loaded by old Pulsar and Magnetar releases by their compiler-hook marker types, so their MVIDs still feed the compilation cache keys. |
+| [`ModRewriterVersions.cs`](files/Shared/Tools/ModRewriterVersions.cs.md) | `Shared/Tools/ModRewriterVersions.cs` | Detects the loaded mod-rewriting plugins and hashes their module version IDs, so the exact build of each rewriter contributes to the mod and in-game script compilation cache keys. |
 | [`MySessionExtensions.cs`](files/Shared/Tools/MySessionExtensions.cs.md) | `Shared/Tools/MySessionExtensions.cs` | Extension methods on `MySession` exposing the internal `m_updateAllowed` flag through publicized direct access. |
 | [`ObjectPools.cs`](files/Shared/Tools/ObjectPools.cs.md) | `Shared/Tools/ObjectPools.cs` | Shared `StringBuilder` pool backed by the game's `MyConcurrentBucketPool`, reducing GC pressure from frequent string formatting. |
 | [`PreloaderHelpers.cs`](files/Shared/Tools/PreloaderHelpers.cs.md) | `Shared/Tools/PreloaderHelpers.cs` | Static helper class for Mono.Cecil-based preloader patches: IL index search, hash verification, and debug IL recording over `Collection<Instruction>`. |
@@ -87,7 +92,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 
 | File | Path | Summary |
 | --- | --- | --- |
-| [`PatchHelpers.cs`](files/Shared/Patches/PatchHelpers.cs.md) | `Shared/Patches/PatchHelpers.cs` | Central patch engine: verifies the targeted game methods (via `EnsureCode.cs`) then applies the Harmony patches — all at once on the client, or in two phases on the dedicated server — logging each applied patch, plus the per-tick update and configuration hooks for every patch module. |
+| [`PatchHelpers.cs`](files/Shared/Patches/PatchHelpers.cs.md) | `Shared/Patches/PatchHelpers.cs` | Central patch engine: verifies the targeted game methods (via `EnsureCode.cs`) then applies the Harmony patches in phases — the `"Early"` category from the preloader bootstrap, the uncategorized ones, then the deferred `"Late"` category — logging each applied patch, plus the per-tick update and configuration hooks for every patch module. |
 
 ## [Grid Merge & Paste Patches](modules/merge-and-paste.md)
 
@@ -142,19 +147,19 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`MyDefinitionIdToStringPatch.cs`](files/Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs.md) | `Shared/Patches/Memory/MyDefinitionIdToStringPatch.cs` | Caches `MyDefinitionId.ToString()` results in a two-layer cache to eliminate repeated string allocations from a hot path. |
 | [`MyPlayerCollectionPatch.cs`](files/Shared/Patches/Memory/MyPlayerCollectionPatch.cs.md) | `Shared/Patches/Memory/MyPlayerCollectionPatch.cs` | Rate-limits `MyPlayerCollection.SendDirtyBlockLimits` to once every 180 ticks (~3 seconds) to reduce network and CPU overhead from too-frequent block-limit syncs. |
-| [`MyStorageExtensionsPatch.cs`](files/Shared/Patches/Voxel/MyStorageExtensionsPatch.cs.md) | `Shared/Patches/Voxel/MyStorageExtensionsPatch.cs` | Eliminates per-call `MyStorageData` allocations in `IMyStorageExtensions.GetMaterialAt` by maintaining a fixed-size pool of reusable storage objects. |
 | [`MySandboxGamePatchForVoxelPreload.cs`](files/Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs.md) | `Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs` | Marks the window in which `MySandboxGame.PerformPreloading` runs, so the vanilla asteroid voxel storages it would eagerly load on game start can be skipped. |
 | [`MyStorageBasePatchForVoxelPreload.cs`](files/Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs.md) | `Shared/Patches/Voxel/MyStorageBasePatchForVoxelPreload.cs` | Drops the voxel storage loads the startup preload asks for, and only those, by returning `null` from `MyStorageBase.LoadFromFile`. |
+| [`MyStorageExtensionsPatch.cs`](files/Shared/Patches/Voxel/MyStorageExtensionsPatch.cs.md) | `Shared/Patches/Voxel/MyStorageExtensionsPatch.cs` | Eliminates per-call `MyStorageData` allocations in `IMyStorageExtensions.GetMaterialAt` by maintaining a fixed-size pool of reusable storage objects. |
 
 ## [World Loading Patches](modules/world-loading.md)
 
 | File | Path | Summary |
 | --- | --- | --- |
 | [`MyDefinitionManagerPatch.cs`](files/Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs.md) | `Shared/Patches/DefinitionManager/MyDefinitionManagerPatch.cs` | Eliminates redundant double-lookup and log flooding in `MyDefinitionManager.GetBlueprintDefinition` via a transpiler that replaces the ContainsKey+indexer pattern with a single `GetValueOrDefault` call. |
+| [`ImageLoader.cs`](files/Shared/Patches/Image/ImageLoader.cs.md) | `Shared/Patches/Image/ImageLoader.cs` | Decodes an image through the bundled ImageSharp and, in debug builds, logs size, time and a hash of the decoded pixels for both this and the game's decoder. |
+| [`ImageSharpRuntime.cs`](files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | `Shared/Patches/Image/ImageSharpRuntime.cs` | Loads a renamed copy of the shipped ImageSharp 2.1.13 beside the game's own 2019 beta and decodes images through reflection with the same pixel format selection as `MyImage.Load`. |
+| [`MyImagePatch.cs`](files/Shared/Patches/Image/MyImagePatch.cs.md) | `Shared/Patches/Image/MyImagePatch.cs` | Prefix on `MyImage.Load` that routes image decoding to the bundled ImageSharp, falling back to the game's decoder on any failure. |
 | [`MyScriptCompilerPatch.cs`](files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) | `Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs` | Caches compiled mod and in-game script assemblies to disk, short-circuiting the Roslyn compilation step on subsequent world loads. |
-| [`ImageLoader.cs`](files/Shared/Patches/Image/ImageLoader.cs.md) | `Shared/Patches/Image/ImageLoader.cs` | Decodes an image through the bundled ImageSharp and logs size, time and a pixel hash in debug builds. |
-| [`ImageSharpRuntime.cs`](files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | `Shared/Patches/Image/ImageSharpRuntime.cs` | Loads a renamed copy of ImageSharp 2.1.13 beside the game's own and decodes through reflection, mirroring `MyImage.Load`'s pixel format selection. |
-| [`MyImagePatch.cs`](files/Shared/Patches/Image/MyImagePatch.cs.md) | `Shared/Patches/Image/MyImagePatch.cs` | Prefix on `MyImage.Load` routing image decoding to the bundled ImageSharp with a fallback to the game's decoder. |
 
 ## [Simulation & Block Patches](modules/simulation-and-blocks.md)
 
