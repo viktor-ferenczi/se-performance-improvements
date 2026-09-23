@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Server Plugin Entry Point](../../../modules/server-plugin.md) |
-| **Source** | [`PerformanceConfig.cs`](../../../../ServerPlugin/Config/PerformanceConfig.cs) (108 lines) |
+| **Source** | [`PerformanceConfig.cs`](../../../../ServerPlugin/Config/PerformanceConfig.cs) (130 lines) |
 | **Kind** | Class extending `PluginSdk.Config.PluginConfig`, implementing `IPluginConfig` |
 | **Role** | Configuration |
 
@@ -13,7 +13,7 @@
 
 `PerformanceConfig` is the single source of truth for all performance fix toggles on the server. It derives from `PluginSdk.Config.PluginConfig` (which supplies `INotifyPropertyChanged` via `SetField`) and implements [`IPluginConfig.cs`](../../Shared/Config/IPluginConfig.cs.md) so Harmony patches in the `Shared` project can gate on it through [`Common.cs`](../../Shared/Plugin/Common.cs.md).`Config` without any direct reference to the server assembly.
 
-The class is decorated with `[Tab]` and `[Section]` attributes from PluginSdk so Quasar can render a structured admin UI automatically. Properties are grouped into five sections: **Core** (global enable), **World load & networking**, **Simulation**, **Requires server restart**, and **Optional (off by default)**. The "optional" group contains fixes that have visible gameplay consequences (conveyor caching, block access caching, LCD visibility, log rate limiting, projected block disabling) and therefore default to `false` on the server, while the client defaults everything to `true`. Fixes that require a server restart are grouped separately to make the constraint explicit in the UI.
+The class is decorated with `[Tab]` and `[Section]` attributes from PluginSdk so Quasar can render a structured admin UI automatically. Properties are grouped into five sections: **Core** (global enable), **World load & networking**, **Simulation**, **Requires server restart**, and **Optional (off by default)**. The "optional" group contains fixes that have visible gameplay consequences (conveyor caching, block access caching, LCD visibility, projected block disabling) and therefore default to `false` on the server, while the client defaults everything to `true`. Fixes that require a server restart are grouped separately to make the constraint explicit in the UI.
 
 Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) to fire `PropertyChanged` on mutation, which [`Plugin.cs`](../Plugin.cs.md) subscribes to in order to persist the updated file immediately via `ConfigStorage.SaveXml`.
 
@@ -31,7 +31,6 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 | `FixAccess` / `FixTerminal` | Properties | Cache block access rights and PB access checks. Default: `false` (optional). |
 | `FixMemoryStats` | Property | Reads the process memory size for the statistics once per second (expensive on Linux). Default: `true`. |
 | `FixToolbar` | Property | Server-side stub (`get => false; set { }`): the toolbar is client only, so the option is not offered. |
-| `FixLogFlooding` | Property | Rate-limits `GetBlueprintDefinition` log spam. Default: `false` (optional). |
 | `FixProjection` | Property | Disables functional blocks in projected grids. Default: `false` (optional). |
 
 ## References

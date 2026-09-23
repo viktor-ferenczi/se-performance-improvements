@@ -389,12 +389,15 @@ holds four groups of several hundred blocks: main thread frame time while seated
 went from about 5 ms to 2.4 ms, the same as standing next to the seat. Cache hit
 rate 98%.
 
-## Rate limited excessive logging
+## Eliminated excessive logging
 
-Rate limits excessive logging from `MyDefinitionManager.GetBlueprintDefinition`.
-For example it caused 11000 of the "No blueprint with Id" messages logged every
-minute while players were running Isy's Inventory Manager PB script. In addition to
-the extra CPU load it risked running out of disk space if left unchecked.
+`MyDefinitionManager.GetBlueprintDefinition` looked its dictionary up twice, and the
+miss branch logged a "No blueprint with Id" message. For example it caused 11000 of
+those messages logged every minute while players were running Isy's Inventory Manager
+PB script. In addition to the extra CPU load it risked running out of disk space if
+left unchecked. The transpiler rewrites the body to a single `GetValueOrDefault` call,
+which removes both the second lookup and the logging. It runs with the memory
+allocation fixes (`FixMemory`); there is no separate option for it.
 
 ## Disabled functional blocks in projected grids
 

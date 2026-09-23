@@ -47,7 +47,7 @@ the code that implements them is organized.
 - Less frequent sync of block counts and block access rights; PB access to blocks refreshed only when something changed
 - Disable server-side character footprints and wheel trail tracking
 - Disable functional blocks in projected grids
-- Rate limit log flooding from `GetBlueprintDefinition`
+- Eliminate the blueprint-not-found log flooding from `GetBlueprintDefinition`
 
 </details>
 
@@ -95,7 +95,7 @@ you need to reference the Performance Improvements plugin from the `Current` pro
 
 Edit the profile:
 - Linux: `~/.config/Magnetar/Profiles/Current.xml`
-- Windows: `%AppData%\Magnetar\Logacy\Profiles\Current.xml`
+- Windows: `%AppData%\Magnetar\Legacy\Profiles\Current.xml`
 
 Directly inside the `<GitHub>` element insert:
 ```xml

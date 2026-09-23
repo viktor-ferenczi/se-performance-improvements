@@ -1,6 +1,6 @@
 # World Loading Patches
 
-Speeds up world load by caching compiled mods and in-game scripts, decoding planet maps and PNG textures with a newer ImageSharp, and rate-limits the blueprint-not-found log flooding from `GetBlueprintDefinition`.
+Speeds up world load by caching compiled mods and in-game scripts, decoding planet maps and PNG textures with a newer ImageSharp, and eliminates the blueprint-not-found log flooding from `GetBlueprintDefinition`.
 
 World load time is dominated by two independent costs: Roslyn compilation of all mod and PB script assemblies, and log flooding from a dictionary double-lookup in `GetBlueprintDefinition`. This module addresses both.
 

@@ -137,9 +137,6 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Caches the terminal actions of block groups on the toolbar (client only)
     bool FixToolbar { get; set; }
 
-    // Rate limits excessive logging from MyDefinitionManager.GetBlueprintDefinition
-    bool FixLogFlooding { get; set; }
-
     // Disables the tracking of wheel trails on the server, where they are not needed (trails are only visual)
     bool FixWheelTrail { get; set; }
 

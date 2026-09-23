@@ -6,13 +6,13 @@ The server module is the Magnetar / Quasar entry point for the plugin. It owns t
 
 [`Plugin.cs`](../files/ServerPlugin/Plugin.cs.md) implements both the game's `IPlugin` contract and the shared [`ICommonPlugin.cs`](../files/Shared/Plugin/ICommonPlugin.cs.md) contract. Because the dedicated server loads the world — including mod and script compilation — before `IPlugin.Init`, the patching is bootstrapped early from [`Preloader.cs`](../files/ServerPlugin/Preloader.cs.md): its `Finish()` hook installs a Harmony postfix on `MyInitializer.InvokeBeforeRun`, which loads the config, calls [`Common.cs`](../files/Shared/Plugin/Common.cs.md).`SetPlugin` (with a stand-in plugin) and applies the uncategorized patches before compilation. `Init` then runs after world load: it attaches the live instance via `Common.AttachPlugin` and applies the deferred `"Late"` patch category. On every game tick it calls `PatchHelpers.PatchUpdates()` and increments `Tick`.
 
-[`PerformanceConfig.cs`](../files/ServerPlugin/Config/PerformanceConfig.cs.md) uses PluginSdk attributes (`[Tab]`, `[Section]`, `[BoolOption]`) to declare its Quasar UI automatically. The server defaults are conservative: fixes with gameplay side-effects (conveyor caching, access caching, LCD visibility, log rate limiting, projected blocks) default to `false` and require the admin to opt in deliberately.
+[`PerformanceConfig.cs`](../files/ServerPlugin/Config/PerformanceConfig.cs.md) uses PluginSdk attributes (`[Tab]`, `[Section]`, `[BoolOption]`, `[EnumOption]`, `[IntOption]`) to declare its Quasar UI automatically. The server defaults are conservative: fixes with gameplay side-effects (conveyor caching, access caching, PB access caching, LCD visibility, projected blocks) and the asteroid voxel preload skip default to `false` and require the admin to opt in deliberately.
 
 ## Files
 
 | File | Summary |
 | --- | --- |
-| [`PerformanceConfig.cs`](../files/ServerPlugin/Config/PerformanceConfig.cs.md) | XML-serialized, Quasar-rendered config class with one boolean toggle per performance fix |
+| [`PerformanceConfig.cs`](../files/ServerPlugin/Config/PerformanceConfig.cs.md) | XML-serialized, Quasar-rendered config class with one toggle per performance fix, plus the Havok thread count mode and number |
 | [`Plugin.cs`](../files/ServerPlugin/Plugin.cs.md) | Dedicated-server plugin entry point: applies Harmony patches in two phases, loads config, drives the tick loop |
 | [`Preloader.cs`](../files/ServerPlugin/Preloader.cs.md) | Namespace-less loader hook (called before the game starts) that installs the early Harmony bootstrap |
 | [`PerformanceStats.cs`](../files/ServerPlugin/Stats/PerformanceStats.cs.md) | Publishes each runtime statistics snapshot through the PluginSdk statistics API under the `Performance` provider name |
