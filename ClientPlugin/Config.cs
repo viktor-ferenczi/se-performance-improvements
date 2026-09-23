@@ -50,7 +50,7 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Fix memory statistics", description: "Reads the process memory size for the statistics once per second instead of on every frame (MyWindowsSystem.ProcessPrivateMemory), which is expensive on Linux")]
+    [Checkbox(label: "Fix memory statistics", description: "Reads the process memory size for the statistics once per second instead of on every frame (MyWindowsSystem.ProcessPrivateMemory)")]
     public bool FixMemoryStats
     {
         get;

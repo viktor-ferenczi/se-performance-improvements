@@ -29,7 +29,7 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 | `FixSafeZone` / `FixSafeAction` | Properties | Cache safe-zone `IsSafe` and `IsActionAllowed` results. Default: `true`. |
 | `FixConveyor` | Property | Caches conveyor network reachability lookups. Default: `false` (optional). |
 | `FixAccess` / `FixTerminal` | Properties | Cache block access rights and PB access checks. Default: `false` (optional). |
-| `FixMemoryStats` | Property | Reads the process memory size for the statistics once per second (expensive on Linux). Default: `false` (optional). |
+| `FixMemoryStats` | Property | Reads the process memory size for the statistics once per second. Default: `false` (optional). |
 | `FixTargetGroups` | Property | Refreshes the turret target groups in linear instead of quadratic time. Default: `false` (optional). |
 | `UpgradeImageSharp` | Property | Decodes planet maps and PNG textures with the bundled newer ImageSharp. Default: `false` (optional). |
 | `SkipVoxelPreload` | Property | Skips loading the vanilla asteroid voxel files on start (needs restart). Default: `false` (optional). |

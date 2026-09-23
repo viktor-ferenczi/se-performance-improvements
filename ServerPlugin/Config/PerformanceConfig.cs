@@ -127,7 +127,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Refresh the turret target groups in linear instead of quadratic time", Parent = "optional")]
     public bool FixTargetGroups { get; set => SetField(ref field, value); } = false;
 
-    [BoolOption("Read the process memory size for the statistics once per second instead of on every frame (expensive on Linux)", Parent = "optional")]
+    [BoolOption("Read the process memory size for the statistics once per second instead of on every frame", Parent = "optional")]
     public bool FixMemoryStats { get; set => SetField(ref field, value); } = false;
 
     [BoolOption("Decode planet maps and PNG textures with a newer ImageSharp than the game ships", Parent = "optional")]

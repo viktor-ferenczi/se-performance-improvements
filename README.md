@@ -36,7 +36,7 @@ the code that implements them is organized.
 
 **Simulation & CPU**
 - Eliminate the constant EOS P2P `UpdateStats` core load
-- Read the process memory statistic once per second instead of every frame (expensive on Linux)
+- Read the process memory statistic once per second instead of every frame
 - Cache safe zone checks (`IsSafe`, `IsActionAllowed`, optimized `IsOutside`)
 - Cache wind turbine atmosphere checks
 - Cache conveyor network reachability lookups and the cooperative assembler master lookup
