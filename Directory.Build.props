@@ -24,6 +24,16 @@
         <Dedicated64 />
     </PropertyGroup>
 
+    <!-- Local developer overrides for the folders above; ignored by Git (*.user).
+         Copy the first PropertyGroup of this file into Directory.Build.props.user,
+         wrapped into a top-level Project element, and fill in your local paths
+         there. Running setup.py writes that file for you. Overrides are imported
+         after the defaults above and before the auto-detection below, so a value
+         set there wins: every auto-detection step is conditional on the property
+         still being empty. -->
+    <Import Project="$(MSBuildThisFileDirectory)Directory.Build.props.user"
+            Condition="Exists('$(MSBuildThisFileDirectory)Directory.Build.props.user')" />
+
     <!-- Repository root (this file lives in it). Used instead of $(SolutionDir) so
          the PreBuildEvent scripts are found whether the build is driven from the
          solution or a single project. $(MSBuildThisFileDirectory) ends with a
