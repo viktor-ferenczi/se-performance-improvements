@@ -789,7 +789,7 @@
           "doc_link": "../files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md",
           "source_link": "../../Shared/Patches/Conveyor/MyAssemblerPatch.cs",
           "tier": 2,
-          "lines": 138
+          "lines": 159
         },
         {
           "path": "Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs",
@@ -1132,7 +1132,7 @@
           "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
           "source_link": "../../Shared/Config/IPluginConfig.cs",
           "tier": 2,
-          "lines": 137
+          "lines": 149
         },
         {
           "path": "Shared/Plugin/Common.cs",
@@ -1251,7 +1251,7 @@
           "doc_link": "../files/Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs.md",
           "source_link": "../../Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",
           "tier": 2,
-          "lines": 136
+          "lines": 149
         },
         {
           "path": "Shared/Patches/WindTurbine/MyWindTurbinePatch.cs",

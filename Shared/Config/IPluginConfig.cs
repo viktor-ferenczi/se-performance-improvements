@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.InteropServices;
 using System.ComponentModel;
 
 namespace Shared.Config;
@@ -7,7 +8,8 @@ namespace Shared.Config;
 // Shared.Patches.MyWindowsSystemPatch.
 public enum HavokThreadCountMode
 {
-    // One worker per logical processor, capped (HavokThreads.Auto)
+    // The platform's number: one worker per logical processor capped at 16 on Windows,
+    // two on Linux (HavokThreads.Auto)
     Auto,
 
     // Exactly the configured number of workers
@@ -26,9 +28,19 @@ public static class HavokThreads
     public const int Min = 2;
     public const int Max = 64;
 
-    // One worker per logical processor, capped. The cap is what the plugin has always used
-    // here; beyond it the pool costs more in scheduling than the physics step wins back.
-    public static int Auto => Math.Max(Min, Math.Min(16, Environment.ProcessorCount));
+    // On Windows one worker per logical processor, capped. The cap is what the plugin has
+    // always used here; beyond it the pool costs more in scheduling than the physics step
+    // wins back.
+    //
+    // On Linux the game runs the Windows build of Havok through the native wrappers, and
+    // there every extra worker makes the step slower, not faster: the pool's workers wait
+    // on emulated Win32 events and semaphores and spin between jobs, and a large jointed
+    // scene (a lattice of 600 small grids resting on each other) stepped 30% faster with
+    // two workers than with eleven, while 300 independent falling grids were no worse.
+    // See the Havok section of Docs/PerformanceFixes.md for the measurements.
+    public static int Auto => Linux ? Min : Math.Max(Min, Math.Min(16, Environment.ProcessorCount));
+
+    private static readonly bool Linux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
 }
 
 // Configuration properties shared by the patches in the Shared project.
