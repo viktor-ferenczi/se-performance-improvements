@@ -31,6 +31,12 @@ namespace Shared.Patches
 
         private static readonly RwLockDictionary<TLogicalGroup, UintCache<ulong>> ReachableCaches = new RwLockDictionary<TLogicalGroup, UintCache<ulong>>();
 
+        // Bumped whenever a conveyor network may have changed (the same events which invalidate
+        // the reachability caches above). Other caches derived from conveyor network walks, like
+        // the master assembler candidates in MyAssemblerPatch, compare against it on lookup.
+        public static long Generation => Interlocked.Read(ref generation);
+        private static long generation;
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static UintCache<ulong> CreateCache()
         {
@@ -80,6 +86,8 @@ namespace Shared.Patches
                 return;
             }
 
+            Interlocked.Increment(ref generation);
+
             var group = MyCubeGridGroups.Static.Logical.GetGroup(grid);
             if (group == null)
             {
@@ -100,6 +108,8 @@ namespace Shared.Patches
             {
                 return;
             }
+
+            Interlocked.Increment(ref generation);
 
             var group = MyCubeGridGroups.Static.Logical.GetGroup(grid);
             if (group == null)
@@ -147,6 +157,17 @@ namespace Shared.Patches
             }
 
             return cache;
+        }
+
+        // Conveyor lines flag the network for recomputation when their working state changes
+        // (power, sorters, connectors, advanced rotors). The reachability caches above have
+        // never followed that, so this only bumps the generation the derived caches check.
+        [HarmonyPostfix]
+        [HarmonyPatch("FlagForRecomputation")]
+        [EnsureCode("ce91ca1e")]
+        private static void FlagForRecomputationPostfix()
+        {
+            Interlocked.Increment(ref generation);
         }
 
         [HarmonyPrefix]

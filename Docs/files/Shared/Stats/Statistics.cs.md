@@ -26,7 +26,7 @@ The period is driven by `PatchHelpers.PatchUpdates`: every `PeriodTicks` (600 si
 | `Publisher` | `static Action<StatisticsSnapshot>` | Optional host consumer of each snapshot; the setter re-evaluates `Enabled`. The dedicated server sets it to `PerformanceStats.Publish`; null on the client. |
 | `Configure()` | Static method | Subscribes to `Common.Config.PropertyChanged` (idempotently) and computes the initial `Enabled`. Called from `PatchHelpers.Configure`. |
 | `RefreshEnabled()` | Private static method | Recomputes `Enabled` from the config option and, outside `DEBUG`, from `Publisher != null`. |
-| `Capture()` | Static method | Creates a fresh `StatisticsSnapshot` and fills it via the `CaptureStatistics` methods of `MySafeZonePatch`, `MySessionComponentSafeZonesPatch`, `MyWindTurbinePatch` and `MyGridConveyorSystemPatch`, resetting their counters. |
+| `Capture()` | Static method | Creates a fresh `StatisticsSnapshot` and fills it via the `CaptureStatistics` methods of `MySafeZonePatch`, `MySessionComponentSafeZonesPatch`, `MyWindTurbinePatch`, `MyGridConveyorSystemPatch` and `MyAssemblerPatch`, resetting their counters. |
 
 ## References
 
@@ -37,7 +37,7 @@ The period is driven by `PatchHelpers.PatchUpdates`: every `PeriodTicks` (600 si
 - [`IPluginConfig.cs`](../Config/IPluginConfig.cs.md) — declares the `CollectStatistics` option this class mirrors.
 - [`UintCache.cs`](../Tools/UintCache.cs.md) — the opt-in (`collectStats: true`) cache whose lookups check `Enabled`.
 - [`CacheStat.cs`](../Tools/CacheStat.cs.md) — the per-cache counter whose `Sample()` feeds each `CacheStatEntry`.
-- [`MySafeZonePatch.cs`](../Patches/SafeZone/MySafeZonePatch.cs.md), [`MySessionComponentSafeZonesPatch.cs`](../Patches/SafeZone/MySessionComponentSafeZonesPatch.cs.md), [`MyWindTurbinePatch.cs`](../Patches/WindTurbine/MyWindTurbinePatch.cs.md), [`MyGridConveyorSystemPatch.cs`](../Patches/Conveyor/MyGridConveyorSystemPatch.cs.md) — the instrumented patches implementing `CaptureStatistics`.
+- [`MySafeZonePatch.cs`](../Patches/SafeZone/MySafeZonePatch.cs.md), [`MySessionComponentSafeZonesPatch.cs`](../Patches/SafeZone/MySessionComponentSafeZonesPatch.cs.md), [`MyWindTurbinePatch.cs`](../Patches/WindTurbine/MyWindTurbinePatch.cs.md), [`MyGridConveyorSystemPatch.cs`](../Patches/Conveyor/MyGridConveyorSystemPatch.cs.md), [`MyAssemblerPatch.cs`](../Patches/Conveyor/MyAssemblerPatch.cs.md) — the instrumented patches implementing `CaptureStatistics`.
 - [shared-plugin-core](../../../modules/shared-plugin-core.md) — how the statistics pipeline fits the host-agnostic design.
 
 ---
