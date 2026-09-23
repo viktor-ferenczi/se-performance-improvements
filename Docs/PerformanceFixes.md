@@ -252,10 +252,9 @@ Two options control it:
 - **Game** leaves the sizing to the game: the property keeps answering what it
   answers without the plugin. This is the server default, so a server only changes
   its physics threading when an admin says so.
-- **Auto** (the client default) uses one worker per logical processor, capped at 16,
-  on Windows, and one worker per physical core minus one on Linux (see below), and
-  keeps the thread count option updated with the number this machine gets, so the
-  configuration always shows the count the game will actually be given.
+- **Auto** (the client default) uses one worker per physical CPU core, minus one
+  (see below), and keeps the thread count option updated with the number this machine
+  gets, so the configuration always shows the count the game will actually be given.
 - **Manual** uses exactly the configured number, between 2 and 64.
 
 The minimum is 2 rather than 1, because a pool of one is *not* single threaded
@@ -289,29 +288,40 @@ thread — and a number above that is neither an error nor an improvement, it si
 making a difference. The resolved count is logged at the DEBUG log level when the world
 loads, which is the way to see what a setting actually asked for.
 
-### One worker per physical core on Linux
+### One worker per physical core
 
-On Linux the game runs the Windows build of Havok through the native wrappers, where
-the pool's workers wait on emulated Win32 events and semaphores (ntsync) and spin
-between jobs. A worker that spins shares the execution units of its hyper-threading
-sibling, so counting sibling threads as if they were cores inflates the pool without
-adding throughput. Auto therefore asks for one worker per *physical* core, minus one
-so the main thread keeps a core of its own — on an 8 core / 16 thread host, 7 workers.
-The physical count comes from the kernel's hyper-threading sibling groups
-(`/sys/devices/system/cpu/cpu*/topology/thread_siblings_list`, with the "physical id"
-plus "core id" pairs in `/proc/cpuinfo` as a fallback); when neither can be read the
-logical count minus one is used, capped at 7.
+Auto asks for one worker per *physical* core, minus one so the main thread keeps a
+core of its own — on an 8 core / 16 thread host, 7 workers. Physical rather than
+logical on both platforms: the pool's workers spin between jobs, and a spinning worker
+shares the execution units of its hyper-threading sibling, so counting siblings as
+cores inflates the pool without adding throughput.
+
+The physical count comes from the operating system. On Linux it is the number of
+distinct hyper-threading sibling groups in
+`/sys/devices/system/cpu/cpu*/topology/thread_siblings_list`, with the "physical id"
+plus "core id" pairs in `/proc/cpuinfo` as a fallback for kernels and containers which
+do not expose the topology in sysfs. On Windows it is the number of
+`RelationProcessorCore` records returned by `GetLogicalProcessorInformationEx` — the
+`Ex` function rather than `GetLogicalProcessorInformation`, because the latter only
+describes the first processor group and so stops at 64 logical processors. When
+neither can be read the logical count minus one is used, capped at 7, which is the
+same answer on a host without hyper-threading and a conservative one on a host with
+it. An overall cap of 16 applies to the automatic count; Havok caps the pool lower on
+its own anyway.
+
+The Linux side is where an oversized pool was measured to hurt, because there the game
+runs the Windows build of Havok through the native wrappers and the workers wait on
+emulated Win32 events and semaphores (ntsync).
 
 How far down the count should go is load dependent, and a heavily jointed scene wants
-fewer workers than this. Measured in the "Many
-Lifters Slowness" test world, a lattice of 602 small grids resting on each other with
+fewer workers than this. Measured in the "Many Lifters Slowness" test world, a lattice of 602 small grids resting on each other with
 1206 landing gears and 116 turrets, headless Linux client on an 8 core / 16 thread
 host, simulation speed at idle with the lattice awake:
 
 | Havok workers | Sim speed | Frame time |
 | --- | --- | --- |
 | game's own sizing (7) | 0.57 | 30 ms |
-| 11 (Auto asking for 16) | 0.55 | 30 ms |
+| 11 (asking for 16) | 0.55 | 30 ms |
 | 8 | 0.55 | 30 ms |
 | 6 | 0.60 | 28 ms |
 | 4 | 0.62 | 27 ms |

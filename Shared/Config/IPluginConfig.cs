@@ -10,8 +10,7 @@ namespace Shared.Config;
 // Shared.Patches.MyWindowsSystemPatch.
 public enum HavokThreadCountMode
 {
-    // The platform's number: one worker per logical processor capped at 16 on Windows,
-    // one per physical core minus one on Linux (HavokThreads.Auto)
+    // One worker per physical CPU core, minus one (HavokThreads.Auto)
     Auto,
 
     // Exactly the configured number of workers
@@ -35,74 +34,60 @@ public static class HavokThreads
     public const int Max = 64;
 
     // The cap on the automatic count. The shipped Havok build caps the pool below this on
-    // its own (11 workers on a 16 core host), so this is the plugin's own upper bound.
+    // its own (11 workers on a 16 core host), so this is the plugin's own sanity limit
+    // rather than a number the pool is expected to reach.
     private const int AutoMax = 16;
 
-    // The fallback cap on Linux when the physical core count cannot be determined, so a
-    // hyper-threaded host does not end up with a worker per sibling thread.
-    private const int LinuxFallbackMax = 7;
+    // The cap used when the physical core count cannot be determined and the logical one has
+    // to stand in for it, so a hyper-threaded host does not get a worker per sibling thread.
+    private const int UnknownTopologyMax = 7;
 
-    // On Windows one worker per logical processor, capped. The cap is what the plugin has
-    // always used here; beyond it the pool costs more in scheduling than the physics step
-    // wins back.
+    // One Havok worker per physical core, minus one so the main thread keeps a core of its
+    // own.
     //
-    // On Linux the game runs the Windows build of Havok through the native wrappers, where
-    // the pool's workers wait on emulated Win32 events and semaphores and spin between jobs,
-    // so an oversized pool costs more than it wins: a large jointed scene (a lattice of 600
-    // small grids resting on each other) stepped 30% faster with two workers than with
-    // eleven, while 300 independent falling grids were no worse. See the Havok section of
-    // Docs/PerformanceFixes.md for the measurements.
+    // Physical rather than logical, on both platforms. The pool's workers spin between jobs,
+    // and a spinning worker shares the execution units of its hyper-threading sibling, so
+    // counting siblings as cores inflates the pool without adding throughput. On Linux, where
+    // the game runs the Windows build of Havok through the native wrappers and the workers
+    // wait on emulated Win32 events and semaphores, an oversized pool is measurably worse: a
+    // lattice of 600 small grids resting on each other stepped 30% faster with two workers
+    // than with eleven, while 300 independent falling grids were no worse. See the Havok
+    // section of Docs/PerformanceFixes.md for the measurements.
     //
-    // The count here is therefore one worker per *physical* core, minus one to leave the
-    // main thread a core of its own: hyper-threading siblings share the execution units a
-    // spinning physics worker is using, so they add contention rather than throughput. When
-    // the topology cannot be read the logical count minus one is used, capped, which is the
-    // same answer on a host without hyper-threading and a conservative one on a host with it.
-    public static int Auto => Math.Max(Min, Math.Min(AutoMax, Linux ? LinuxAuto : Environment.ProcessorCount));
-
-    private static int LinuxAuto
+    // When the topology cannot be read the logical count minus one is used, capped, which is
+    // the same answer on a host without hyper-threading and a conservative one on a host with
+    // it.
+    public static int Auto
     {
         get
         {
             var physical = PhysicalCoreCount;
-            return physical > 0
+            var count = physical > 0
                 ? physical - 1
-                : Math.Min(LinuxFallbackMax, Environment.ProcessorCount - 1);
+                : Math.Min(UnknownTopologyMax, Environment.ProcessorCount - 1);
+
+            return Math.Max(Min, Math.Min(AutoMax, count));
         }
     }
 
     private static readonly bool Linux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+    private static readonly bool Windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-    // Number of physical cores on Linux, or 0 when it cannot be determined. Read once: the
-    // topology does not change while the process runs.
-    private static readonly int PhysicalCoreCount = Linux ? CountPhysicalCores() : 0;
+    // Number of physical cores, or 0 when it cannot be determined. Read once: the topology
+    // does not change while the process runs.
+    private static readonly int PhysicalCoreCount = CountPhysicalCores();
 
-    // Counts the distinct hyper-threading sibling groups the kernel reports. Each group is
-    // one physical core, and the list is identical for every thread of the core, so the
-    // number of distinct lists is the number of cores.
-    //
-    // /sys is the primary source because it is architecture independent. /proc/cpuinfo is
-    // the fallback for kernels or containers which do not expose the topology there; its
-    // "physical id" plus "core id" pair identifies a core, and it is x86 specific, which is
-    // why it is not the first choice. Anything unreadable answers 0 and the caller falls
-    // back to the logical count.
     private static int CountPhysicalCores()
     {
         try
         {
-            var cores = new HashSet<string>();
+            if (Linux)
+                return CountPhysicalCoresFromSysfs();
 
-            foreach (var cpu in Directory.EnumerateDirectories("/sys/devices/system/cpu", "cpu[0-9]*"))
-            {
-                var siblings = Path.Combine(cpu, "topology", "thread_siblings_list");
-                if (File.Exists(siblings))
-                    cores.Add(File.ReadAllText(siblings).Trim());
-            }
+            if (Windows)
+                return CountPhysicalCoresFromWin32();
 
-            if (cores.Count > 0)
-                return cores.Count;
-
-            return CountPhysicalCoresFromCpuInfo();
+            return 0;
         }
         catch (Exception)
         {
@@ -111,6 +96,77 @@ public static class HavokThreads
             return 0;
         }
     }
+
+    // Counts the distinct hyper-threading sibling groups the kernel reports. Each group is
+    // one physical core, and the list is identical for every thread of the core, so the
+    // number of distinct lists is the number of cores.
+    //
+    // /sys is the primary source because it is architecture independent. /proc/cpuinfo is
+    // the fallback for kernels or containers which do not expose the topology there; its
+    // "physical id" plus "core id" pair identifies a core, and it is x86 specific, which is
+    // why it is not the first choice.
+    private static int CountPhysicalCoresFromSysfs()
+    {
+        var cores = new HashSet<string>();
+
+        foreach (var cpu in Directory.EnumerateDirectories("/sys/devices/system/cpu", "cpu[0-9]*"))
+        {
+            var siblings = Path.Combine(cpu, "topology", "thread_siblings_list");
+            if (File.Exists(siblings))
+                cores.Add(File.ReadAllText(siblings).Trim());
+        }
+
+        return cores.Count > 0 ? cores.Count : CountPhysicalCoresFromCpuInfo();
+    }
+
+    // Asks Windows for the processor relationships and counts the RelationProcessorCore
+    // records, one per physical core. GetLogicalProcessorInformationEx rather than the
+    // original GetLogicalProcessorInformation because the latter only describes the first
+    // processor group, so it stops at 64 logical processors.
+    //
+    // The records are variable length and only their count is needed here, so the buffer is
+    // walked by the Size field of each record without decoding the union which follows it.
+    private static int CountPhysicalCoresFromWin32()
+    {
+        var length = 0;
+        if (GetLogicalProcessorInformationEx(RelationProcessorCore, IntPtr.Zero, ref length))
+            return 0;
+
+        if (Marshal.GetLastWin32Error() != ErrorInsufficientBuffer || length <= 0)
+            return 0;
+
+        var buffer = Marshal.AllocHGlobal(length);
+        try
+        {
+            if (!GetLogicalProcessorInformationEx(RelationProcessorCore, buffer, ref length))
+                return 0;
+
+            var cores = 0;
+            for (var offset = 0; offset + RecordHeaderSize <= length;)
+            {
+                // struct SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX { DWORD Relationship; DWORD Size; ... }
+                var size = Marshal.ReadInt32(buffer, offset + sizeof(int));
+                if (size <= 0)
+                    break;
+
+                cores++;
+                offset += size;
+            }
+
+            return cores;
+        }
+        finally
+        {
+            Marshal.FreeHGlobal(buffer);
+        }
+    }
+
+    private const int RelationProcessorCore = 0;
+    private const int ErrorInsufficientBuffer = 122;
+    private const int RecordHeaderSize = 2 * sizeof(int);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool GetLogicalProcessorInformationEx(int relationshipType, IntPtr buffer, ref int returnedLength);
 
     private static int CountPhysicalCoresFromCpuInfo()
     {
