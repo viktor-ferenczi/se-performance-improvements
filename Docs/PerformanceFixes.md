@@ -253,6 +253,31 @@ have a slight impact on simple grids with short conveyor systems due to the
 additional overhead of building and using the cache, however this overhead should
 be negligible.
 
+### Cached master assembler lookup
+
+Part of the same option. An assembler in cooperative mode looks for a master on
+every production tick with `MyAssembler.GetMasterAssembler`: a breadth-first walk
+over the whole conveyor network under the global pathfinding lock, filtered to the
+reachable assemblers with a friendly owner, shuffled, then the first one with a
+non-empty queue wins. The parallel item transfer computations take the same lock,
+so on a production base the main thread mostly waits in this method. In the
+"Conveyor Test Heavy" test world (855 cooperative assemblers, about 5000 conveyor
+blocks on one merged grid) it was 40% of the main thread's simulation time at
+idle.
+
+The walk depends only on the conveyor network and on block ownership, so its
+result, the list of reachable assemblers, is cached per assembler for five
+seconds. The random choice and the checks on the candidates (not disassembling,
+not a slave, non-empty queue) still run on every call. The entries are discarded
+at once by every event which invalidates the reachability cache above and also
+when a conveyor network is flagged for recomputation, which covers conveyor lines
+losing or regaining power and sorter changes. Faction relation changes are only
+picked up when an entry expires, up to five seconds later.
+
+Measured on that test world with the plugin's other fixes on, main thread frame
+time at idle went from about 2.9 ms to 2.4 ms, and the lock contention seen in the
+profiler dropped by two thirds. Cache hit rate 80 to 90%.
+
 ## Rate limited excessive logging
 
 Rate limits excessive logging from `MyDefinitionManager.GetBlueprintDefinition`.

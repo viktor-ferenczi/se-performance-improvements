@@ -27,6 +27,8 @@ This fix eliminates most of the lag when players enter or leave cockpits and cry
 | `InvalidateCache(MyCubeGrid)` | Static method | Clears the cache for the logical group that contains `grid` (keeps the cache object). Called when topology changes but the group is stable. |
 | `DropCache(MyCubeGrid)` | Static method | Removes the cache object for the group entirely. Called on grid split/merge, group membership changes, ownership change, and connector state change. |
 | `Update()` | Static method | Called every game tick; drops all caches when `FixConveyor` is toggled off. |
+| `Generation` | `long` property | Bumped by `InvalidateCache`, `DropCache` and the `FlagForRecomputation` Postfix; caches derived from conveyor network walks ([`MyAssemblerPatch.cs`](MyAssemblerPatch.cs.md)) compare their entries against it. |
+| `FlagForRecomputationPostfix` | Harmony Postfix | Bumps `Generation` when a conveyor network is flagged for recomputation (line working state, sorters, connectors, advanced rotors). It does not touch `ReachableCaches`. |
 | `ReachablePrefix` / `ReachablePostfix` | Harmony Prefix/Postfix | Cache-backed shortcut for `Reachable(IMyConveyorEndpoint, IMyConveyorEndpoint)`. |
 | `ReachableByPlayerPrefix` | Harmony Prefix | Negative-result shortcut for `Reachable(IMyConveyorEndpointBlock, IMyConveyorEndpointBlock, long, MyDefinitionId, Predicate<>)`. |
 
@@ -37,6 +39,7 @@ This fix eliminates most of the lag when players enter or leave cockpits and cry
 | `MyGridConveyorSystem.Reachable(IMyConveyorEndpoint, IMyConveyorEndpoint)` | Prefix | Returns cached result and skips original method on hit. |
 | `MyGridConveyorSystem.Reachable(IMyConveyorEndpoint, IMyConveyorEndpoint)` | Postfix | Stores the original result in the cache after a miss. |
 | `MyGridConveyorSystem.Reachable(IMyConveyorEndpointBlock, IMyConveyorEndpointBlock, long, MyDefinitionId, Predicate<IMyConveyorEndpoint>)` | Prefix | Short-circuits with `false` if the endpoint pair is cached as unreachable. |
+| `MyGridConveyorSystem.FlagForRecomputation` | Postfix | Bumps `Generation` so the derived caches drop their entries. |
 
 ## References
 
@@ -45,6 +48,7 @@ This fix eliminates most of the lag when players enter or leave cockpits and cry
 - [`MyCubeGridPatchForConveyor.cs`](MyCubeGridPatchForConveyor.cs.md) — grid lifecycle invalidation hooks
 - [`MyCubeBlockPatchForConveyor.cs`](MyCubeBlockPatchForConveyor.cs.md) — block functional-state invalidation hook
 - [`MyShipConnectorPatchForConveyor.cs`](MyShipConnectorPatchForConveyor.cs.md) — connector lock/unlock invalidation hook
+- [`MyAssemblerPatch.cs`](MyAssemblerPatch.cs.md) — derived cache validated against `Generation`
 - [conveyor](../../../../modules/conveyor.md) — module overview
 
 ---

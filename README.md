@@ -38,7 +38,7 @@ the code that implements them is organized.
 - Eliminate the constant EOS P2P `UpdateStats` core load
 - Cache safe zone checks (`IsSafe`, `IsActionAllowed`, optimized `IsOutside`)
 - Cache wind turbine atmosphere checks
-- Cache conveyor network reachability lookups
+- Cache conveyor network reachability lookups and the cooperative assembler master lookup
 - Physics optimizations (`RigidBody` getter, configurable Havok thread count, faster cluster reordering)
 - Reduce frequent memory allocations (`MyDefinitionId.ToString`, turret targeting, voxel material lookups)
 - Less frequent sync of block counts, block access rights and PB access to blocks
