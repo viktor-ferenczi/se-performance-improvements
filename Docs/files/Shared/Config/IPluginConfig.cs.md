@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Plugin Core](../../../modules/shared-plugin-core.md) |
-| **Source** | [`IPluginConfig.cs`](../../../../Shared/Config/IPluginConfig.cs) (150 lines) |
+| **Source** | [`IPluginConfig.cs`](../../../../Shared/Config/IPluginConfig.cs) (322 lines) |
 | **Kind** | Interface extending `INotifyPropertyChanged` |
 | **Role** | Configuration contract |
 
@@ -15,7 +15,7 @@
 
 The client implements this interface with its in-game settings dialog class (`ClientPlugin.Config`); the server implements it with [`PerformanceConfig.cs`](../../ServerPlugin/Config/PerformanceConfig.cs.md). Both implementations notify via `INotifyPropertyChanged` when a value changes, allowing [`Plugin.cs`](../../ServerPlugin/Plugin.cs.md) to re-persist the config to disk on Quasar-pushed updates.
 
-Every property maps to a distinct performance fix described in `Docs/PerformanceFixes.md`. The interface lists them in the same logical groups used by the server's UI tabs: world load / networking, simulation, restart-required, and optional (off by default on the server).
+Every property maps to a distinct performance fix described in `Docs/PerformanceFixes.md`. The server groups them into UI tabs (world load / networking, simulation, restart-required, and optional, the latter off by default on the server); the interface roughly follows those groups, but its order is not authoritative.
 
 Most are `bool`. The exception is the Havok physics thread count, which is a `HavokThreadCountMode` (`Game`, `Auto` or `Manual`) plus an `int`; both are declared in this file, together with the `HavokThreads` helper holding the range (2..64) and the automatic value (`physicalCores - 1`, falling back to `min(7, processorCount - 1)` when the topology cannot be read). That helper lives here rather than in the patch which applies it ([`MyWindowsSystemPatch.cs`](../Patches/Physics/MyWindowsSystemPatch.cs.md)), so a config class can use it in an attribute or a property default without touching `Common` while it is still being constructed.
 

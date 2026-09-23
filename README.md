@@ -14,7 +14,7 @@ Please consider supporting my work on [Patreon](https://www.patreon.com/semods) 
 - Optimized grid operations (less redundant calculations)
 - Optimized world loading (compilation cache)
 - Improved algorithms (simulation, data structures)
-- Less memory allocation (lower GC pressule)
+- Less memory allocation (lower GC pressure)
 
 <details>
 <summary>Details</summary>
@@ -70,7 +70,7 @@ to regenerate it after changing the code.
 
 Have [Pulsar](https://github.com/SpaceGT/Pulsar) installed. Link to the Installer is in the README there.
 
-1. Enable the **Performance Improvements** plugin from the **Plugins** dialog.
+1. Enable the **Performance** plugin from the **Plugins** dialog.
 2. Apply and restart the game.
 
 ### Server
@@ -80,7 +80,7 @@ Have [Pulsar](https://github.com/SpaceGT/Pulsar) installed. Link to the Installe
 
 Have [Quasar](https://github.com/CometWorks/quasar) installed and a server created.
 
-1. Enable the **Performance Improvements** plugin in your config profile(s).
+1. Enable the **Performance** plugin in your config profile(s).
 2. Restart the server, so it picks up the plugin
 
 The configuration is on Quasar's Web UI.
@@ -94,7 +94,7 @@ rest; the client enables everything.
 <summary>Magnetar</summary>
 
 For standalone [Magnetar](https://github.com/CometWorks/magnetar) 
-you need to reference the Performance Improvements plugin from the `Current` profile.
+you need to reference the Performance plugin from the `Current` profile.
 
 Edit the profile:
 - Linux: `~/.config/Magnetar/Profiles/Current.xml`
@@ -103,7 +103,7 @@ Edit the profile:
 Directly inside the `<GitHub>` element insert:
 ```xml
     <GitHubPluginConfig>
-      <Id>viktor-ferenczi/se-performance-improvements</Id>
+      <Id>454B0F55-C727-4DAB-B1A9-5AE6050A0932</Id>
     </GitHubPluginConfig>
 ```
 

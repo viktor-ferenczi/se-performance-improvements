@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Server Plugin Entry Point](../../../modules/server-plugin.md) |
-| **Source** | [`PerformanceConfig.cs`](../../../../ServerPlugin/Config/PerformanceConfig.cs) (136 lines) |
+| **Source** | [`PerformanceConfig.cs`](../../../../ServerPlugin/Config/PerformanceConfig.cs) (141 lines) |
 | **Kind** | Class extending `PluginSdk.Config.PluginConfig`, implementing `IPluginConfig` |
 | **Role** | Configuration |
 

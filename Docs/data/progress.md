@@ -60,6 +60,13 @@ preload pages (`MySandboxGamePatchForVoxelPreload`,
   `shared-plugin-core`, `server-plugin` and `tools` module pages, `modules.json`
   and the TOC. Now 98 files, 16 modules, `Index.md` generated again.
 
+- Consistency check after `d221973`: regenerated `manifest.jsonl` (it predated the
+  settings wrapping change `1f3e985` and the thread slider changes), refreshed the
+  line counts of ten pages and `Index.md` (the `XmlSerializationReaderPatch` row was
+  hand-inserted), and corrected the pages still calling `Game` the server default of
+  the Havok thread count and the memory statistics and target group fixes off on the
+  server (reverted in `9bbbc24`). Now 102 files, 16 modules.
+
 ## Incremental re-run
 
 On a code change, re-run `build_manifest.py` then `generate_scaffolds.py`: only files
@@ -73,5 +80,5 @@ scaffold, re-document it, then run `resolve_wikilinks.py`, `build_index.py`, `ch
 - `Docs/Index.md` — flat file index (generated)
 - `Docs/PerformanceFixes.md` — per-fix rationale (pre-existing, integrated)
 - `Docs/modules/<module>.md` — 16 module pages
-- `Docs/files/<source-path>.md` — 101 per-file pages (mirror the source tree)
+- `Docs/files/<source-path>.md` — 102 per-file pages (mirror the source tree)
 - `Docs/data/` — manifest, module map, link map, authoring guide, generator scripts

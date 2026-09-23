@@ -70,8 +70,9 @@
          Default locations:
            Windows: %AppData%\Pulsar   (Environment.SpecialFolder.ApplicationData)
            Linux:   $XDG_CONFIG_HOME/Pulsar, i.e. ~/.config/Pulsar by default
-         PulsarBin is the folder containing PluginSdk.dll, referenced by the
-         ServerPlugin project. -->
+         PulsarBin is the folder containing Pulsar's PluginSdk.dll. No project
+         in this repository references it at the moment; the ServerPlugin
+         project uses MagnetarBin below. -->
     <PropertyGroup>
         <Pulsar Condition=" '$(Pulsar)' == '' AND $([MSBuild]::IsOSPlatform('Windows')) ">$([System.Environment]::GetFolderPath(SpecialFolder.ApplicationData))\Pulsar</Pulsar>
         <Pulsar Condition=" '$(Pulsar)' == '' AND '$(_ConfigHome)' != '' ">$(_ConfigHome)/Pulsar</Pulsar>

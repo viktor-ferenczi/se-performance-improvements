@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Settings UI Framework](../../../../modules/client-settings.md) |
-| **Source** | [`Tools.cs`](../../../../../ClientPlugin/Settings/Tools/Tools.cs) (140 lines) |
+| **Source** | [`Tools.cs`](../../../../../ClientPlugin/Settings/Tools/Tools.cs) (141 lines) |
 | **Kind** | `Public static class` |
 | **Role** | Utility library |
 

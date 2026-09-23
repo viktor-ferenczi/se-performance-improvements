@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**101 files across 16 modules.**
+**102 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -18,7 +18,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`ConfigStorage.cs`](files/ClientPlugin/Settings/ConfigStorage.cs.md) | `ClientPlugin/Settings/ConfigStorage.cs` | Serialises and deserialises `Config.Current` as an XML file in the user's Space Engineers storage folder. |
 | [`Button.cs`](files/ClientPlugin/Settings/Elements/Button.cs.md) | `ClientPlugin/Settings/Elements/Button.cs` | `[Button]` attribute and `IElement` implementation that exposes a `void`-returning `Action` method on `Config` as a clickable button in the settings dialog. |
-| [`Checkbox.cs`](files/ClientPlugin/Settings/Elements/Checkbox.cs.md) | `ClientPlugin/Settings/Elements/Checkbox.cs` | `[Checkbox]` attribute and `IElement` implementation that renders a `bool` config property as a label + checkbox row with immediate write-through to `Config.Current`. |
+| [`Checkbox.cs`](files/ClientPlugin/Settings/Elements/Checkbox.cs.md) | `ClientPlugin/Settings/Elements/Checkbox.cs` | `[Checkbox]` attribute and `IElement` implementation that renders a `bool` config property as a checkbox, label and description row with immediate write-through to `Config.Current`. |
 | [`Color.cs`](files/ClientPlugin/Settings/Elements/Color.cs.md) | `ClientPlugin/Settings/Elements/Color.cs` | `[Color]` attribute and `IElement` implementation that renders a `VRageMath.Color` property as a label, colour-preview button, and hex textbox. |
 | [`Control.cs`](files/ClientPlugin/Settings/Elements/Control.cs.md) | `ClientPlugin/Settings/Elements/Control.cs` | Immutable wrapper around a `MyGuiControlBase` that carries layout hints (`FixedWidth`, `FillFactor`, `MinWidth`, `RightMargin`, `Offset`, `OriginAlign`) consumed by the active `Layout.cs`. |
 | [`Dropdown.cs`](files/ClientPlugin/Settings/Elements/Dropdown.cs.md) | `ClientPlugin/Settings/Elements/Dropdown.cs` | `[Dropdown]` attribute and `IElement` implementation that renders an `enum`-typed config property as a label + combo-box, automatically populating items from enum member names. |
@@ -33,7 +33,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`SettingsGenerator.cs`](files/ClientPlugin/Settings/SettingsGenerator.cs.md) | `ClientPlugin/Settings/SettingsGenerator.cs` | Reflects over `Config` properties and methods at startup to build an `AttributeInfo` list, then drives the active `Layout` to materialise GUI controls and wire them to the live config. |
 | [`SettingsScreen.cs`](files/ClientPlugin/Settings/SettingsScreen.cs.md) | `ClientPlugin/Settings/SettingsScreen.cs` | `MyGuiScreenBase` subclass that hosts the plugin settings controls and triggers config persistence when the dialog is closed. |
 | [`Binding.cs`](files/ClientPlugin/Settings/Tools/Binding.cs.md) | `ClientPlugin/Settings/Tools/Binding.cs` | Value type representing a keyboard shortcut (key + Ctrl/Alt/Shift modifiers) with press-detection helpers. |
-| [`Tools.cs`](files/ClientPlugin/Settings/Tools/Tools.cs.md) | `ClientPlugin/Settings/Tools/Tools.cs` | Shared utility class providing automatic PascalCase-to-label conversion and hex-colour parsing/formatting helpers used across the settings element classes. |
+| [`Tools.cs`](files/ClientPlugin/Settings/Tools/Tools.cs.md) | `ClientPlugin/Settings/Tools/Tools.cs` | Shared utility class providing automatic PascalCase-to-label conversion, text wrapping for descriptions and tooltips, and hex-colour parsing/formatting helpers used across the settings element classes. |
 
 ## [Server Plugin Entry Point](modules/server-plugin.md)
 
@@ -160,8 +160,8 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`ImageLoader.cs`](files/Shared/Patches/Image/ImageLoader.cs.md) | `Shared/Patches/Image/ImageLoader.cs` | Decodes an image through the bundled ImageSharp and, in debug builds, logs size, time and a hash of the decoded pixels for both this and the game's decoder. |
 | [`ImageSharpRuntime.cs`](files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | `Shared/Patches/Image/ImageSharpRuntime.cs` | Loads a renamed copy of the shipped ImageSharp 2.1.13 beside the game's own 2019 beta and decodes images through reflection with the same pixel format selection as `MyImage.Load`. |
 | [`MyImagePatch.cs`](files/Shared/Patches/Image/MyImagePatch.cs.md) | `Shared/Patches/Image/MyImagePatch.cs` | Prefix on `MyImage.Load` that routes image decoding to the bundled ImageSharp, falling back to the game's decoder on any failure. |
-| [`XmlSerializationReaderPatch.cs`](files/Shared/Patches/Serialization/XmlSerializationReaderPatch.cs.md) | `Shared/Patches/Serialization/XmlSerializationReaderPatch.cs` | Reuses the name IDs of the game's generated XML readers per name table instead of rebuilding them for every polymorphic element. |
 | [`MyScriptCompilerPatch.cs`](files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) | `Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs` | Caches compiled mod and in-game script assemblies to disk, short-circuiting the Roslyn compilation step on subsequent world loads. |
+| [`XmlSerializationReaderPatch.cs`](files/Shared/Patches/Serialization/XmlSerializationReaderPatch.cs.md) | `Shared/Patches/Serialization/XmlSerializationReaderPatch.cs` | Reuses the name IDs of the game's generated XML readers per name table instead of rebuilding them for every polymorphic element. |
 
 ## [Simulation & Block Patches](modules/simulation-and-blocks.md)
 

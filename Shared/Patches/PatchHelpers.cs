@@ -183,7 +183,6 @@ namespace Shared.Patches
             MyImagePatch.Configure();
             // MyCubeBlockPatch.Configure();
             // MyTerminalBlockPatch.Configure();
-            // MyGridTerminalSystemPatch.Configure();
 
             Statistics.Configure();
 
@@ -203,7 +202,6 @@ namespace Shared.Patches
             MyToolbarItemTerminalGroupPatch.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
-            // MyGridTerminalSystemPatch.Update();
 
             // Capture and deliver the runtime statistics once per period. This runs
             // regardless of the log level (formerly a DEBUG-only log); the dedicated

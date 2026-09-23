@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Settings UI Framework](../../../../modules/client-settings.md) |
-| **Source** | [`Dropdown.cs`](../../../../../ClientPlugin/Settings/Elements/Dropdown.cs) (70 lines) |
+| **Source** | [`Dropdown.cs`](../../../../../ClientPlugin/Settings/Elements/Dropdown.cs) (74 lines) |
 | **Kind** | `Internal class : Attribute, IElement` |
 | **Role** | UI element — dropdown |
 

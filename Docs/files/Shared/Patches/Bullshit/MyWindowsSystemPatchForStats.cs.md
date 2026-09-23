@@ -13,7 +13,7 @@
 
 `MyGeneralStats.Update` runs once per frame and reads the process' private memory size through `MyVRage.Platform.System.ProcessPrivateMemory`, which only feeds the statistics log lines and the replication statistics. On Windows that is one `GetProcessMemoryInfo` call; on Linux the compatibility layer answers it with `Process.PrivateMemorySize64`, which creates a `Process` object and parses `/proc/<pid>/stat` and `status` on every call, about half a millisecond per frame on the main thread. See the *Process memory statistics read every frame* section of `Docs/PerformanceFixes.md`.
 
-A Prefix on the getter returns the cached value while it is younger than a second of simulation ticks; otherwise the original runs and the Postfix stores its result. The `EnsureCode` hash lists both the shipped body and the body linux-compat's preloader substitutes on Linux. Gated by `FixMemoryStats`, which is on by default on the client and off on the server.
+A Prefix on the getter returns the cached value while it is younger than a second of simulation ticks; otherwise the original runs and the Postfix stores its result. The `EnsureCode` hash lists both the shipped body and the body linux-compat's preloader substitutes on Linux. Gated by `FixMemoryStats`, which is on by default on both the client and the server.
 
 ## Key members
 

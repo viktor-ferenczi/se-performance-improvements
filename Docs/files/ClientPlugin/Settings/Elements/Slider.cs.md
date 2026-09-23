@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Settings UI Framework](../../../../modules/client-settings.md) |
-| **Source** | [`Slider.cs`](../../../../../ClientPlugin/Settings/Elements/Slider.cs) (146 lines) |
+| **Source** | [`Slider.cs`](../../../../../ClientPlugin/Settings/Elements/Slider.cs) (147 lines) |
 | **Kind** | `Internal class : Attribute, IElement` |
 | **Role** | UI element — slider |
 
