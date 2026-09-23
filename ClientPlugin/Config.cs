@@ -50,6 +50,13 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(label: "Fix memory statistics", description: "Reads the process memory size for the statistics once per second instead of on every frame (MyWindowsSystem.ProcessPrivateMemory), which is expensive on Linux")]
+    public bool FixMemoryStats
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Checkbox(label: "Fix P2P update stats", description: "Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)")]
     public bool FixP2PUpdateStats
     {

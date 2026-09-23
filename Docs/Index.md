@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**100 files across 16 modules.**
+**101 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -139,6 +139,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | --- | --- | --- |
 | [`GcCollectPatch.cs`](files/Shared/Patches/Bullshit/GcCollectPatch.cs.md) | `Shared/Patches/Bullshit/GcCollectPatch.cs` | Removes explicit `GC.Collect` and `IVRageSystem.CollectGC` call sites from several game methods to eliminate multi-second GC pauses during world load, unload and gameplay. |
 | [`MyP2PQoSAdapterPatch.cs`](files/Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs.md) | `Shared/Patches/Bullshit/MyP2PQoSAdapterPatch.cs` | Rate-limits `VRage.EOS.MyP2PQoSAdapter.UpdateStats` by skipping 48 out of every 49 calls and sleeping for 1 ms instead, eliminating its ~50% constant CPU core load. |
+| [`MyWindowsSystemPatchForStats.cs`](files/Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs.md) | `Shared/Patches/Bullshit/MyWindowsSystemPatchForStats.cs` | Serves `MyWindowsSystem.ProcessPrivateMemory` from a cache refreshed once per second, so the per-frame statistics update stops reading procfs on Linux. |
 | [`PerfCountingRewriterPatch.cs`](files/Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs.md) | `Shared/Patches/Bullshit/PerfCountingRewriterPatch.cs` | Disables `VRage.Scripting.Rewriters.PerfCountingRewriter.Rewrite` so mod Roslyn syntax trees are returned unchanged, removing the Mod API call-statistics instrumentation overhead. |
 
 ## [Memory Allocation Patches](modules/memory-allocation.md)

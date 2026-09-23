@@ -31,6 +31,7 @@ Most are `bool`. The exception is the Havok physics thread count, which is a `Ha
 | `FixSafeZone` / `FixSafeAction` | Properties | Cache safe-zone membership and action-allowed results. |
 | `FixConveyor` | Property | Cache conveyor network reachability lookups. |
 | `FixAccess` / `FixTerminal` | Properties | Cache block access rights and PB access checks. |
+| `FixMemoryStats` | Property | Read the process memory size for the statistics once per second instead of every frame. |
 | `FixToolbar` | Property | Cache the terminal actions of block groups on the toolbar (client only). |
 | `FixLogFlooding` | Property | Rate-limit `GetBlueprintDefinition` log flooding. |
 | `FixProjection` | Property | Disable functional blocks in projected grids. |

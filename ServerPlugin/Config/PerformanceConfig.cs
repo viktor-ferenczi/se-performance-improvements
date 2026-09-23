@@ -37,6 +37,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable updates during grid paste (MyCubeGrid.PasteBlocksServer)", Parent = "worldload")]
     public bool FixGridPaste { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Read the process memory size for the statistics once per second instead of on every frame (expensive on Linux)", Parent = "worldload")]
+    public bool FixMemoryStats { get; set => SetField(ref field, value); } = true;
+
     [BoolOption("Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)", Parent = "worldload")]
     public bool FixP2PUpdateStats { get; set => SetField(ref field, value); } = true;
 
