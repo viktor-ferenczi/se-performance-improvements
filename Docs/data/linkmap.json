@@ -408,6 +408,12 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
+    "Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs": {
+      "module": "../../../../modules/simulation-and-blocks.md",
+      "source": "../../../../../Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs": {
       "module": "../../../../modules/memory-allocation.md",
       "source": "../../../../../Shared/Patches/Voxel/MySandboxGamePatchForVoxelPreload.cs",
@@ -601,7 +607,7 @@
           "doc_link": "../files/ClientPlugin/Config.cs.md",
           "source_link": "../../ClientPlugin/Config.cs",
           "tier": 1,
-          "lines": 259
+          "lines": 266
         },
         {
           "path": "ClientPlugin/Plugin.cs",
@@ -783,7 +789,7 @@
           "doc_link": "../files/Shared/Patches/Conveyor/MyAssemblerPatch.cs.md",
           "source_link": "../../Shared/Patches/Conveyor/MyAssemblerPatch.cs",
           "tier": 2,
-          "lines": 78
+          "lines": 138
         },
         {
           "path": "Shared/Patches/Conveyor/MyCubeBlockPatchForConveyor.cs",
@@ -807,7 +813,7 @@
           "doc_link": "../files/Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs.md",
           "source_link": "../../Shared/Patches/Conveyor/MyGridConveyorSystemPatch.cs",
           "tier": 1,
-          "lines": 274
+          "lines": 295
         },
         {
           "path": "Shared/Patches/Conveyor/MyPathFindingSystemEnumeratorPatch.cs",
@@ -1010,7 +1016,7 @@
           "doc_link": "../files/Shared/Patches/PatchHelpers.cs.md",
           "source_link": "../../Shared/Patches/PatchHelpers.cs",
           "tier": 1,
-          "lines": 232
+          "lines": 234
         }
       ]
     },
@@ -1087,7 +1093,7 @@
           "doc_link": "../files/ServerPlugin/Config/PerformanceConfig.cs.md",
           "source_link": "../../ServerPlugin/Config/PerformanceConfig.cs",
           "tier": 2,
-          "lines": 123
+          "lines": 130
         },
         {
           "path": "ServerPlugin/Plugin.cs",
@@ -1126,7 +1132,7 @@
           "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
           "source_link": "../../Shared/Config/IPluginConfig.cs",
           "tier": 2,
-          "lines": 134
+          "lines": 137
         },
         {
           "path": "Shared/Plugin/Common.cs",
@@ -1150,7 +1156,7 @@
           "doc_link": "../files/Shared/Stats/Statistics.cs.md",
           "source_link": "../../Shared/Stats/Statistics.cs",
           "tier": 2,
-          "lines": 87
+          "lines": 89
         },
         {
           "path": "Shared/Stats/StatisticsSnapshot.cs",
@@ -1240,6 +1246,14 @@
           "lines": 80
         },
         {
+          "path": "Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",
+          "name": "MyToolbarItemTerminalGroupPatch.cs",
+          "doc_link": "../files/Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs.md",
+          "source_link": "../../Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",
+          "tier": 2,
+          "lines": 136
+        },
+        {
           "path": "Shared/Patches/WindTurbine/MyWindTurbinePatch.cs",
           "name": "MyWindTurbinePatch.cs",
           "doc_link": "../files/Shared/Patches/WindTurbine/MyWindTurbinePatch.cs.md",
@@ -1275,7 +1289,7 @@
           "doc_link": "../files/Shared/Tools/Cache.cs.md",
           "source_link": "../../Shared/Tools/Cache.cs",
           "tier": 1,
-          "lines": 147
+          "lines": 149
         },
         {
           "path": "Shared/Tools/CacheStat.cs",

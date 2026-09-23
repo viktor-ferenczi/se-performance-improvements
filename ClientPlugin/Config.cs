@@ -221,6 +221,13 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(label: "Fix toolbar group updates", description: "Caches the terminal actions of block groups on the toolbar for a second (MyToolbarItemTerminalGroup.GetActionsWithGenericDuplicates)")]
+    public bool FixToolbar
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Checkbox(label: "Rate limit logs with flooding potential", description: "Rate limited excessive logging from MyDefinitionManager.GetBlueprintDefinition")]
     public bool FixLogFlooding
     {
