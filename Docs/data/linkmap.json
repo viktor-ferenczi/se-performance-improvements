@@ -1138,7 +1138,7 @@
           "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
           "source_link": "../../Shared/Config/IPluginConfig.cs",
           "tier": 2,
-          "lines": 149
+          "lines": 150
         },
         {
           "path": "Shared/Plugin/Common.cs",
@@ -1162,7 +1162,7 @@
           "doc_link": "../files/Shared/Stats/Statistics.cs.md",
           "source_link": "../../Shared/Stats/Statistics.cs",
           "tier": 2,
-          "lines": 89
+          "lines": 90
         },
         {
           "path": "Shared/Stats/StatisticsSnapshot.cs",
@@ -1241,7 +1241,7 @@
           "doc_link": "../files/Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs.md",
           "source_link": "../../Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs",
           "tier": 2,
-          "lines": 98
+          "lines": 104
         },
         {
           "path": "Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs",
@@ -1257,7 +1257,7 @@
           "doc_link": "../files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md",
           "source_link": "../../Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs",
           "tier": 2,
-          "lines": 80
+          "lines": 151
         },
         {
           "path": "Shared/Patches/Toolbar/MyToolbarItemTerminalGroupPatch.cs",

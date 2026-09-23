@@ -1,80 +1,162 @@
-// May be buggy
-#if BUGGY
-
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using HarmonyLib;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.GameSystems;
 using Shared.Config;
 using Shared.Plugin;
+using Shared.Stats;
 using Shared.Tools;
 
 namespace Shared.Patches
 {
-    [HarmonyPatch(typeof(MyGridTerminalSystem))]
-    [SuppressMessage("ReSharper", "UnusedType.Global")]
+    // Before every run of a programmable block the game calls
+    // MyGridTerminalSystem.UpdateGridBlocksOwnership with the block's owner, which sets
+    // IsAccessibleForProgrammableBlock on every terminal block of the grid group from the
+    // owner's access rights. On a large grid with a script running every tick that walk is
+    // most of the main thread's simulation time (a 33000 block grid: 42%).
+    //
+    // The flags depend on the owner asked for, on the blocks of the terminal system, on
+    // block ownership and share modes, on faction relations and on the admin settings. The
+    // first three are tracked exactly: an entry per terminal system remembers the owner the
+    // flags were last computed for and a generation counter bumped when a block joins or
+    // leaves a terminal system or a block's ownership changes. A call with the same owner
+    // and the same generation is skipped. Faction relation and admin setting changes are
+    // not hooked, so an entry is also dropped after two seconds.
+    //
+    // Two programmable blocks with different owners on one grid still get a fresh walk each
+    // (the flags cannot serve both), exactly as before.
+    [HarmonyPatch]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
+    [SuppressMessage("ReSharper", "UnusedType.Global")]
     public static class MyGridTerminalSystemPatch
     {
         private static IPluginConfig Config => Common.Config;
-        private static bool enabled;
 
-        public static void Configure()
+        private sealed class Applied
         {
-            enabled = Config.Enabled && Config.FixTerminal;
-            Config.PropertyChanged += OnConfigChanged;
+            public long OwnerId;
+            public long Generation;
+            public long Expires;
         }
 
-        private static void OnConfigChanged(object sender, PropertyChangedEventArgs e)
-        {
-            enabled = Config.Enabled && Config.FixTerminal;
-            if (!enabled)
-                Inhibitor.Clear();
-        }
+        private const int LifetimeTicks = 2 * 60;
 
-        private static readonly UintCache<long> Inhibitor = new UintCache<long>(337 * 60);
+        // Keyed by the terminal system itself, so a hash collision can never skip a walk
+        private static readonly ConditionalWeakTable<MyGridTerminalSystem, Applied> Entries =
+            new ConditionalWeakTable<MyGridTerminalSystem, Applied>();
 
-#if DEBUG
-        public static string InhibitorReport => Inhibitor.Report;
-#endif
+        private static long generation;
+        private static readonly CacheStat Stat = new CacheStat();
+        private static int size;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Update()
+        private static void Invalidate()
         {
-            Inhibitor.Cleanup();
+            Interlocked.Increment(ref generation);
         }
 
-        /* Called from MyProgrammableBlock.RunSandboxedProgramAction,
-        which can be frequent on multiplayer servers with PBs triggered a lot.
-        In this case the ownerID is the owner of the programmable block.
-        Since ownership changes rarely, frequent calls can be inhibited. */
+        public static void CaptureStatistics(StatisticsSnapshot snapshot)
+        {
+            var sample = Stat.Sample();
+            snapshot.Caches.Add(
+                new CacheStatEntry("Terminal.PbAccess", sample.Lookups, sample.Hits, sample.Size)
+            );
+        }
+
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(MyGridTerminalSystem.UpdateGridBlocksOwnership))]
-        [EnsureCode("98a58a26")]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool UpdateGridBlocksOwnershipPrefix(MyGridTerminalSystem __instance, long ownerID)
+        [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
+        [EnsureCode("78ecdbe6")]
+        private static bool UpdateGridBlocksOwnershipPrefix(
+            MyGridTerminalSystem __instance,
+            long ownerID,
+            ref Applied __state
+        )
         {
-            if (!enabled)
-                return true;
-
-            var key = __instance.GetHashCode() ^ ownerID;
-            if (Inhibitor.TryGetValue(key, out var value))
+            if (!Config.FixTerminal)
             {
-                // In the very rare case of key collision just let the call through
-                if (value != (uint)ownerID)
-                    return true;
+                return true;
+            }
 
-                // Inhibit repeated updates until the cache entry expires
+            if (Statistics.Enabled)
+            {
+                Stat.CountLookup(size);
+            }
+
+            if (!Entries.TryGetValue(__instance, out var applied))
+            {
+                applied = new Applied();
+                Entries.Add(__instance, applied);
+                size++;
+            }
+
+            var tick = Common.Plugin.Tick;
+            if (
+                applied.OwnerId == ownerID
+                && applied.Generation == Interlocked.Read(ref generation)
+                && applied.Expires > tick
+            )
+            {
+                if (Statistics.Enabled)
+                {
+                    Stat.CountHit();
+                }
+
                 return false;
             }
 
-            // Inhibit subsequent calls after this one using cache entry expiration as a timer
-            Inhibitor.Store(key, (uint)ownerID, 4 * 60 + ((uint)key & 63));
+            __state = applied;
             return true;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
+        [EnsureCode("78ecdbe6")]
+        private static void UpdateGridBlocksOwnershipPostfix(long ownerID, Applied __state)
+        {
+            if (__state == null)
+            {
+                return;
+            }
+
+            __state.OwnerId = ownerID;
+            __state.Generation = Interlocked.Read(ref generation);
+            __state.Expires = Common.Plugin.Tick + LifetimeTicks;
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MyGridTerminalSystem), "Add")]
+        [EnsureCode("1ef65f21")]
+        private static void AddPostfix()
+        {
+            Invalidate();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MyGridTerminalSystem), "Remove")]
+        [EnsureCode("108ab732")]
+        private static void RemovePostfix()
+        {
+            Invalidate();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MyCubeGrid), "NotifyBlockOwnershipChange")]
+        [EnsureCode("19a731ee")]
+        private static void NotifyBlockOwnershipChangePostfix()
+        {
+            Invalidate();
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MyCubeGrid), "ChangeGridOwnership")]
+        [EnsureCode("bcc83412")]
+        private static void ChangeGridOwnershipPostfix()
+        {
+            Invalidate();
         }
     }
 }
-
-#endif

@@ -103,7 +103,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Cache the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason", Parent = "optional")]
     public bool FixAccess { get; set => SetField(ref field, value); } = false;
 
-    [BoolOption("Suppress frequent MyGridTerminalSystem.UpdateGridBlocksOwnership calls updating IsAccessibleForProgrammableBlock", Parent = "optional")]
+    [BoolOption("Skip MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)", Parent = "optional")]
     public bool FixTerminal { get; set => SetField(ref field, value); } = false;
 
     [BoolOption("Disable UpdateVisibility of LCD surfaces on multiplayer servers (disable if LCDs flicker on clients)", Parent = "optional")]

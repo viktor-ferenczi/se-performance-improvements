@@ -200,7 +200,7 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Less frequent update of PB access to blocks", description: "Suppresses frequent calls to MyGridTerminalSystem.UpdateGridBlocksOwnership updating IsAccessibleForProgrammableBlock unnecessarily often")]
+    [Checkbox(label: "Skip redundant updates of PB access to blocks", description: "Skips MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)")]
     public bool FixTerminal
     {
         get;

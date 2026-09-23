@@ -82,6 +82,7 @@ namespace Shared.Stats
             MyGridConveyorSystemPatch.CaptureStatistics(snapshot);
             MyAssemblerPatch.CaptureStatistics(snapshot);
             MyToolbarItemTerminalGroupPatch.CaptureStatistics(snapshot);
+            MyGridTerminalSystemPatch.CaptureStatistics(snapshot);
 
             return snapshot;
         }
