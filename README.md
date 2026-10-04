@@ -160,7 +160,7 @@ serve a cached value for a while instead of recomputing it - and enables the res
 ## Building from source
 
 This is a pair of client and server plugins built based on the
-[Space Engineers server plugin template](https://github.com/viktor-ferenczi/se-server-plugin-template).
+[Space Engineers server plugin template](https://github.com/CometWorks/server-plugin-template).
 For development guidance see [se-dev-skills](https://github.com/viktor-ferenczi/se-dev-skills/).
 
 ### Plugin version
@@ -200,6 +200,7 @@ Builds deploy nothing by default. To deploy anyway, set `Pulsar` and/or `Magneta
 `Directory.Build.props.user`, or pass them to a single build with `-p:Pulsar=...` and
 `-p:MagnetarData=...`. The client build then lands in
 `<Pulsar>/Legacy/Local/Performance/` (`net48`) or `<Pulsar>/Interim/Local/Performance/`
-(`net10.0`, falls back to `Legacy` if there is no `Interim` folder) as `plugin.dll`, and the
-`net10.0` server build lands flat in `<MagnetarData>/Local/` as `Performance.dll`. Both copy
-the bundled `SixLabors.ImageSharp.dll` next to the plugin.
+(`net10.0`, which on Linux falls back to `Legacy` if there is no `Interim` folder) as
+`plugin.dll`, and the `net10.0` server build lands flat in `<MagnetarData>/Local/` as
+`Performance.dll`. Both copy the bundled `SixLabors.ImageSharp.dll` next to the plugin, and
+the `net48` client build also copies its `System.*` dependencies.

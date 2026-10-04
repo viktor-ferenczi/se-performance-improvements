@@ -13,7 +13,7 @@
 
 When the plugin is compiled in a developer IDE, Krafs.Publicizer injects `IgnoresAccessChecksToAttribute` into the output assembly automatically. However, when Pulsar or Magnetar builds the plugin from source the Krafs tooling is not available, so the attribute would be missing at runtime and the CLR would reject the assembly.
 
-This file supplies the attribute definition under `#if !DEV_BUILD`, ensuring it is included in production builds only. The attribute tells the .NET runtime to skip access checks for the named assembly, enabling the direct field/method accesses that replace runtime reflection.
+This file supplies the attribute definition under `#if !LOCAL_BUILD`, ensuring it is included in production builds only. The attribute tells the .NET runtime to skip access checks for the named assembly, enabling the direct field/method accesses that replace runtime reflection.
 
 ## Key members
 
