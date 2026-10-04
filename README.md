@@ -160,7 +160,7 @@ serve a cached value for a while instead of recomputing it - and enables the res
 ## Building from source
 
 This is a pair of client and server plugins built based on the
-[Space Engineers server plugin template](https://github.com/viktor-ferenczi/se-server-plugin-template).
+[Space Engineers server plugin template](https://github.com/CometWorks/server-plugin-template).
 For development guidance see [se-dev-skills](https://github.com/viktor-ferenczi/se-dev-skills/).
 
 ### Plugin version
@@ -171,18 +171,36 @@ is shared by all contributors and stays under version control. Bump the version 
 
 ### Folder path overrides
 
-`Directory.Build.props` **is** committed and holds the auto-detection for every reference
-folder path (`Bin64` for the Space Engineers client, `Pulsar` and `Magnetar` for the two
-plugin loaders, and `Dedicated64` for the Dedicated Server). It works unmodified on both
-Windows and Linux, so a fresh clone normally builds without any setup at all.
+`Directory.Build.props` **is** committed and declares the overridable folder paths:
 
-`Directory.Build.props.user` is where you override those paths when the auto-detection does
-not find your install. It is **not committed** (`*.user` is git-ignored), so each contributor
-keeps their own local paths while still getting improvements to the committed file. Copy the
-first `PropertyGroup` of `Directory.Build.props` into it, wrapped into a top-level `Project`
-element, and fill in what you need; `setup.py` writes the file for you with the paths it
+- `Bin64`: the folder containing `SpaceEngineers.exe`
+- `Dedicated64`: the folder containing `SpaceEngineersDedicated.exe`
+- `Magnetar`: the Magnetar installation folder holding `Libraries/<launcher>/PluginSdk.dll`
+- `Pulsar`: the Pulsar folder to deploy the client plugin into, empty by default
+- `MagnetarData`: the Magnetar config folder to deploy the server plugin into, the one
+  holding `Local`, `Sources` and `Profiles`, empty by default
+
+`Bin64`, `Dedicated64` and `Magnetar` are auto-detected when left empty, on both Windows and
+Linux, so a fresh clone normally builds without any setup. `Pulsar` and `MagnetarData` are
+never auto-detected.
+
+`Directory.Build.props.user` is where you override those paths. It is **not committed**
+(`*.user` is git-ignored), so each contributor keeps their own local paths. Copy the first
+`PropertyGroup` of `Directory.Build.props` into it, wrapped into a top-level `Project`
+element, and fill in what you need. `setup.py` writes the file for you with the paths it
 auto-detects, and leaves any other overrides in it alone on a re-run.
 
-The overrides are imported before the auto-detection, and every auto-detection step is
-conditional on the property still being empty, so a path set in `Directory.Build.props.user`
-always wins and an empty one falls back to the auto-detection.
+### Development
+
+Load the working copy through a loader development folder: start Pulsar or Magnetar with
+`-sources` and add this folder with the Sources button. The loader then compiles the plugin
+from source at startup.
+
+Builds deploy nothing by default. To deploy anyway, set `Pulsar` and/or `MagnetarData` in
+`Directory.Build.props.user`, or pass them to a single build with `-p:Pulsar=...` and
+`-p:MagnetarData=...`. The client build then lands in
+`<Pulsar>/Legacy/Local/Performance/` (`net48`) or `<Pulsar>/Interim/Local/Performance/`
+(`net10.0`, which on Linux falls back to `Legacy` if there is no `Interim` folder) as
+`plugin.dll`, and the `net10.0` server build lands flat in `<MagnetarData>/Local/` as
+`Performance.dll`. Both copy the bundled `SixLabors.ImageSharp.dll` next to the plugin, and
+the `net48` client build also copies its `System.*` dependencies.
