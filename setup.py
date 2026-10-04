@@ -37,19 +37,24 @@ USER_PROPS = "Directory.Build.props.user"
 
 USER_PROPS_TEMPLATE = """\
 <Project>
-    <PropertyGroup>
-        <!-- Folder containing SpaceEngineers.exe (empty = auto-detect from Steam) -->
-        <Bin64>{bin64}</Bin64>
+  <PropertyGroup>
+    <!-- Folder containing SpaceEngineers.exe (empty = auto-detect from Steam) -->
+    <Bin64>{bin64}</Bin64>
 
-        <!-- Folder containing SpaceEngineersDedicated.exe (empty = auto-detect from Steam) -->
-        <Dedicated64>{dedicated64}</Dedicated64>
+    <!-- Folder containing SpaceEngineersDedicated.exe (empty = auto-detect from Steam) -->
+    <Dedicated64>{dedicated64}</Dedicated64>
 
-        <!-- Pulsar installation folder (empty = auto-detect) -->
-        <Pulsar></Pulsar>
+    <!-- Pulsar folder to deploy the client plugin into after each build (empty = no deployment),
+         for example $(APPDATA)\\Pulsar on Windows or $(HOME)/.config/Pulsar on Linux -->
+    <Pulsar></Pulsar>
 
-        <!-- Magnetar installation folder, the one holding the launchers (empty = auto-detect) -->
-        <Magnetar></Magnetar>
-    </PropertyGroup>
+    <!-- Magnetar installation folder, holds the launchers (empty = auto-detect) -->
+    <Magnetar></Magnetar>
+
+    <!-- Magnetar config folder to deploy the server plugin into after each build,
+         usually the Magnetar subfolder of the folder above (empty = no deployment) -->
+    <MagnetarData></MagnetarData>
+  </PropertyGroup>
 </Project>
 """
 
@@ -282,7 +287,7 @@ def _get_install_locations(vdf_path: str, ids: list[str]) -> dict[str, str | Non
 
 
 def _set_prop(group: ET.Element, name: str, value: str) -> None:
-    """Set a property in the group, appending it when it is not there yet."""
+    """Set an MSBuild property in the group, adding the element if missing."""
     element = group.find(name)
 
     if element is None:
