@@ -435,13 +435,11 @@ Projected functional blocks are updated, which is a waste of time. Also due to b
 some of them can even function, for example projected welders can weld in creative
 mode if they are enabled in the blueprint.
 
-To fix this, functional blocks have to be disabled on grids with no physics. These
-should only be the projected functional blocks. It happens only once when the
-functional block is added to the scene in order to avoid a constant CPU overhead.
-
-This fix may have side-effects should a plugin provide physics-less subgrids. In
-such a case disable this fix and use the Multigrid Projector plugin to fix this
-specific case only for the welders in a different way.
+To fix this, functional blocks are disabled on preview grids with no physics, which
+are the projected grids. It happens only once when the functional block is added to
+the scene in order to avoid a constant CPU overhead. Hidden physics-less grids
+spawned by mods, like the camera grid of Scope Framework, are not preview grids, so
+their blocks are left alone.
 
 This fix has the visual side-effect of all functional blocks showing up as disabled
 in the projection, so the players don't know in advance whether they will be enabled
