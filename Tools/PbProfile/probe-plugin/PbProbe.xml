@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<PluginData
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="GitHubPlugin"
+>
+  <Id>pb-probe</Id>
+  <RepoId>local/pb-probe</RepoId>
+  <FriendlyName>PB probe (SE-626 measurement)</FriendlyName>
+  <Author>CometWorks</Author>
+  <Tooltip>Test only: times every programmable block run and writes per-run and per-frame tables</Tooltip>
+  <Hidden>true</Hidden>
+  <SourceDirectories>
+    <Directory>Source</Directory>
+  </SourceDirectories>
+</PluginData>
