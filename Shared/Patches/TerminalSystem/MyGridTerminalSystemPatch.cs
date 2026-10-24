@@ -67,64 +67,100 @@ namespace Shared.Patches
             );
         }
 
-        [HarmonyPrefix]
-        [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
-        [EnsureCode("78ecdbe6")]
-        private static bool UpdateGridBlocksOwnershipPrefix(
-            MyGridTerminalSystem __instance,
-            long ownerID,
-            ref Applied __state
-        )
+        // Called on every update: applies the skip while FixTerminal is on and removes it when the
+        // option is turned off. A Harmony patch replaces the whole method with a copy the JIT
+        // compiles only once, without tiering or dynamic PGO, and that copy of the per-block loop
+        // made the walk 29% slower on a 1262 grid world (SE-634). So the method is patched only
+        // while the skip is wanted, not with an early return in the prefix.
+        public static void Update()
         {
-            if (!Config.FixTerminal)
+            if (Config.FixTerminal != OwnershipWalkPatch.Active)
             {
-                return true;
+                OwnershipWalkPatch.Toggle();
+            }
+        }
+
+        [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
+        private static class OwnershipWalkPatch
+        {
+            public static bool Active;
+
+            private static readonly Harmony Harmony = new Harmony(typeof(OwnershipWalkPatch).FullName);
+
+            // PatchAll applies this class at startup only if the option is on
+            private static bool Prepare()
+            {
+                Active = Config.FixTerminal;
+                return Active;
             }
 
-            if (Statistics.Enabled)
+            public static void Toggle()
             {
-                Stat.CountLookup(size);
+                if (Active)
+                {
+                    Harmony.UnpatchAll(Harmony.Id);
+                    Active = false;
+                }
+                else
+                {
+                    Harmony.CreateClassProcessor(typeof(OwnershipWalkPatch)).Patch();
+                }
             }
 
-            if (!Entries.TryGetValue(__instance, out var applied))
-            {
-                applied = new Applied();
-                Entries.Add(__instance, applied);
-                size++;
-            }
-
-            var tick = Common.Plugin.Tick;
-            if (
-                applied.OwnerId == ownerID
-                && applied.Generation == Interlocked.Read(ref generation)
-                && applied.Expires > tick
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
+            [EnsureCode("78ecdbe6")]
+            private static bool UpdateGridBlocksOwnershipPrefix(
+                MyGridTerminalSystem __instance,
+                long ownerID,
+                ref Applied __state
             )
             {
                 if (Statistics.Enabled)
                 {
-                    Stat.CountHit();
+                    Stat.CountLookup(size);
                 }
 
-                return false;
+                if (!Entries.TryGetValue(__instance, out var applied))
+                {
+                    applied = new Applied();
+                    Entries.Add(__instance, applied);
+                    size++;
+                }
+
+                var tick = Common.Plugin.Tick;
+                if (
+                    applied.OwnerId == ownerID
+                    && applied.Generation == Interlocked.Read(ref generation)
+                    && applied.Expires > tick
+                )
+                {
+                    if (Statistics.Enabled)
+                    {
+                        Stat.CountHit();
+                    }
+
+                    return false;
+                }
+
+                __state = applied;
+                return true;
             }
 
-            __state = applied;
-            return true;
-        }
-
-        [HarmonyPostfix]
-        [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
-        [EnsureCode("78ecdbe6")]
-        private static void UpdateGridBlocksOwnershipPostfix(long ownerID, Applied __state)
-        {
-            if (__state == null)
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
+            [EnsureCode("78ecdbe6")]
+            private static void UpdateGridBlocksOwnershipPostfix(long ownerID, Applied __state)
             {
-                return;
-            }
+                if (__state == null)
+                {
+                    return;
+                }
 
-            __state.OwnerId = ownerID;
-            __state.Generation = Interlocked.Read(ref generation);
-            __state.Expires = Common.Plugin.Tick + LifetimeTicks;
+                __state.OwnerId = ownerID;
+                __state.Generation = Interlocked.Read(ref generation);
+                __state.Expires = Common.Plugin.Tick + LifetimeTicks;
+            }
         }
 
         [HarmonyPostfix]
