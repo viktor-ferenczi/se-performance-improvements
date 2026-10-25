@@ -15,6 +15,16 @@ namespace Shared.Patches
     {
         private static IPluginConfig Config => Common.Config;
 
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyWheelPatch),
+            () => Config.FixWheelTrail
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
+        public static void Update() => Optional.Update();
+
         [HarmonyPrefix]
         [HarmonyPatch("CheckTrail")]
         [EnsureCode("b3d278e9")]

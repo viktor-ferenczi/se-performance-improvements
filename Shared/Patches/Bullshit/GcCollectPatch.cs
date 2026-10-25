@@ -29,12 +29,13 @@ namespace Shared.Patches
         private static IPluginLogger Log => Common.Logger;
         private static IPluginConfig Config => Common.Config;
 
+        // With the option off the class is skipped. An empty TargetMethods would make Harmony
+        // throw, which stopped PatchAll and left the patches after this class unapplied.
+        private static bool Prepare() => Config.FixGarbageCollection;
+
         // These methods freeze for seconds due to forcing a full GC
         static IEnumerable<MethodBase> TargetMethods()
         {
-            if (!Config.FixGarbageCollection)
-                yield break;
-            
             yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetHeightmap));
             yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetDetailMap));
             yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetMaps));

@@ -32,6 +32,16 @@ namespace Shared.Patches
     {
         private static IPluginConfig Config => Common.Config;
 
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyGridTargetingPatch),
+            () => Config.Enabled && Config.FixTargetGroups
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
+        public static void Update() => Optional.Update();
+
         // The refresh runs on the update thread; a spare set per thread keeps it allocation free
         [System.ThreadStatic]
         private static HashSet<MyEntity> remaining;

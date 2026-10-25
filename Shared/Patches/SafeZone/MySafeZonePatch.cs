@@ -20,6 +20,15 @@ namespace Shared.Patches
     public static class MySafeZonePatch
     {
         private static IPluginConfig Config => Common.Config;
+
+        // The caches are applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MySafeZonePatch),
+            () => Config.Enabled && Config.FixSafeZone
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
         private static bool enabled;
 
         public static void Configure()
@@ -41,6 +50,8 @@ namespace Shared.Patches
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Update()
         {
+            Optional.Update();
+
             IsSafeCache.Cleanup();
             IsActionAllowedCache.Cleanup();
         }
@@ -95,33 +106,38 @@ namespace Shared.Patches
 
         #region "IsOutside fix"
 
-        [HarmonyPrefix]
-        [HarmonyPatch("IsOutside", typeof(BoundingBoxD))]
-        [EnsureCode("fe4efdc4")]
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsOutsidePrefix(MySafeZone __instance, BoundingBoxD aabb, ref bool __result)
+        // Always applied, it has no option
+        [HarmonyPatch(typeof(MySafeZone))]
+        private static class IsOutsidePatch
         {
-            var d2 = (aabb.Center - __instance.PositionComp.GetPosition()).LengthSquared();
-            if (__instance.Shape == MySafeZoneShape.Sphere)
+            [HarmonyPrefix]
+            [HarmonyPatch("IsOutside", typeof(BoundingBoxD))]
+            [EnsureCode("fe4efdc4")]
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            private static bool IsOutsidePrefix(MySafeZone __instance, BoundingBoxD aabb, ref bool __result)
             {
-                var s = __instance.Radius + aabb.HalfExtents.Length();
-                if (d2 > s * s)
+                var d2 = (aabb.Center - __instance.PositionComp.GetPosition()).LengthSquared();
+                if (__instance.Shape == MySafeZoneShape.Sphere)
                 {
-                    __result = true;
-                    return false;
+                    var s = __instance.Radius + aabb.HalfExtents.Length();
+                    if (d2 > s * s)
+                    {
+                        __result = true;
+                        return false;
+                    }
                 }
-            }
-            else
-            {
-                var s = __instance.PositionComp.LocalAABB.HalfExtents.Length() + aabb.HalfExtents.Length();
-                if (d2 > s * s)
+                else
                 {
-                    __result = true;
-                    return false;
+                    var s = __instance.PositionComp.LocalAABB.HalfExtents.Length() + aabb.HalfExtents.Length();
+                    if (d2 > s * s)
+                    {
+                        __result = true;
+                        return false;
+                    }
                 }
-            }
 
-            return true;
+                return true;
+            }
         }
 
         #endregion

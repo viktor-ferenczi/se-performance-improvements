@@ -31,6 +31,14 @@ namespace Shared.Patches
     {
         private static IPluginConfig Config => Common.Config;
 
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyAssemblerPatch),
+            () => Config.FixConveyor
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
         // Assemblers reachable from one assembler, in the game's own filtering
         private sealed class Candidates
         {
@@ -49,6 +57,8 @@ namespace Shared.Patches
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Update()
         {
+            Optional.Update();
+
             if (Config.FixConveyor)
             {
                 Cache.Cleanup();

@@ -114,10 +114,10 @@ namespace Shared.Patches
         // Proof that the patches were applied: debug-log every game method this phase patched (each
         // with the plugin patch class targeting it) with a running count, then an info line with
         // the total. A test run can be verified from the log — enable all fixes and confirm every
-        // expected patch appears. Note the applied set is almost fixed at build time: the Fix* flags
-        // gate behavior inside the patch bodies, not whether a patch is applied. The exception is
-        // MyGridTerminalSystemPatch, which patches UpdateGridBlocksOwnership only while FixTerminal
-        // is on.
+        // expected patch appears. Note the applied set depends on the config: patches on hot paths
+        // are applied only while their option is on (OptionalPatch), and the transpilers only if
+        // their option is on at startup. The other Fix* flags gate behavior inside the patch
+        // bodies.
         private static void LogAppliedPatches(IPluginLogger log, Harmony harmony, HashSet<MethodBase> before, string what)
         {
             var applied = harmony.GetPatchedMethods()
@@ -202,6 +202,10 @@ namespace Shared.Patches
             MyAssemblerPatch.Update();
             MyToolbarItemTerminalGroupPatch.Update();
             MyGridTerminalSystemPatch.Update();
+            MyStorageExtensionsPatch.Update();
+            MyGridTargetingPatch.Update();
+            MyEntityPatchForProjection.Update();
+            MyConveyorLinePatch.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
 

@@ -18,6 +18,17 @@ namespace Shared.Patches
     public static class MyStorageExtensionsPatch
     {
         private static IPluginConfig Config => Common.Config;
+
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyStorageExtensionsPatch),
+            () => Config.Enabled && Config.FixVoxel
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
+        public static void Update() => Optional.Update();
+
         private static bool enabled;
 
         public static void Configure()

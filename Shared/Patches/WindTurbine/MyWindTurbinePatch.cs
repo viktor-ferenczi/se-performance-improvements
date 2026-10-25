@@ -15,6 +15,15 @@ namespace Shared.Patches
     public static class MyWindTurbinePatch
     {
         private static IPluginConfig Config => Common.Config;
+
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyWindTurbinePatch),
+            () => Config.Enabled && Config.FixWindTurbine
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
         private static bool enabled;
 
         public static void Configure()
@@ -40,6 +49,8 @@ namespace Shared.Patches
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Update()
         {
+            Optional.Update();
+
             Cache.Cleanup();
         }
 
