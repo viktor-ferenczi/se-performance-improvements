@@ -15,6 +15,16 @@ namespace Shared.Patches
     {
         private static IPluginConfig Config => Common.Config;
 
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyEntityPatchForProjection),
+            () => Config.FixProjection
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
+        public static void Update() => Optional.Update();
+
         [HarmonyPostfix]
         [HarmonyPatch(nameof(MyEntity.OnAddedToScene))]
         private static void OnAddedToScenePostfix(MyEntity __instance)

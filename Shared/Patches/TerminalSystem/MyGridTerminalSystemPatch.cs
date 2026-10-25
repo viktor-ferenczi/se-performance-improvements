@@ -67,45 +67,23 @@ namespace Shared.Patches
             );
         }
 
-        // Called on every update: applies the skip while FixTerminal is on and removes it when the
-        // option is turned off. Harmony replaces the whole method with a copy that is compiled
-        // once, outside tiered compilation and dynamic PGO. Even with the prefix returning at once,
-        // that copy made the walk 27% slower than the game's own method on a 1262 grid world with
-        // 217 running scripts (SE-634), so the method is patched only while the skip is wanted.
+        // The skip is applied only while FixTerminal is on, see OptionalPatch. With the option
+        // off, the patched copy alone made the walk 27% slower than the game's own method on a
+        // 1262 grid world with 217 running scripts (SE-634).
+        private static readonly OptionalPatch OwnershipWalk = new OptionalPatch(
+            typeof(OwnershipWalkPatch),
+            () => Config.FixTerminal
+        );
+
         public static void Update()
         {
-            if (Config.FixTerminal != OwnershipWalkPatch.Active)
-            {
-                OwnershipWalkPatch.Toggle();
-            }
+            OwnershipWalk.Update();
         }
 
         [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]
         private static class OwnershipWalkPatch
         {
-            public static bool Active;
-
-            private static readonly Harmony Harmony = new Harmony(typeof(OwnershipWalkPatch).FullName);
-
-            // PatchAll applies this class at startup only if the option is on
-            private static bool Prepare()
-            {
-                Active = Config.FixTerminal;
-                return Active;
-            }
-
-            public static void Toggle()
-            {
-                if (Active)
-                {
-                    Harmony.UnpatchAll(Harmony.Id);
-                    Active = false;
-                }
-                else
-                {
-                    Harmony.CreateClassProcessor(typeof(OwnershipWalkPatch)).Patch();
-                }
-            }
+            private static bool Prepare() => OwnershipWalk.Prepare();
 
             [HarmonyPrefix]
             [HarmonyPatch(typeof(MyGridTerminalSystem), "UpdateGridBlocksOwnership")]

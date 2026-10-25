@@ -19,6 +19,15 @@ namespace Shared.Patches
     public static class MySessionComponentSafeZonesPatch
     {
         private static IPluginConfig Config => Common.Config;
+
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MySessionComponentSafeZonesPatch),
+            () => Config.Enabled && Config.FixSafeAction
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
         private static bool enabled;
 
         public static void Configure()
@@ -39,6 +48,8 @@ namespace Shared.Patches
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Update()
         {
+            Optional.Update();
+
             Cache.Cleanup();
         }
 

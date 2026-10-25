@@ -36,6 +36,10 @@ namespace Shared.Patches
         private static IPluginLogger Logger => Common.Plugin.Log;
         private static IPluginConfig Config => Common.Config;
 
+        // The transpiler changes the method only at startup, so with the option off it is not
+        // applied at all. Harmony's copy of the method would be slower than the game's own.
+        private static bool Prepare() => Config.Enabled && Config.FixMemory;
+
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MyDefinitionManager.GetBlueprintDefinition))]
         [EnsureCode("c4168dc7")]

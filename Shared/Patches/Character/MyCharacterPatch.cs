@@ -22,6 +22,10 @@ namespace Shared.Patches
             enabled = Config.Enabled && Config.FixCharacter;
         }
 
+        // The transpiler changes the method only at startup, so with the option off it is not
+        // applied at all. Harmony's copy of the method would be slower than the game's own.
+        private static bool Prepare() => enabled;
+
         // ReSharper disable once UnusedMember.Local
         [HarmonyTranspiler]
         [HarmonyPatch("RigidBody_ContactPointCallback")]

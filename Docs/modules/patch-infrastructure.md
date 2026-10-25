@@ -11,12 +11,15 @@ Every other patch module in the plugin depends on this module: the patch applica
 | File | Summary |
 | --- | --- |
 | [`PatchHelpers.cs`](../files/Shared/Patches/PatchHelpers.cs.md) | Verifies game-method bytecodes via [`EnsureCode.cs`](../files/Shared/Tools/EnsureCode.cs.md), applies the Harmony patches (all at once on the client, in two phases on the server), and provides `Configure()` / `PatchUpdates()` lifecycle hooks. |
+| `OptionalPatch.cs` | Applies a patch class only while its option is on: `Prepare()` skips it at startup when the option is off, `Update()` applies or removes it when the option changes at runtime. |
 
 ## How it fits together
 
 At plugin startup the host calls `PatchHelpers.Configure()` first (from `Common.SetPlugin`), which fans out to every patch class that needs one-time configuration from the plugin config (cache sizes, algorithm choices, etc.). Then the patches are applied through one of three entry points, all built on the shared private `VerifyAndApply` scaffold: it runs the matching [`EnsureCode.cs`](../files/Shared/Tools/EnsureCode.cs.md) scan (`Verify`, `VerifyUncategorized`, or `VerifyCategory`), which compares the actual IL hashes of targeted methods against the recorded values embedded in `[EnsureCode("…")]` attributes. Any mismatch aborts that phase cleanly.
 
 If verification passes, the patches are applied — `harmony.PatchCategory` (the `"Early"` and `"Late"` phases) or `harmony.PatchAllUncategorized` (everything else) — and `VerifyAndApply` logs each game method it patched (computed as a before/after `harmony.GetPatchedMethods()` delta) so a test run can be checked against the log. From that point on, `PatchHelpers.PatchUpdates()` is called once per simulation tick by the plugin; it delegates to `Update()` on cache patches ([merge-and-paste](merge-and-paste.md) has none; modules like the safe-zone and conveyor-system patches use this to expire cached entries and emit periodic debug hit-rate logs).
+
+Patches on hot paths are applied only while their option is on, through `OptionalPatch`. Harmony replaces a patched method with a copy compiled once, outside tiered compilation and dynamic PGO, and that copy can be slower than the game's own method even when the patch returns at once (SE-634 measured 27% on the PB ownership walk). The transpilers whose option needs a restart have a `Prepare()` that skips them when the option is off at startup. Harmony never puts the original method back, so after an option is turned off at runtime the game runs an unpatched copy until the next restart.
 
 The module has no shared state of its own — it is a pure coordinator.
 

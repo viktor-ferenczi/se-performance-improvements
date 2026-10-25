@@ -29,6 +29,15 @@ namespace Shared.Patches
         private static IPluginLogger Log => Common.Logger;
         private static IPluginConfig Config => Common.Config;
 
+        // Applied only while the option is on, see OptionalPatch. The cache invalidation on
+        // grid changes (MyCubeGridPatchForConveyor) stays applied.
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyGridConveyorSystemPatch),
+            () => Config.FixConveyor
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
         private static readonly RwLockDictionary<TLogicalGroup, UintCache<ulong>> ReachableCaches = new RwLockDictionary<TLogicalGroup, UintCache<ulong>>();
 
         // Bumped whenever a conveyor network may have changed (the same events which invalidate
@@ -69,6 +78,9 @@ namespace Shared.Patches
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Update()
         {
+            Optional.Update();
+            PullStats.Update();
+
             if (!Config.FixConveyor && ReachableCaches.Count != 0)
             {
                 // Drop all caches on turning OFF this fix
@@ -270,26 +282,38 @@ namespace Shared.Patches
 
         private static readonly PullItemStats Stats = new PullItemStats();
 
-        [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
-        [HarmonyPrefix]
-        [EnsureCode("178d38e5")]
-        private static bool PullItemPrefix()
+        // Only while statistics are collected, which a release client never does
+        private static readonly OptionalPatch PullStats = new OptionalPatch(
+            typeof(PullStatsPatch),
+            () => Statistics.Enabled
+        );
+
+        [HarmonyPatch(typeof(MyGridConveyorSystem))]
+        private static class PullStatsPatch
         {
-            if (Statistics.Enabled)
-                Stats.PullItemCount++;
+            private static bool Prepare() => PullStats.Prepare();
 
-            return true;
-        }
+            [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
+            [HarmonyPrefix]
+            [EnsureCode("178d38e5")]
+            private static bool PullItemPrefix()
+            {
+                if (Statistics.Enabled)
+                    Stats.PullItemCount++;
 
-        [HarmonyPatch("PullItems")]
-        [HarmonyPrefix]
-        [EnsureCode("a6bc0cf4")]
-        private static bool PullItemsPrefix()
-        {
-            if (Statistics.Enabled)
-                Stats.PullItemsCount++;
+                return true;
+            }
 
-            return true;
+            [HarmonyPatch("PullItems")]
+            [HarmonyPrefix]
+            [EnsureCode("a6bc0cf4")]
+            private static bool PullItemsPrefix()
+            {
+                if (Statistics.Enabled)
+                    Stats.PullItemsCount++;
+
+                return true;
+            }
         }
     }
 }

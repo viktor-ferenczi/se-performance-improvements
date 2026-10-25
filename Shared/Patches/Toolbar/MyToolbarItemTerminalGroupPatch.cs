@@ -32,6 +32,14 @@ namespace Shared.Patches
     {
         private static IPluginConfig Config => Common.Config;
 
+        // Applied only while the option is on, see OptionalPatch
+        private static readonly OptionalPatch Optional = new OptionalPatch(
+            typeof(MyToolbarItemTerminalGroupPatch),
+            () => Config.FixToolbar
+        );
+
+        private static bool Prepare() => Optional.Prepare();
+
         private sealed class Actions
         {
             public ulong Fingerprint;
@@ -48,6 +56,8 @@ namespace Shared.Patches
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Update()
         {
+            Optional.Update();
+
             if (Config.FixToolbar)
             {
                 Cache.Cleanup();
