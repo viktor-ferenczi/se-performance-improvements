@@ -68,10 +68,10 @@ namespace Shared.Patches
         }
 
         // Called on every update: applies the skip while FixTerminal is on and removes it when the
-        // option is turned off. A Harmony patch replaces the whole method with a copy the JIT
-        // compiles only once, without tiering or dynamic PGO, and that copy of the per-block loop
-        // made the walk 29% slower on a 1262 grid world (SE-634). So the method is patched only
-        // while the skip is wanted, not with an early return in the prefix.
+        // option is turned off. Harmony replaces the whole method with a copy that is compiled
+        // once, outside tiered compilation and dynamic PGO. Even with the prefix returning at once,
+        // that copy made the walk 27% slower than the game's own method on a 1262 grid world with
+        // 217 running scripts (SE-634), so the method is patched only while the skip is wanted.
         public static void Update()
         {
             if (Config.FixTerminal != OwnershipWalkPatch.Active)
