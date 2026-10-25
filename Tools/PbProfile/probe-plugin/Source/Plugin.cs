@@ -103,6 +103,16 @@ public static class Probe
         frameTicks = 0;
         if (frame == 0)
             Log($"world ready, warmup {Warmup} frames, measuring {Frames}");
+        if (RunnerTest.Expect != null)
+        {
+            // Test mode measures nothing: it runs the ScriptRunner checks once and ends
+            if (frame == 300)
+            {
+                done = true;
+                RunnerTest.Run();
+            }
+            return;
+        }
         if (frame == Warmup)
             Log("window open");
     }
@@ -117,7 +127,17 @@ public static class Probe
             )
         );
         if (frame == Warmup + Frames - 1)
-            Finish();
+        {
+            // An exception escaping into MySession.Update would stop the server
+            try
+            {
+                Finish();
+            }
+            catch (Exception e)
+            {
+                Log($"FAILED to write the tables: {e}");
+            }
+        }
     }
 
     public static long BeginRun()
@@ -159,14 +179,21 @@ public static class Probe
     public static void Compiled(MyProgrammableBlock pb, long ticks)
     {
         var program = ProgramData?.GetValue(pb) as string ?? "";
-        CompileLines.Append(
-            FormattableString.Invariant($"{pb.EntityId}\t{program.Length}\t{ticks * TickUs:F0}\n")
-        );
+        // World load compiles PBs on the parallel entity loading threads
+        lock (CompileLines)
+            CompileLines.Append(
+                FormattableString.Invariant(
+                    $"{pb.EntityId}\t{program.Length}\t{ticks * TickUs:F0}\n"
+                )
+            );
     }
 
     private static void Finish()
     {
         done = true;
+        // The Compile prefix makes it too, but a small world can compile its PBs before this
+        // plugin loads (seen with Magnetar 2.4.2)
+        Directory.CreateDirectory(Path.Combine(Dir, "programs"));
         File.WriteAllText(
             Path.Combine(Dir, "runs.tsv"),
             "frame\tpb\tupdate_type\tdepth\ttotal_us\tscript_us\tinstructions\tresult\n" + RunLines
