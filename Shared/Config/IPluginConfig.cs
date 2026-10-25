@@ -292,6 +292,14 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Skips MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when nothing it depends on changed
     bool FixTerminal { get; set; }
 
+    // Gives every thread its own programmable block instruction counter, so scripts can run off
+    // the main thread (needs restart: the Preloader applies it before the game loads)
+    bool FixScriptCounter { get; set; }
+
+    // Longest time a single programmable block run may take, in milliseconds (the game's own limit
+    // is 3000). Takes effect only with FixScriptCounter.
+    int ScriptRunLimitMs { get; set; }
+
     // Disables UpdateVisibility of LCD surfaces on multiplayer servers
     bool FixTextPanel { get; set; }
 

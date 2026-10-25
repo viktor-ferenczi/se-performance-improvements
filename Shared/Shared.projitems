@@ -49,6 +49,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySafeZonePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\IlInjectorPrepatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyGridTargetingPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
@@ -74,6 +76,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ModRewriterVersions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\MySessionExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ObjectPools.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloadConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloaderHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RateLimiter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ScriptCacheKey.cs" />
