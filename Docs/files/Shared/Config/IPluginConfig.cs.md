@@ -31,6 +31,7 @@ Most are `bool`. The exception is the Havok physics thread count, which is a `Ha
 | `FixSafeZone` / `FixSafeAction` | Properties | Cache safe-zone membership and action-allowed results. |
 | `FixConveyor` | Property | Cache conveyor network reachability lookups. |
 | `FixAccess` / `FixTerminal` | Properties | Cache block access rights and PB access checks. |
+| `FixScriptCounter` / `ScriptRunLimitMs` | Properties | Per-thread PB instruction counter (needs restart, applied by the Preloader) and the time limit per PB run in ms. |
 | `FixMemoryStats` | Property | Read the process memory size for the statistics once per second instead of every frame. |
 | `FixTargetGroups` | Property | Refresh the turret target groups in linear instead of quadratic time. |
 | `FixToolbar` | Property | Cache the terminal actions of block groups on the toolbar (client only). |
