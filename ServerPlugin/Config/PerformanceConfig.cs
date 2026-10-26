@@ -9,15 +9,15 @@ namespace ServerPlugin.Config;
 // Shared project gate on it via Plugin.Common.Config. INotifyPropertyChanged is
 // provided by PluginSdk.Config.PluginConfig.
 //
-// The defaults are the conservative server defaults: what is left OFF is what an
-// admin may notice in the game, not what is merely new. That is mostly the fixes
-// which serve a value from a cache for a while instead of recomputing it, so a
-// change can take up to a couple of seconds to be seen (block access rights, PB
-// access, conveyor lookups), plus the two which change what players see outright
-// (LCD surface visibility, functional blocks in projected grids). Everything else
-// defaults ON, including the fixes which only trade eager work for lazy work or
-// replace an algorithm with a faster one of the same result. The client defaults
-// everything ON.
+// The server defaults come from weighing each option's risk on a server against its
+// gain (SE-635). Left OFF: the conveyor lookup cache, which has hung servers; the two
+// which change what players see or what mods find (LCD surface visibility, functional
+// blocks in projected grids); and the EOS P2P statistics throttle, which works against
+// the game's own throttle and sleeps on the network thread. The PB access fix is ON:
+// after a faction or admin change it can serve the old access flags for up to two
+// seconds. Everything else defaults ON, including the fixes which only trade eager
+// work for lazy work or replace an algorithm with a faster one of the same result.
+// The client defaults everything ON.
 [Tab("general", caption: "General")]
 [Tab("worldload", caption: "World load & networking")]
 [Tab("simulation", caption: "Simulation")]
@@ -44,9 +44,6 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [BoolOption("Read the process memory size for the statistics once per second instead of on every frame", Parent = "worldload")]
     public bool FixMemoryStats { get; set => SetField(ref field, value); } = true;
-
-    [BoolOption("Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)", Parent = "worldload")]
-    public bool FixP2PUpdateStats { get; set => SetField(ref field, value); } = true;
 
     [BoolOption("Eliminate long pauses on starting and stopping large worlds by disabling selected GC.Collect calls", Parent = "worldload")]
     public bool FixGarbageCollection { get; set => SetField(ref field, value); } = true;
@@ -98,6 +95,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Refresh the turret target groups in linear instead of quadratic time", Parent = "simulation")]
     public bool FixTargetGroups { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Skip MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)", Parent = "simulation")]
+    public bool FixTerminal { get; set => SetField(ref field, value); } = true;
+
     // ---- Requires server restart ---------------------------------------
 
     [BoolOption("Reduce memory allocations in the turret targeting system (needs restart)", Parent = "restart")]
@@ -120,14 +120,14 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Cache the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason", Parent = "optional")]
     public bool FixAccess { get; set => SetField(ref field, value); } = false;
 
-    [BoolOption("Skip MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)", Parent = "optional")]
-    public bool FixTerminal { get; set => SetField(ref field, value); } = false;
-
     [BoolOption("Disable UpdateVisibility of LCD surfaces on multiplayer servers (disable if LCDs flicker on clients)", Parent = "optional")]
     public bool FixTextPanel { get; set => SetField(ref field, value); } = false;
 
     [BoolOption("Cache conveyor network lookups", Parent = "optional")]
     public bool FixConveyor { get; set => SetField(ref field, value); } = false;
+
+    [BoolOption("Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)", Parent = "optional")]
+    public bool FixP2PUpdateStats { get; set => SetField(ref field, value); } = false;
 
     // Client only: the dedicated server has no toolbar updates
     public bool FixToolbar

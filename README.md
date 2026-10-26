@@ -85,9 +85,9 @@ Have [Quasar](https://github.com/CometWorks/quasar) installed and a server creat
 
 The configuration is on Quasar's Web UI.
 
-The server leaves off the fixes an admin may notice in the game - mostly the ones
-that serve a cached value for a while instead of recomputing it - and enables the
-rest; the client enables everything.
+The server leaves off the conveyor lookup cache, the two fixes that change what players
+see (LCD surface visibility, functional blocks in projected grids) and the EOS P2P
+statistics throttle, and enables the rest; the client enables everything.
 </details>
 
 <details>
@@ -110,8 +110,9 @@ Directly inside the `<GitHub>` element insert:
 Configuration file is `Performance.cfg`, created in the `SpaceEngineersDedicated` folder.
 **FIXME:** Include a default config here, because only the ones with non-default values are saved.
 
-The server leaves off the fixes an admin may notice in the game - mostly the ones that
-serve a cached value for a while instead of recomputing it - and enables the rest.
+The server leaves off the conveyor lookup cache, the two fixes that change what players
+see (LCD surface visibility, functional blocks in projected grids) and the EOS P2P
+statistics throttle, and enables the rest.
 </details>
 
 ## Community & support

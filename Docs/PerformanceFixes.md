@@ -45,6 +45,14 @@ power consumption and cache misses if you have more than 4 cores.
 
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/22802-performance-constant-50-core-load-by-vrage-eos-myp2pqosadapter-updatestats)
 
+Off by default on the server. The current game build throttles these calls itself:
+`CheckAndUpdateStats` calls `UpdateStats` only when its timer is past 500 ms, and
+`UpdateStats` restarts that timer. The prefix skips the method, timer restart included,
+so once the 500 ms are up each call goes through the prefix again and 47 of every 48
+sleep for a millisecond on the EOS network thread, which also sends the packets. A
+dedicated server on Steam networking never calls it; one with EOS (crossplay) only
+gets the sleeps.
+
 ## GC.Collect calls
 
 *Contributed by zznty.*
