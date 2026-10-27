@@ -211,8 +211,14 @@ namespace Shared.Patches
                         assemblyStream.CopyTo(fileStream);
 
                     // Same key means same assembly, so a file stored meanwhile by a concurrent compile is kept
-                    if (!File.Exists(cachePath))
+                    try
+                    {
                         File.Move(tempPath, cachePath);
+                    }
+                    catch (IOException) when (File.Exists(cachePath))
+                    {
+                        // Another compiler stored the same key first.
+                    }
                 }
                 finally
                 {

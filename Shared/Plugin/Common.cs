@@ -79,7 +79,7 @@ public static class Common
         }
 
         // Temp files left behind by a crash while storing a compiled script, see MyScriptCompilerPatch.StoreIntoCache
-        foreach (var path in Directory.EnumerateFiles(CacheDir, "*.tmp", SearchOption.AllDirectories))
+        foreach (var path in Directory.EnumerateFiles(CacheDir, "*.cache.*.tmp", SearchOption.AllDirectories))
         {
             if ((now - File.GetCreationTimeUtc(path)).TotalHours >= 1)
                 File.Delete(path);
