@@ -10,7 +10,7 @@ namespace Shared.Config;
 // Shared.Patches.MyWindowsSystemPatch.
 public enum HavokThreadCountMode
 {
-    // One worker per physical CPU core, minus one (HavokThreads.Auto)
+    // One worker per physical CPU core, minus one, at most 6 (HavokThreads.Auto)
     Auto,
 
     // Exactly the configured number of workers
@@ -33,14 +33,12 @@ public static class HavokThreads
     public const int Min = 2;
     public const int Max = 64;
 
-    // The cap on the automatic count. The shipped Havok build caps the pool below this on
-    // its own (11 workers on a 16 core host), so this is the plugin's own sanity limit
-    // rather than a number the pool is expected to reach.
-    private const int AutoMax = 16;
-
-    // The cap used when the physical core count cannot be determined and the logical one has
-    // to stand in for it, so a hyper-threaded host does not get a worker per sibling thread.
-    private const int UnknownTopologyMax = 7;
+    // The cap on the automatic count. Several servers often share a host (cluster nodes,
+    // or any other automation running more than one Magnetar instance), and every pool's
+    // workers spin between jobs, so a pool per server sized to the whole machine makes them
+    // fight over the same cores. Six keeps that bearable by default; a physics heavy world
+    // can still ask for more with Manual.
+    private const int AutoMax = 6;
 
     // One Havok worker per physical core, minus one so the main thread keeps a core of its
     // own.
@@ -54,21 +52,18 @@ public static class HavokThreads
     // than with eleven, while 300 independent falling grids were no worse. See the Havok
     // section of Docs/PerformanceFixes.md for the measurements.
     //
-    // When the topology cannot be read the logical count minus one is used, capped, which is
-    // the same answer on a host without hyper-threading and a conservative one on a host with
-    // it.
+    // When the topology cannot be read the logical count stands in for it; the cap keeps that
+    // from going wrong on a host with hyper-threading.
     public static int Auto
     {
         get
         {
-            var physical = PhysicalCoreCount;
-            var count = physical > 0
-                ? physical - 1
-                : Math.Min(UnknownTopologyMax, Environment.ProcessorCount - 1);
-
-            return Math.Max(Min, Math.Min(AutoMax, count));
+            var cores = PhysicalCoreCount > 0 ? PhysicalCoreCount : Environment.ProcessorCount;
+            return AutoForCoreCount(cores);
         }
     }
+
+    internal static int AutoForCoreCount(int cores) => Math.Max(Min, Math.Min(AutoMax, cores - 1));
 
     private static readonly bool Linux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
     private static readonly bool Windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
