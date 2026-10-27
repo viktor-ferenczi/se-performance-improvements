@@ -106,7 +106,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Optimize the MyPhysicsBody.RigidBody getter (needs restart)", Parent = "restart")]
     public bool FixPhysics { get; set => SetField(ref field, value); } = true;
 
-    [EnumOption("Physics thread count: Game leaves the sizing of the Havok worker thread pool to the game; Auto is one worker per physical CPU core, minus one to leave the main thread a core of its own, not counting hyper-threading siblings which only add contention; Manual is exactly the number below (needs restart)", Parent = "restart")]
+    [EnumOption("Physics thread count: Game leaves the sizing of the Havok worker thread pool to the game; Auto is one worker per physical CPU core, minus one to leave the main thread a core of its own, at most 6 so several servers can share a host, not counting hyper-threading siblings which only add contention; a physics heavy world may want more in Manual; Manual is exactly the number below (needs restart)", Parent = "restart")]
     public HavokThreadCountMode HavokThreadCountMode { get; set => SetField(ref field, value); } = HavokThreadCountMode.Auto;
 
     [IntOption(HavokThreads.Min, HavokThreads.Max, "Number of Havok worker threads used in the Manual mode; in the Auto mode it shows the number this machine gets. Havok caps the pool on its own (11 workers on a 16 core host), so a larger number stops making a difference (needs restart)", Parent = "restart")]

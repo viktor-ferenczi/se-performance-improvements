@@ -192,7 +192,7 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Dropdown(label: "Physics thread count", description: "Game: leaves the sizing of the Havok worker thread pool to the game.\r\nAuto: one worker per physical CPU core, minus one to leave the main thread a core of its own. Hyper-threading siblings are not counted, they only add contention.\r\nManual: exactly the number below. Needs a restart.")]
+    [Dropdown(label: "Physics thread count", description: "Game: leaves the sizing of the Havok worker thread pool to the game.\r\nAuto: one worker per physical CPU core, minus one to leave the main thread a core of its own, at most 6. Hyper-threading siblings are not counted, they only add contention.\r\nManual: exactly the number below. Needs a restart.")]
     public HavokThreadCountMode HavokThreadCountMode
     {
         get;

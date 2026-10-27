@@ -255,8 +255,8 @@ the pool's.
 
 Two options control it:
 
-- **Auto** (the default) uses one worker per physical CPU core, minus one (see
-  below), and keeps the thread count option updated with the number this machine
+- **Auto** (the default) uses one worker per physical CPU core, minus one, at most 6
+  (see below), and keeps the thread count option updated with the number this machine
   gets, so the configuration always shows the count the game will actually be given.
 - **Game** leaves the sizing to the game: the property keeps answering what it
   answers without the plugin. This is the way back to the stock behaviour for an
@@ -310,10 +310,14 @@ do not expose the topology in sysfs. On Windows it is the number of
 `RelationProcessorCore` records returned by `GetLogicalProcessorInformationEx` — the
 `Ex` function rather than `GetLogicalProcessorInformation`, because the latter only
 describes the first processor group and so stops at 64 logical processors. When
-neither can be read the logical count minus one is used, capped at 7, which is the
-same answer on a host without hyper-threading and a conservative one on a host with
-it. An overall cap of 16 applies to the automatic count; Havok caps the pool lower on
-its own anyway.
+neither can be read the logical count stands in for it.
+
+Auto never asks for more than 6 workers, on the client and on the server. Several
+servers often run on one host, as cluster nodes or as separate Magnetar instances
+started by Quasar or any other automation, and each pool's workers spin between jobs,
+so pools sized to the whole machine fight over the same cores. With the cap a few
+servers on one host stay bearable without any per-host tuning. A physics heavy world
+that has a host to itself can still ask for more with **Manual**.
 
 The Linux side is where an oversized pool was measured to hurt, because there the game
 runs the Windows build of Havok through the native wrappers and the workers wait on
@@ -341,7 +345,7 @@ against 4.6 ms, 90th percentile 14 against 16 ms).
 
 So on this particular world a smaller pool than Auto's is better still, and a server
 whose load looks like that lattice should set **Manual** and measure. Auto stops at
-one worker per physical core because that is the count which cannot be wrong for the
+one worker per physical core (and 6) because that is the count which cannot be wrong for the
 usual reason — it never counts a sibling thread as a core, and it never takes the last
 core away from the main thread — rather than because it is the optimum for every
 scene. A Manual setting still asks for exactly what it says, and Game asks for nothing.
