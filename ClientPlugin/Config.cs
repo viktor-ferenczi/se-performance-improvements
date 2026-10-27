@@ -57,13 +57,6 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Fix P2P update stats", description: "Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)")]
-    public bool FixP2PUpdateStats
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
     [Checkbox(label: "Fix garbage collection", description: "Eliminate long pauses on starting and stopping large worlds by disabling selected GC.Collect calls")]
     public bool FixGarbageCollection
     {

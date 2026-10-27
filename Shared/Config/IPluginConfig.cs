@@ -220,9 +220,6 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Disables updates during grid paste (MyCubeGrid.PasteBlocksServer)
     bool FixGridPaste { get; set; }
 
-    // Eliminates 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)
-    bool FixP2PUpdateStats { get; set; }
-
     // Eliminates long pauses on starting and stopping large worlds by disabling selected GC.Collect calls
     bool FixGarbageCollection { get; set; }
 

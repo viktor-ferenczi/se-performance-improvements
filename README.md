@@ -36,7 +36,6 @@ the code that implements them is organized.
 - Disable Mod API call statistics overhead
 
 **Simulation & CPU**
-- Eliminate the constant EOS P2P `UpdateStats` core load
 - Read the process memory statistic once per second instead of every frame
 - Cache safe zone checks (`IsSafe`, `IsActionAllowed`, optimized `IsOutside`)
 - Cache wind turbine atmosphere checks
@@ -86,8 +85,7 @@ Have [Quasar](https://github.com/CometWorks/quasar) installed and a server creat
 The configuration is on Quasar's Web UI.
 
 The server leaves off the conveyor lookup cache, the two fixes that change what players
-see (LCD surface visibility, functional blocks in projected grids) and the EOS P2P
-statistics throttle, and enables the rest; the client enables everything.
+see (LCD surface visibility, functional blocks in projected grids), and enables the rest; the client enables everything.
 </details>
 
 <details>
@@ -111,8 +109,7 @@ Configuration file is `Performance.cfg`, created in the `SpaceEngineersDedicated
 **FIXME:** Include a default config here, because only the ones with non-default values are saved.
 
 The server leaves off the conveyor lookup cache, the two fixes that change what players
-see (LCD surface visibility, functional blocks in projected grids) and the EOS P2P
-statistics throttle, and enables the rest.
+see (LCD surface visibility, functional blocks in projected grids), and enables the rest.
 </details>
 
 ## Community & support
