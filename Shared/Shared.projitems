@@ -77,6 +77,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ObjectPools.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloaderHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RateLimiter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\ScriptCacheKey.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockDictionary.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockHashSet.cs" />

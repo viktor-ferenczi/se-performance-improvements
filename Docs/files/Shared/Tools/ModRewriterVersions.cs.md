@@ -11,7 +11,7 @@
 
 ## Purpose
 
-[`MyScriptCompilerPatch.cs`](../Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) caches compiled mod and in-game script assemblies on disk, keyed by a hash of the script sources, the .NET runtime, the game version and the compilation symbols (see [world-loading](../../../modules/world-loading.md)). Some plugins, in practice the dotnet-compat and linux-compat plugins, rewrite mod scripts before compilation, so the compiled assembly depends on their identity too. Without this class, upgrading or recompiling a rewriter would keep serving cached assemblies produced by the old build, or ones referencing an assembly name that no longer loads. `Hash` is XOR-folded into `GetScriptsHash` whenever it is non-null.
+[`MyScriptCompilerPatch.cs`](../Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) caches compiled mod and in-game script assemblies on disk, keyed by a hash of the script sources, the .NET runtime, the game version and the compilation symbols (see [world-loading](../../../modules/world-loading.md)). Some plugins, in practice the dotnet-compat and linux-compat plugins, rewrite mod scripts before compilation, so the compiled assembly depends on their identity too. Without this class, upgrading or recompiling a rewriter would keep serving cached assemblies produced by the old build, or ones referencing an assembly name that no longer loads. `Hash` is one part of the key `GetScriptsHash` builds, an empty part when it is null.
 
 Detection uses the loaders' own contract instead of their bookkeeping: Pulsar and Magnetar wire up rewriting by looking for a method named `Rewrite` on a plugin's main type, the one implementing `VRage.Plugins.IPlugin`. `FindModRewriters` scans every loaded non-dynamic assembly for such types, matching the interface by name so the declaring game assembly is not loaded (on the dedicated server this runs from the preloader hook, before the game starts) and enumerating types tolerantly for assemblies with unresolvable references. Each matching assembly contributes its module version ID (MVID) once. The MVID is the right identity because it changes exactly when the build does: Pulsar compiles plugins non-deterministically, minting a fresh MVID per compile, and deterministically built DLLs get a content hash, whereas the assembly version routinely survives recompiles. When no plugin declares `Rewrite`, the scan falls back to [`LegacyModRewriters.cs`](LegacyModRewriters.cs.md) for the compat builds loaded by old Pulsar and Magnetar releases.
 
@@ -21,7 +21,7 @@ Detection uses the loaders' own contract instead of their bookkeeping: Pulsar an
 
 | Member | Kind | Description |
 | --- | --- | --- |
-| `Hash` | `static byte[]` property | SHA1 over the sorted MVIDs of the loaded rewriter assemblies; null when none are loaded, leaving the cache keys unchanged. |
+| `Hash` | `static byte[]` property | SHA1 over the sorted MVIDs of the loaded rewriter assemblies; null when none are loaded. |
 | `Initialize()` | Static method | Idempotent; runs `FindModRewriters`, sorts by MVID, hashes the concatenated 16-byte GUIDs and records the descriptions. Throws if no `IPlugin` implementation is loaded at all. |
 | `LogVersions(IPluginLogger)` | Static method | Logs the detected rewriters, or that none are loaded; deferred until a logger exists. |
 | `FindModRewriters()` | Private static method | Scans loaded assemblies for concrete `IPlugin` types declaring a `Rewrite` method; one `(Mvid, Description)` per assembly. Falls back to `LegacyModRewriters.Find()` when empty. |
@@ -30,7 +30,7 @@ Detection uses the loaders' own contract instead of their bookkeeping: Pulsar an
 
 ## References
 
-- [`MyScriptCompilerPatch.cs`](../Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) — folds `Hash` into the compilation cache key in `GetScriptsHash`.
+- [`MyScriptCompilerPatch.cs`](../Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) — adds `Hash` to the compilation cache key in `GetScriptsHash`.
 - [`LegacyModRewriters.cs`](LegacyModRewriters.cs.md) — the fallback for compat builds predating the `Rewrite` hook.
 - [`Preloader.cs`](../../ServerPlugin/Preloader.cs.md) — first call to `Initialize` on the dedicated server, from the loader's post-hook.
 - [`Common.cs`](../Plugin/Common.cs.md) — `SetPlugin` calls `Initialize` (client) or re-enters it idempotently (server), then `LogVersions`.

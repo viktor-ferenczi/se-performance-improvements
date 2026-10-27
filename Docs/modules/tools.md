@@ -34,6 +34,7 @@ The `Shared/Tools` module is the foundation layer that every performance patch i
 | [`ObjectPools.cs`](../files/Shared/Tools/ObjectPools.cs.md) | Shared bucket-based `StringBuilder` pool for GC-pressure reduction in string-formatting hot paths |
 | [`PreloaderHelpers.cs`](../files/Shared/Tools/PreloaderHelpers.cs.md) | Mono.Cecil helpers for preloader patches: instruction index search, hash verification, and debug IL recording |
 | [`RateLimiter.cs`](../files/Shared/Tools/RateLimiter.cs.md) | Token-bucket limiter that caps the number of log messages or other actions per reporting period |
+| [`ScriptCacheKey.cs`](../files/Shared/Tools/ScriptCacheKey.cs.md) | Cache key of a compiled script assembly: one SHA-1 over an ordered sequence of strings |
 | [`RwLock.cs`](../files/Shared/Tools/RwLock.cs.md) | Spin-based reader/writer lock over a plain `int` counter, with a convenience wrapper class |
 | [`RwLockDictionary.cs`](../files/Shared/Tools/RwLockDictionary.cs.md) | `Dictionary<TKey, TValue>` subclass with embedded spin-based reader/writer locking |
 | [`RwLockHashSet.cs`](../files/Shared/Tools/RwLockHashSet.cs.md) | `HashSet<T>` subclass with embedded spin-based reader/writer locking |

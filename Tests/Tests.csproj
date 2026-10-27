@@ -24,6 +24,7 @@
     <Compile Include="..\Shared\Config\IPluginConfig.cs" Link="Shared\Config\IPluginConfig.cs" />
     <!-- Its only game-dependent reference, Common.Logger, is stubbed in the test -->
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
+    <Compile Include="..\Shared\Tools\ScriptCacheKey.cs" Link="Shared\Tools\ScriptCacheKey.cs" />
   </ItemGroup>
 
 </Project>

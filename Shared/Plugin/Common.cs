@@ -78,6 +78,13 @@ public static class Common
                 File.Delete(path);
         }
 
+        // Temp files left behind by a crash while storing a compiled script, see MyScriptCompilerPatch.StoreIntoCache
+        foreach (var path in Directory.EnumerateFiles(CacheDir, "*.tmp", SearchOption.AllDirectories))
+        {
+            if ((now - File.GetCreationTimeUtc(path)).TotalHours >= 1)
+                File.Delete(path);
+        }
+
         if (clear)
             File.WriteAllText(CacheGameVersionPath, GameVersion);
     }
