@@ -59,9 +59,11 @@ public static class HavokThreads
         get
         {
             var cores = PhysicalCoreCount > 0 ? PhysicalCoreCount : Environment.ProcessorCount;
-            return Math.Max(Min, Math.Min(AutoMax, cores - 1));
+            return AutoForCoreCount(cores);
         }
     }
+
+    internal static int AutoForCoreCount(int cores) => Math.Max(Min, Math.Min(AutoMax, cores - 1));
 
     private static readonly bool Linux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
     private static readonly bool Windows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);

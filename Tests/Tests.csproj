@@ -21,6 +21,7 @@
     <!-- Test the self-contained RateLimiter utility in isolation, without pulling
          in the game-dependent Shared patches and their assembly references. -->
     <Compile Include="..\Shared\Tools\RateLimiter.cs" Link="Shared\Tools\RateLimiter.cs" />
+    <Compile Include="..\Shared\Config\IPluginConfig.cs" Link="Shared\Config\IPluginConfig.cs" />
     <!-- Its only game-dependent reference, Common.Logger, is stubbed in the test -->
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
   </ItemGroup>

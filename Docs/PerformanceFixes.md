@@ -297,7 +297,7 @@ loads, which is the way to see what a setting actually asked for.
 ### One worker per physical core
 
 Auto asks for one worker per *physical* core, minus one so the main thread keeps a
-core of its own — on an 8 core / 16 thread host, 7 workers. Physical rather than
+core of its own, capped at 6 — on an 8 core / 16 thread host, 6 workers. Physical rather than
 logical on both platforms: the pool's workers spin between jobs, and a spinning worker
 shares the execution units of its hyper-threading sibling, so counting siblings as
 cores inflates the pool without adding throughput.
@@ -315,8 +315,8 @@ neither can be read the logical count stands in for it.
 Auto never asks for more than 6 workers, on the client and on the server. Several
 servers often run on one host, as cluster nodes or as separate Magnetar instances
 started by Quasar or any other automation, and each pool's workers spin between jobs,
-so pools sized to the whole machine fight over the same cores. With the cap a few
-servers on one host stay bearable without any per-host tuning. A physics heavy world
+so pools sized to the whole machine fight over the same cores. The cap limits that
+contention without per-host tuning. A physics-heavy world
 that has a host to itself can still ask for more with **Manual**.
 
 The Linux side is where an oversized pool was measured to hurt, because there the game
@@ -344,11 +344,10 @@ parallel, ran at the same simulation speed with 2 workers as with 11 (median fra
 against 4.6 ms, 90th percentile 14 against 16 ms).
 
 So on this particular world a smaller pool than Auto's is better still, and a server
-whose load looks like that lattice should set **Manual** and measure. Auto stops at
-one worker per physical core (and 6) because that is the count which cannot be wrong for the
-usual reason — it never counts a sibling thread as a core, and it never takes the last
-core away from the main thread — rather than because it is the optimum for every
-scene. A Manual setting still asks for exactly what it says, and Game asks for nothing.
+whose load looks like that lattice should set **Manual** and measure. Auto does not
+count sibling threads as cores and reserves a core for the main thread, but it is not
+necessarily optimal for every scene. Manual asks for exactly what it says, and Game
+leaves the sizing to Havok.
 Whether the Windows build of the game shows the same trend was not measured, so the
 Windows default is unchanged.
 
