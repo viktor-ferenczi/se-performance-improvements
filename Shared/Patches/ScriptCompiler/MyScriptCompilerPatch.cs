@@ -8,8 +8,6 @@ using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading;
 using HarmonyLib;
 using Shared.Config;
@@ -204,8 +202,29 @@ namespace Shared.Patches
 #endif
             try
             {
-                using (var fileStream = File.OpenWrite(cachePath))
-                    assemblyStream.CopyTo(fileStream);
+                // Write a temp file and move it into place, so a crash mid-write or a
+                // concurrent compile of the same script never leaves a partial cache file
+                var tempPath = $"{cachePath}.{Guid.NewGuid():N}.tmp";
+                try
+                {
+                    using (var fileStream = File.Create(tempPath))
+                        assemblyStream.CopyTo(fileStream);
+
+                    // Same key means same assembly, so a file stored meanwhile by a concurrent compile is kept
+                    try
+                    {
+                        File.Move(tempPath, cachePath);
+                    }
+                    catch (IOException) when (File.Exists(cachePath))
+                    {
+                        // Another compiler stored the same key first.
+                    }
+                }
+                finally
+                {
+                    if (File.Exists(tempPath))
+                        File.Delete(tempPath);
+                }
             }
             catch (IOException e)
             {
@@ -240,62 +259,38 @@ namespace Shared.Patches
             return true;
         }
 
-        private static void XorHashIntoAccumulator(byte[] accumulator, byte[] hash)
-        {
-            for (var i = 0; i < accumulator.Length; i++)
-                accumulator[i] ^= hash[i];
-        }
-
         private static string GetScriptsHash(MyScriptCompiler myScriptCompiler, IEnumerable<Script> scripts)
         {
-            const int size = 20;
-            var hash = new byte[size];
+            return ScriptCacheKey.Compute(GetCacheKeyParts(myScriptCompiler, scripts));
+        }
 
+        private static IEnumerable<string> GetCacheKeyParts(MyScriptCompiler myScriptCompiler, IEnumerable<Script> scripts)
+        {
             // Include the versions of the loaded mod rewriting plugins (currently the implicitly
             // loaded compat ones), so upgrading any of them invalidates the cached assemblies
             var modRewriterVersionsHash = ModRewriterVersions.Hash;
-            if (modRewriterVersionsHash != null)
-                XorHashIntoAccumulator(hash, modRewriterVersionsHash);
+            yield return modRewriterVersionsHash == null ? "" : BitConverter.ToString(modRewriterVersionsHash);
 
-            using (var sha1 = SHA1.Create())
+            // Include .NET version in the hash to prevent loading assemblies compiled on different .NET versions
+            yield return RuntimeInformation.FrameworkDescription;
+
+            // Include the game's build version (the client build version on the client,
+            // the server build version on the dedicated server) to prevent loading assemblies
+            // compiled against a different game build after the game has been updated
+            yield return Common.GameVersion;
+
+            // The symbols are a set, sort them for a stable order
+            var symbols = myScriptCompiler.m_conditionalCompilationSymbols?.OrderBy(symbol => symbol, StringComparer.Ordinal).ToList() ?? new List<string>();
+            yield return symbols.Count.ToString();
+            foreach (var symbol in symbols)
+                yield return symbol;
+
+            // Scripts in compilation order, each with its file name
+            foreach (var script in scripts)
             {
-                // Include .NET version in the hash to prevent loading assemblies compiled on different .NET versions
-                var frameworkVersion = RuntimeInformation.FrameworkDescription;
-                var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(frameworkVersion));
-                XorHashIntoAccumulator(hash, result);
-
-                // Include the game's build version (the client build version on the client,
-                // the server build version on the dedicated server) to prevent loading assemblies
-                // compiled against a different game build after the game has been updated
-                var gameVersion = Common.GameVersion;
-                if (gameVersion != null)
-                {
-                    result = sha1.ComputeHash(Encoding.UTF8.GetBytes(gameVersion));
-                    XorHashIntoAccumulator(hash, result);
-                }
-
-                var conditionalCompilationSymbols = myScriptCompiler.m_conditionalCompilationSymbols;
-                if (conditionalCompilationSymbols != null)
-                {
-                    foreach (var symbol in conditionalCompilationSymbols)
-                    {
-                        result = sha1.ComputeHash(Encoding.UTF8.GetBytes(symbol));
-                        XorHashIntoAccumulator(hash, result);
-                    }
-                }
-
-                foreach (var script in scripts)
-                {
-                    result = sha1.ComputeHash(Encoding.UTF8.GetBytes(script.Code));
-                    XorHashIntoAccumulator(hash, result);
-                }
+                yield return script.Name;
+                yield return script.Code;
             }
-
-            var hexHash = new StringBuilder();
-            for (var i = 0; i < size; i++)
-                hexHash.Append(hash[i].ToString("x2"));
-
-            return hexHash.ToString();
         }
     }
 }
