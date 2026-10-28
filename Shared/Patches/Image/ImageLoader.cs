@@ -8,7 +8,7 @@ using VRage.Render.Image;
 
 namespace Shared.Patches;
 
-// Decodes with the bundled ImageSharp and logs one line per image in debug builds: size,
+// Decodes with the bundled ImageSharp. Debug builds (DEBUG symbol) also log one line per image: size,
 // format, time and a hash of the decoded pixels. The offline comparison in the ledger note
 // uses the same hash, which is how the byte-exact requirement is checked against the game's
 // own decoder and an independent PNG reader.
@@ -18,16 +18,23 @@ public static class ImageLoader
 
     public static IMyImage Load(Stream stream, bool oneChannel, bool headerOnly, string debugName)
     {
+#if DEBUG
         var timer = Stopwatch.StartNew();
         var image = ImageSharpRuntime.Load(stream, oneChannel, headerOnly);
         timer.Stop();
 
+        // Log.IsDebugEnabled is true in every game build, so only the DEBUG symbol keeps the
+        // full-image hash out of release builds (about 1.7 s per face of a 32764² heightmap)
         if (Log.IsDebugEnabled)
             LogLoad(image, headerOnly, debugName, timer.Elapsed.TotalMilliseconds);
 
         return image;
+#else
+        return ImageSharpRuntime.Load(stream, oneChannel, headerOnly);
+#endif
     }
 
+#if DEBUG
     private static void LogLoad(IMyImage image, bool headerOnly, string debugName, double milliseconds)
     {
         if (image == null)
@@ -81,4 +88,5 @@ public static class ImageLoader
 
         return hash;
     }
+#endif
 }
