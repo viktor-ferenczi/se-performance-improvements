@@ -37,6 +37,9 @@ public static class ImageSharpRuntime
     // Simple name given to the loaded copy, must differ from the game's
     private const string RenamedName = "SixLabors.ImageSharp.Performance";
 
+    // Configuration.StreamProcessingBufferSize for decoding, the buffer size Stream.CopyTo uses
+    private const int StreamBufferSize = 81920;
+
     private delegate void CopyPixelDataTo(Span<byte> destination);
 
     private static Assembly assembly;
@@ -78,7 +81,7 @@ public static class ImageSharpRuntime
 
             assembly = loaded;
             Version = loaded.GetName().Version;
-            Log.Info($"ImageSharp: loaded {Version} from {renamed}");
+            Log.Info($"ImageSharp: loaded {Version} from {renamed}, stream buffer {StreamBufferSize} bytes");
             return true;
         }
         catch (Exception ex)
@@ -178,6 +181,12 @@ public static class ImageSharpRuntime
             .MakeGenericMethod(pngMetadata);
         pngColorType = Property(pngMetadata, "ColorType");
         pngColorTypeGrayscale = Enum.Parse(Type(loaded, "SixLabors.ImageSharp.Formats.Png.PngColorType"), "Grayscale");
+
+        // The default 8096 bytes is just below the usual 8 KiB PNG IDAT chunk, so every chunk
+        // is read from the file twice. Configuration.Default belongs to the renamed copy, only
+        // the plugin uses it.
+        var configuration = Type(loaded, "SixLabors.ImageSharp.Configuration");
+        Property(configuration, "StreamProcessingBufferSize").SetValue(Property(configuration, "Default").GetValue(null), StreamBufferSize);
 
         // Image<TPixel>.CopyPixelDataTo(Span<byte>) is bound per decoded image (see Decode),
         // the open generic type is enough here to fail early if it went missing
