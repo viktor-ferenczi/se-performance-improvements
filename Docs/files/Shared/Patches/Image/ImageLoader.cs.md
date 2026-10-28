@@ -11,7 +11,7 @@
 
 ## Purpose
 
-`ImageLoader.Load` is what [`MyImagePatch.cs`](MyImagePatch.cs.md) calls in place of the game's decoder. It times the call into [`ImageSharpRuntime.cs`](ImageSharpRuntime.cs.md) and, when debug logging is on, writes one line per image with the name, size, bits per pixel, time and an FNV-1a hash of the decoded pixel bytes.
+`ImageLoader.Load` is what [`MyImagePatch.cs`](MyImagePatch.cs.md) calls in place of the game's decoder. In a build with the `DEBUG` symbol it times the call into [`ImageSharpRuntime.cs`](ImageSharpRuntime.cs.md) and, when debug logging is on, writes one line per image with the name, size, bits per pixel, time and an FNV-1a hash of the decoded pixel bytes. Release builds only decode: `IsDebugEnabled` is true in every game build, and hashing a 32764² heightmap face takes about 1.7 s.
 
 The hash is the verification tool for this fix. The same function is implemented by the offline comparison tool in the design notes, and the debug postfix in `MyImagePatch` logs the game's own decoder through `LogGameDecoder` in the same format, so two runs (fix off, fix on) can be compared line by line. Every planet map shipped with the game produced identical hashes on both decoders and on an independent PNG reader.
 
@@ -22,8 +22,8 @@ See the "Faster image loading with a newer ImageSharp" section in `Docs/Performa
 | Member | Kind | Description |
 | --- | --- | --- |
 | `Load(Stream, bool, bool, string)` | Static method | Decodes through `ImageSharpRuntime`, timing the call and logging it in debug builds. |
-| `LogGameDecoder` | Static method | Logs an image the game's own decoder produced in the same format, for A/B comparison. |
-| `Hash(IMyImage)` | Static method | FNV-1a 64 bit hash over the raw pixel bytes of an `IMyImage`. |
+| `LogGameDecoder` | Static method (debug builds) | Logs an image the game's own decoder produced in the same format, for A/B comparison. |
+| `Hash(IMyImage)` | Static method (debug builds) | FNV-1a 64 bit hash over the raw pixel bytes of an `IMyImage`. |
 
 ## References
 
