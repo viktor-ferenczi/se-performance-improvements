@@ -10,10 +10,9 @@ namespace ServerPlugin.Config;
 // provided by PluginSdk.Config.PluginConfig.
 //
 // The server defaults come from weighing each option's risk on a server against its
-// gain (SE-635). Left OFF: the conveyor lookup cache, which has hung servers; the two
-// which change what players see or what mods find (LCD surface visibility, functional
-// blocks in projected grids); and the EOS P2P statistics throttle, which works against
-// the game's own throttle and sleeps on the network thread. The PB access fix is ON:
+// gain (SE-635). Left OFF: the conveyor lookup cache, which has hung servers, and the
+// two which change what players see or what mods find (LCD surface visibility,
+// functional blocks in projected grids). The PB access fix is ON:
 // after a faction or admin change it can serve the old access flags for up to two
 // seconds. Everything else defaults ON, including the fixes which only trade eager
 // work for lazy work or replace an algorithm with a faster one of the same result.
@@ -125,9 +124,6 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [BoolOption("Cache conveyor network lookups", Parent = "optional")]
     public bool FixConveyor { get; set => SetField(ref field, value); } = false;
-
-    [BoolOption("Eliminate 98% of EOS P2P network statistics updates (VRage.EOS.MyP2PQoSAdapter.UpdateStats)", Parent = "optional")]
-    public bool FixP2PUpdateStats { get; set => SetField(ref field, value); } = false;
 
     // Client only: the dedicated server has no toolbar updates
     public bool FixToolbar

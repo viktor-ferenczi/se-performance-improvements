@@ -13,7 +13,7 @@
 
 `PerformanceConfig` is the single source of truth for all performance fix toggles on the server. It derives from `PluginSdk.Config.PluginConfig` (which supplies `INotifyPropertyChanged` via `SetField`) and implements [`IPluginConfig.cs`](../../Shared/Config/IPluginConfig.cs.md) so Harmony patches in the `Shared` project can gate on it through [`Common.cs`](../../Shared/Plugin/Common.cs.md).`Config` without any direct reference to the server assembly.
 
-The class is decorated with `[Tab]` and `[Section]` attributes from PluginSdk so Quasar can render a structured admin UI automatically. Properties are grouped into five sections: **Core** (global enable), **World load & networking**, **Simulation**, **Requires server restart**, and **Optional (off by default)**. The "optional" group holds the fixes left off on the server after weighing their server-side risk against their gain (SE-635): the conveyor lookup cache, the block access cache (compiled out), the two that change what players see (LCD surface visibility, projected block disabling) and the EOS P2P statistics throttle. They default to `false` on the server, while everything else defaults to `true`, as it does on the client. Fixes that require a server restart are grouped separately to make the constraint explicit in the UI.
+The class is decorated with `[Tab]` and `[Section]` attributes from PluginSdk so Quasar can render a structured admin UI automatically. Properties are grouped into five sections: **Core** (global enable), **World load & networking**, **Simulation**, **Requires server restart**, and **Optional (off by default)**. The "optional" group holds the fixes left off on the server after weighing their server-side risk against their gain (SE-635): the conveyor lookup cache, the block access cache (compiled out) and the two that change what players see (LCD surface visibility, projected block disabling). They default to `false` on the server, while everything else defaults to `true`, as it does on the client. Fixes that require a server restart are grouped separately to make the constraint explicit in the UI.
 
 Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) to fire `PropertyChanged` on mutation, which [`Plugin.cs`](../Plugin.cs.md) subscribes to in order to persist the updated file immediately via `ConfigStorage.SaveXml`.
 
@@ -30,7 +30,6 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 | `FixConveyor` | Property | Caches conveyor network reachability lookups. Default: `false` (optional). |
 | `FixAccess` | Property | Caches block access rights. Default: `false` (optional). |
 | `FixTerminal` | Property | Skips the PB access walk when nothing it depends on changed. Default: `true`. |
-| `FixP2PUpdateStats` | Property | Throttles the EOS P2P statistics updates. Default: `false` (optional). |
 | `FixMemoryStats` | Property | Reads the process memory size for the statistics once per second. Default: `true`. |
 | `FixTargetGroups` | Property | Refreshes the turret target groups in linear instead of quadratic time. Default: `true`. |
 | `UpgradeImageSharp` | Property | Decodes planet maps and PNG textures with the bundled newer ImageSharp. Default: `true`. |
