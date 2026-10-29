@@ -183,6 +183,7 @@ namespace Shared.Patches
             MyDefinitionIdToStringPatch.Configure();
             MyImagePatch.Configure();
             ScriptRunner.Configure();
+            ScriptRoots.Configure();
             // MyCubeBlockPatch.Configure();
             // MyTerminalBlockPatch.Configure();
 
@@ -209,6 +210,7 @@ namespace Shared.Patches
             MyConveyorLinePatch.Update();
             ScriptRunner.Update();
             ScriptScheduler.Update();
+            ScriptRoots.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
 

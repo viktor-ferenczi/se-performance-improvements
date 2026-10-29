@@ -285,6 +285,13 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = 5f;
 
+    [Checkbox(label: "PB proxies", description: "Hands the scripts that could run off the main thread proxy objects instead of the game objects they use, so their game calls can be checked and their writes delayed. Applies to scripts compiled or loaded afterwards.")]
+    public bool FixScriptProxies
+    {
+        get;
+        set => SetField(ref field, value);
+    } = false;
+
     [Checkbox(label: "PB frame budget", description: "Holds the programmable block runs of a frame to the time budget below and delays the rest to later frames, the longest waiting first. Runs from timers, buttons and other scripts are not delayed, but count against the budget. Needs the per-thread PB instruction counter.")]
     public bool FixScriptScheduler
     {

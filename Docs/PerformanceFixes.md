@@ -320,6 +320,47 @@ run PB scripts once they can run off the main thread; Auto takes the automatic p
 thread count. This version runs the queue on the main thread only, so they have no effect
 yet.
 
+## Proxies for PB scripts
+
+`FixScriptProxies`, off by default, prepares scripts for running off the main thread. A script
+reaches the game only through the roots it is given: `GridTerminalSystem`, `Me`, `Runtime` and
+`IGC`. With the option on, a script that may run off the main thread gets proxy objects behind
+those roots instead of the game objects. Everything the script gets from a proxy is a proxy
+too, so every game call it makes goes through one.
+
+Whether a script may run off the main thread is decided once per script instance, when the
+PB creates it, by scanning the IL of the script assembly. Each game member it calls is looked
+up in `ScriptPolicyTable.cs`, which says for 433 members of the script API what calling them on a
+worker thread would do:
+
+- **pass**: it only reads, or writes only caches of objects of the script's own grid group,
+  like a block's world matrix, which no other thread touches while the script runs. The
+  proxy calls the game.
+- **queue**: a write without a result, like a setter, `SendBroadcastMessage`
+  or `WriteText`. Off the main thread the proxy records the call, with copies of its text and
+  list arguments, and returns; the call is made on the main thread later. A script that sets
+  a property and reads it back in the same run gets the value it set. Other effects of its
+  writes show up a frame later. `WriteText` returns true while queued: the game returns false
+  only while a player edits the text.
+- **main**: anything else, for example a read that fills a cache shared by all grids
+  (`GetProperty`, `DetailedInfo`), sprites (`DrawFrame`), raycasts, IGC unicast and
+  listener registration, inventory transfers and `TryRun`.
+
+A script that calls any main member, or a game member missing from the table, stays on the
+main thread and keeps the game objects. So does a script whose IL can't be read. The table
+was built from the members used by the scripts of a public script collection and classified
+from the decompiled game code. Members that need a worker-safe stand-in of their own are
+main for now; adding stand-ins for the most used ones (`DrawFrame`, `GetProperty`,
+`DetailedInfo`, `AcceptMessage`) would let more scripts leave the main thread.
+
+On the main thread the proxies only forward calls, so with the option on and the scripts
+still on the main thread they behave as before, at the cost of one extra call per game call.
+The option applies to scripts created after it changes: after a recompile or a world load.
+
+With the option on, `MyCubeBlockDefinition.DisplayNameText` takes a lock on the definition,
+because it builds the name in a buffer shared by all blocks of that type, and scripts read it
+through `CustomName` and `DefinitionDisplayNameText`.
+
 ## Less frequent update of block access rights
 
 Caches the result of `MyCubeBlock.GetUserRelationToOwner` and

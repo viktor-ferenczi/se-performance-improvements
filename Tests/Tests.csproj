@@ -27,6 +27,11 @@
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
     <Compile Include="..\Shared\Tools\ScriptCacheKey.cs" Link="Shared\Tools\ScriptCacheKey.cs" />
     <Compile Include="..\Shared\Tools\RunQueue.cs" Link="Shared\Tools\RunQueue.cs" />
+    <Compile Include="..\Shared\Patches\ScriptRunner\ScriptEligibility.cs" Link="Shared\Patches\ScriptEligibility.cs" />
+    <Compile Include="..\Shared\Patches\ScriptRunner\ScriptPolicy.cs" Link="Shared\Patches\ScriptPolicy.cs" />
+    <Compile Include="..\Shared\Patches\ScriptRunner\ScriptPolicyTable.cs" Link="Shared\Patches\ScriptPolicyTable.cs" />
+    <Compile Include="..\Shared\Patches\ScriptRunner\ScriptProxies.cs" Link="Shared\Patches\ScriptProxies.cs" />
+    <Compile Include="..\Shared\Patches\ScriptRunner\ScriptWrites.cs" Link="Shared\Patches\ScriptWrites.cs" />
     <!-- The prepatch needs only Mono.Cecil; the test loads the game's VRage.Library.dll itself -->
     <Compile Include="..\Shared\Patches\ScriptRunner\IlInjectorPrepatch.cs" Link="Shared\Patches\IlInjectorPrepatch.cs" />
   </ItemGroup>
