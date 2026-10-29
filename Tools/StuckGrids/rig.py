@@ -239,9 +239,11 @@ def main():
     )
     started = time.monotonic()
     try:
-        deadline = started + TIMEOUT
+        # run-bench.sh may wait up to two hours for the machine to become free
+        lock_wait = 7200 if args.bench else 0
+        deadline = started + lock_wait + TIMEOUT
         # A probe that failed to build never writes this, and the server would run on
-        if not wait_for("world ready", started + 900):
+        if not wait_for("world ready", started + lock_wait + 900):
             print(f"== no 'world ready' from the probe; see {CONFIG}/info.log")
             return 1
         result = (

@@ -61,7 +61,7 @@ namespace Shared.Patches
         // Gives up after moving this far (300 m), the grids may be stuck some other way
         private const int MaxMoveTicks = 600;
 
-        private sealed class Touch
+        private struct Touch
         {
             public MyCubeGrid A;
             public MyCubeGrid B;
@@ -125,13 +125,14 @@ namespace Shared.Patches
             var key = a.EntityId < b.EntityId ? (a.EntityId, b.EntityId) : (b.EntityId, a.EntityId);
             lock (TouchLock)
             {
-                if (!touches.TryGetValue(key, out var touch))
-                    touches[key] = touch = new Touch { A = a, B = b };
-
+                touches.TryGetValue(key, out var touch);
+                touch.A = a;
+                touch.B = b;
                 touch.Sum += position;
                 touch.Count++;
                 if (distance < touch.Deepest)
                     touch.Deepest = distance;
+                touches[key] = touch;
             }
         }
 
