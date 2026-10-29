@@ -134,7 +134,7 @@ def main() -> int:
             continue
 
         gate = results if case == "default" else []
-        if case == "default":
+        if CASES[case] is not None:
             errors = [ln for ln in text.splitlines() if "Performance" in ln and ("Critical:" in ln or "Error:" in ln)]
             check(gate, not errors, f"{name} {case}: no Performance errors {errors[:2]}")
         if "vanilla" not in states:
