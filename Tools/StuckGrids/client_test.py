@@ -185,12 +185,14 @@ def main():
                 pass
             time.sleep(2)
     finally:
-        if process.poll() is None:
+        # The game may outlive the launcher in its process group
+        try:
             os.killpg(process.pid, signal.SIGTERM)
-            try:
-                process.wait(60)
-            except subprocess.TimeoutExpired:
-                os.killpg(process.pid, signal.SIGKILL)
+            process.wait(60)
+        except ProcessLookupError:
+            pass
+        except subprocess.TimeoutExpired:
+            os.killpg(process.pid, signal.SIGKILL)
 
     print(f"== {result} after {time.monotonic() - started:.0f} s; tables in {probe}")
     for name in ("probe.log", "seconds.tsv"):
