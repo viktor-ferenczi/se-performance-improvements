@@ -46,6 +46,7 @@ the code that implements them is organized.
 - Linear instead of quadratic refresh of turret target groups
 - Less frequent sync of block counts and block access rights; PB access to blocks refreshed only when something changed
 - Disable server-side character footprints and wheel trail tracking
+- Push apart grids stuck inside each other after a collision, like a ship rammed into a station in a no-damage safe zone (server only)
 - Disable functional blocks in projected grids
 - Eliminate the blueprint-not-found log flooding from `GetBlueprintDefinition`
 

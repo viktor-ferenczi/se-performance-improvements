@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<PluginData
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="GitHubPlugin"
+>
+  <Id>stuck-probe</Id>
+  <RepoId>local/stuck-probe</RepoId>
+  <FriendlyName>Stuck grids probe (SE-753 measurement)</FriendlyName>
+  <Author>CometWorks</Author>
+  <Tooltip>Test only: launches a ship into a station and logs the simulation speed and the contacts between them</Tooltip>
+  <Hidden>true</Hidden>
+  <SourceDirectories>
+    <Directory>Source</Directory>
+  </SourceDirectories>
+</PluginData>

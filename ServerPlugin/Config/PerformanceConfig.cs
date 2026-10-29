@@ -91,6 +91,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable tracking of wheel trails on the server, where they are not needed (trails are only visual)", Parent = "simulation")]
     public bool FixWheelTrail { get; set => SetField(ref field, value); } = true;
 
+    [BoolOption("Push apart two grids stuck inside each other after a collision, which costs most of the simulation speed while it lasts, like a ship rammed into a station in a safe zone without damage. Static grids never move", Parent = "simulation")]
+    public bool SeparateStuckGrids { get; set => SetField(ref field, value); } = true;
+
     [BoolOption("Refresh the turret target groups in linear instead of quadratic time", Parent = "simulation")]
     public bool FixTargetGroups { get; set => SetField(ref field, value); } = true;
 

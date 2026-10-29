@@ -295,5 +295,6 @@ public class Plugin : IPlugin, ICommonPlugin
         PatchHelpers.PatchUpdates();
         MyLcdSurfaceComponentPatch.Update();
         MyWheelPatch.Update();
+        StuckGridsPatch.Update();
     }
 }
