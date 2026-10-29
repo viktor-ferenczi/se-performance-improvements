@@ -6,7 +6,8 @@ the client is the server, so the client plugin has to separate the grids itself.
     STUCK_SLOT=18 python3 client_test.py <world dir> [--option NAME=VALUE] [--seconds SECONDS]
                                          [--shots SHOTS]
 
-Needs the Remote plugin checkout (REMOTE_REPO, default se1/plugins/remote) for loading the world.
+Needs the Remote plugin checkout (REMOTE_REPO, default se1/plugins/remote) for loading the world,
+and httpx for its client (uv run --no-project --with httpx python3 client_test.py ...).
 Slot rules: testing/parallel-test-work/README.md in the workspace.
 """
 
@@ -139,9 +140,12 @@ def main():
         "--no-steam", "-appdata", str(APPDATA), "--quality", "minimal", "--resolution", "640x480",
         "--no-audio", "--headless", "--no-render", "--client-id", str(76561199500010000 + 10 * rig.SLOT),
     ]  # fmt: skip
+    runner = rig.PARALLEL / "run-test.sh"
+    # Older workspaces have one lock for both games, and their scripts take no game argument
+    game = ["se1"] if "se1|se2" in runner.read_text() else []
     started = time.monotonic()
     process = subprocess.Popen(
-        [str(rig.PARALLEL / "run-test.sh"), "se1", "4", "--", *launch],
+        [str(runner), *game, "4", "--", *launch],
         cwd=PULSAR,
         env=env,
         stdout=open(APPDATA / "launch.log", "w"),
@@ -181,11 +185,12 @@ def main():
                 pass
             time.sleep(2)
     finally:
-        os.killpg(process.pid, signal.SIGTERM)
-        try:
-            process.wait(60)
-        except subprocess.TimeoutExpired:
-            os.killpg(process.pid, signal.SIGKILL)
+        if process.poll() is None:
+            os.killpg(process.pid, signal.SIGTERM)
+            try:
+                process.wait(60)
+            except subprocess.TimeoutExpired:
+                os.killpg(process.pid, signal.SIGKILL)
 
     print(f"== {result} after {time.monotonic() - started:.0f} s; tables in {probe}")
     for name in ("probe.log", "seconds.tsv"):

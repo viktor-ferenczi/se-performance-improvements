@@ -14,8 +14,9 @@ using VRageMath;
 
 namespace StuckProbe;
 
-// Measurement probe for SE-753 on the dedicated server. Rams a ship (STUCK_SHIP, with its whole
-// physical group) into a station (STUCK_STATION) and measures the simulation speed.
+// Measurement probe for SE-753, on the dedicated server or an offline client. Rams a ship
+// (STUCK_SHIP, with its whole physical group) into a station (STUCK_STATION) and measures the
+// simulation speed.
 //
 // STUCK_SHOTS lists the shots to try, separated by ';', each "x,y,z,dx,dy,dz,speed[,advance]": the
 // station cell aimed at, the direction of flight in the station's own axes, the speed in m/s and

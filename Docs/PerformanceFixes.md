@@ -208,7 +208,7 @@ through the normal position replication. It gives up after 300 m.
 Option `SeparateStuckGrids`, on by default in both plugins. The client plugin does it only
 where the game runs as the server: offline games and the multiplayer games the client
 hosts. A client joined to a remote server leaves it to that server. The repro rig is in
-`Tools/StuckGrids`.
+`Tools/StuckGrids`: `rig.py` on a Magnetar server, `client_test.py` in an offline client.
 
 Measured on a Linux Magnetar server (polaris, alone on the host) with the Octahedron
 Alpha Station in its no-damage safe zone and an IMDC Rhea (40 grids) placed 55 m deep
