@@ -7,7 +7,8 @@ the client is the server, so the client plugin has to separate the grids itself.
                                          [--shots SHOTS]
 
 Needs the Remote plugin checkout (REMOTE_REPO, default se1/plugins/remote) for loading the world,
-and httpx for its client (uv run --no-project --with httpx python3 client_test.py ...).
+and httpx for its client (uv run --no-project --with httpx python3 client_test.py ...). BIN64
+names the game's Bin64 folder on hosts without a Steam client.
 Slot rules: testing/parallel-test-work/README.md in the workspace.
 """
 
@@ -140,6 +141,9 @@ def main():
         "--no-steam", "-appdata", str(APPDATA), "--quality", "minimal", "--resolution", "640x480",
         "--no-audio", "--headless", "--no-render", "--client-id", str(76561199500010000 + 10 * rig.SLOT),
     ]  # fmt: skip
+    # Hosts without a Steam client have no libraryfolders.vdf for Pulsar to find the game in
+    if "BIN64" in os.environ:
+        launch += ["-bin64", os.environ["BIN64"]]
     runner = rig.PARALLEL / "run-test.sh"
     # Older workspaces have one lock for both games, and their scripts take no game argument
     game = ["se1"] if "se1|se2" in runner.read_text() else []
