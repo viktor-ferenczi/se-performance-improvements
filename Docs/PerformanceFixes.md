@@ -281,7 +281,7 @@ wall clock limit per run while `FixScriptCounter` is on. A script over it is sto
 middle of the run like one over the instruction limit, with a message that names the limit,
 and stays stopped until it is recompiled, as in the game.
 
-`ScriptSoftLimitMs` (0.1 to 1000 ms, default 5) is the soft limit. It is checked after each run,
+`ScriptSoftLimitMs` (0.1 to 100 ms, default 5) is the soft limit. It is checked after each run,
 against the time of the script's own code, without the game's work before it such as the
 ownership walk. A script over it in 3 runs in a row is stopped the same way, with its own
 message; a run under it starts the count over. Both limits are wall clock time, so a short

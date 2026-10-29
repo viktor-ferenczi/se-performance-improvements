@@ -126,7 +126,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [FloatOption(0.1f, 1000f, "Longest time a single programmable block run may take, in milliseconds; the game's own limit is 3000. A script over the limit is stopped like one over the instruction limit. Needs the per-thread instruction counter", Parent = "scripts")]
     public float ScriptRunLimitMs { get; set => SetField(ref field, value); } = 100f;
 
-    [FloatOption(0.1f, 1000f, "A programmable block script whose own code runs longer than this, in milliseconds, in 3 runs in a row is stopped; one slow run does not stop it. Needs the per-thread instruction counter", Parent = "scripts")]
+    [FloatOption(0.1f, 100f, "A programmable block script whose own code runs longer than this, in milliseconds, in 3 runs in a row is stopped; one slow run does not stop it. Needs the per-thread instruction counter", Parent = "scripts")]
     public float ScriptSoftLimitMs { get; set => SetField(ref field, value); } = 5f;
 
     [BoolOption("Hold the programmable block runs of a frame to the time budget below and delay the rest to later frames, the longest waiting first. Runs from timers, buttons and other scripts are not delayed, but count against the budget. Needs the per-thread instruction counter", Parent = "scripts")]

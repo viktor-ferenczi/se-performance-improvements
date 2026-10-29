@@ -242,7 +242,7 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = 100f;
 
-    [Slider(0.1f, 1000f, 0.1f, SliderAttribute.SliderType.Float, label: "PB soft run time limit (ms)", description: "A script whose own code runs longer than this in 3 runs in a row is stopped. One slow run does not stop it. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
+    [Slider(0.1f, 100f, 0.1f, SliderAttribute.SliderType.Float, label: "PB soft run time limit (ms)", description: "A script whose own code runs longer than this in 3 runs in a row is stopped. One slow run does not stop it. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
     public float ScriptSoftLimitMs
     {
         get;
