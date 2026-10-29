@@ -134,7 +134,7 @@ public static class ScriptProxies
             && (
                 method.DeclaringType?.IsInterface != true
                 || (method.ReturnType != typeof(void) && method.ReturnType != typeof(bool))
-                || method.IsGenericMethodDefinition
+                || method.IsGenericMethod
                 || method
                     .GetParameters()
                     .Any(p =>
@@ -148,7 +148,7 @@ public static class ScriptProxies
             policy == MemberPolicy.StandIn
             && (
                 method.DeclaringType?.IsInterface != true
-                || method.IsGenericMethodDefinition
+                || method.IsGenericMethod
                 || StandInMethods.Of(method) == null
             )
         )
@@ -483,14 +483,23 @@ public static class ScriptProxies
                 il.Emit(OpCodes.Call, Helper(nameof(WrapAction), action));
         }
         else if (Converts(type))
+        {
+            // The helpers take an object; a type parameter may stand for a value type
+            if (type.IsGenericParameter)
+                il.Emit(OpCodes.Box, type);
             il.Emit(OpCodes.Call, Helper(nameof(UnwrapAs), type));
+        }
     }
 
     // Converts the value on the stack from the game's side to the script's side
     private static void ConvertOut(ILGenerator il, Type type)
     {
         if (Converts(type))
+        {
+            if (type.IsGenericParameter)
+                il.Emit(OpCodes.Box, type);
             il.Emit(OpCodes.Call, Helper(nameof(WrapAs), type));
+        }
     }
 
     // Reference types other than strings, delegates and the lists handled after the call

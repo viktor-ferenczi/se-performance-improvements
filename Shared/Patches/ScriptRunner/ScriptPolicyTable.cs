@@ -189,7 +189,7 @@ Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.GetBroadcastListeners	pass
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.IsEndpointReachable	pass@Igc	-	MyIntergridCommunicationContext.cs:207 IsConnectedTo: locked LRU per context, antenna walk under AntennaLock (IgcStandIn)
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.Me	pass	-	MyIntergridCommunicationContext.cs ProgrammableBlock.EntityId
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.RegisterBroadcastListener	pass@Igc	-	MyIntergridCommunicationContext.cs:248 own set + session component's listeners, locked in the phase (IgcStandIn)
-Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.SendBroadcastMessage	queue	-	MyIntergridCommunicationContext.cs:226 enqueues into global MyIGCSystemSessionComponent queue; run BoxMessage type check at call time so the exception reaches the script
+Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.SendBroadcastMessage	pass@Igc	-	MyIntergridCommunicationContext.cs:226 generic, so it cannot be queued; boxes the message and EnqueueMessage, locked in the phase (IgcStandIn)
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.SendUnicastMessage	pass@Igc	-	MyIntergridCommunicationContext.cs:232 IsConnectedTo (see IsEndpointReachable) and EnqueueMessage, locked in the phase (IgcStandIn)
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.UnicastListener	pass	-	MyIntergridCommunicationContext.cs auto-property read
 Sandbox.ModAPI.Ingame.IMyJumpDrive.CurrentStoredPower	pass	-	MyJumpDrive.cs:350 Sync read
