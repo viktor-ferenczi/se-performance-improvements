@@ -12,6 +12,7 @@ internal class DropdownAttribute : Attribute, IElement
     public readonly int VisibleRows;
     public readonly string Label;
     public readonly string Description;
+    public string EnabledBy { get; }
 
     private static string UnCamelCase(string str)
     {
@@ -26,11 +27,12 @@ internal class DropdownAttribute : Attribute, IElement
         );
     }
 
-    public DropdownAttribute(int visibleRows = 20, string label = null, string description = null)
+    public DropdownAttribute(int visibleRows = 20, string label = null, string description = null, string enabledBy = null)
     {
         VisibleRows = visibleRows;
         Label = label;
         Description = description;
+        EnabledBy = enabledBy;
     }
 
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)

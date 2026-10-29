@@ -8,6 +8,7 @@ namespace ClientPlugin.Settings.Elements;
 internal class SeparatorAttribute : Attribute, IElement
 {
     public readonly string Caption;
+    public string EnabledBy => null;
 
     public SeparatorAttribute(string caption = null)
     {

@@ -12,14 +12,16 @@ internal class ColorAttribute : Attribute, IElement
     public readonly bool HasAlpha;
     public readonly string Label;
     public readonly string Description;
+    public string EnabledBy { get; }
 
     private Color originalBorderColor;
 
-    public ColorAttribute(bool hasAlpha = false, string label = null, string description = null)
+    public ColorAttribute(bool hasAlpha = false, string label = null, string description = null, string enabledBy = null)
     {
         HasAlpha = hasAlpha;
         Label = label;
         Description = description;
+        EnabledBy = enabledBy;
     }
 
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)

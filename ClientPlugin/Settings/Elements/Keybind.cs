@@ -17,14 +17,16 @@ internal class KeybindAttribute : Attribute, IElement
 {
     public readonly string Label;
     public readonly string Description;
+    public string EnabledBy { get; }
 
     private Func<Binding> propertyGetter;
     private Action<Binding> propertySetter;
 
-    public KeybindAttribute(string label = null, string description = null)
+    public KeybindAttribute(string label = null, string description = null, string enabledBy = null)
     {
         Label = label;
         Description = description;
+        EnabledBy = enabledBy;
     }
 
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)

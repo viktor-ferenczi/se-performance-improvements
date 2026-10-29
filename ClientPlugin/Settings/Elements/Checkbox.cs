@@ -8,11 +8,13 @@ class CheckboxAttribute : Attribute, IElement
 {
     public readonly string Label;
     public readonly string Description;
+    public string EnabledBy { get; }
 
-    public CheckboxAttribute(string label = null, string description = null)
+    public CheckboxAttribute(string label = null, string description = null, string enabledBy = null)
     {
         Label = label;
         Description = description;
+        EnabledBy = enabledBy;
     }
 
     public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)

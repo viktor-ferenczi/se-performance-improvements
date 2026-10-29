@@ -16,6 +16,7 @@ internal class AttributeInfo
     public string Name;
     public Func<object> Getter;
     public Action<object> Setter;
+    public Func<bool> IsEnabled;
 }
 
 internal class SettingsGenerator
@@ -24,6 +25,7 @@ internal class SettingsGenerator
 
     private readonly List<AttributeInfo> attributes;
     private List<List<Control>> controls;
+    private List<(Func<bool> IsEnabled, List<Control> Row)> enabledRows = new();
     public SettingsScreen Dialog { get; private set; }
     public Layout ActiveLayout { get; private set; }
 
@@ -47,7 +49,7 @@ internal class SettingsGenerator
         attributes = ExtractAttributes();
         Name = Config.Current.Title;
         ActiveLayout = new None(()=>controls);
-        Dialog = new SettingsScreen(Name, OnRecreateControls, size: ActiveLayout.SettingsPanelSize);
+        Dialog = new SettingsScreen(Name, OnRecreateControls, UpdateEnabled, size: ActiveLayout.SettingsPanelSize);
     }
 
     private List<MyGuiControlBase> OnRecreateControls()
@@ -72,11 +74,45 @@ internal class SettingsGenerator
     private void CreateConfigControls()
     {
         controls = new List<List<Control>>();
+        enabledRows = new List<(Func<bool>, List<Control>)>();
 
         foreach (AttributeInfo info in attributes)
         {
-            controls.Add(info.ElementType.GetControls(info.Name, info.Getter, info.Setter));
+            var row = info.ElementType.GetControls(info.Name, info.Getter, info.Setter);
+            controls.Add(row);
+
+            if (info.IsEnabled != null)
+                enabledRows.Add((info.IsEnabled, row));
         }
+
+        UpdateEnabled();
+    }
+
+    // Called on every update of the dialog, so a row follows its enabling option while the dialog is open
+    private void UpdateEnabled()
+    {
+        foreach (var (isEnabled, row) in enabledRows)
+        {
+            var enabled = isEnabled();
+            foreach (var control in row)
+                control.GuiControl.Enabled = enabled;
+        }
+    }
+
+    private static Func<bool> GetIsEnabled(IElement element, string name)
+    {
+        if (element.EnabledBy == null)
+            return null;
+
+        var propertyInfo = typeof(Config).GetProperty(element.EnabledBy);
+        if (propertyInfo?.PropertyType != typeof(bool))
+        {
+            throw new Exception(
+                $"Element {element.GetType().Name} for {name} is enabled by "
+                + $"{element.EnabledBy}, which is not a bool property of Config");
+        }
+
+        return () => (bool)propertyInfo.GetValue(Config.Current);
     }
 
     private static List<AttributeInfo> ExtractAttributes()
@@ -103,7 +139,8 @@ internal class SettingsGenerator
                         ElementType = element,
                         Name = name,
                         Getter = Getter,
-                        Setter = Setter
+                        Setter = Setter,
+                        IsEnabled = GetIsEnabled(element, name),
                     };
                     config.Add(info);
                 }
@@ -137,7 +174,8 @@ internal class SettingsGenerator
                         ElementType = element,
                         Name = name,
                         Getter = () => method,
-                        Setter = null
+                        Setter = null,
+                        IsEnabled = GetIsEnabled(element, name),
                     };
                     config.Add(info);
                 }
