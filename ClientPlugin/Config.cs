@@ -306,14 +306,14 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = 5f;
 
-    [Dropdown(label: "PB thread count", description: "Auto: the same number as the automatic physics thread count. Manual: exactly the number below. Not used yet: scripts still run on the main thread.")]
+    [Dropdown(label: "PB thread count", description: "Auto: the same number as the automatic physics thread count. Manual: exactly the number below. Used by the PB frame budget for the scripts with proxies, which then run on that many threads, the main thread included.")]
     public ScriptThreadCountMode ScriptThreadCountMode
     {
         get;
         set => SetField(ref field, value);
     } = ScriptThreadCountMode.Auto;
 
-    [Slider(ScriptThreads.Min, ScriptThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "PB threads", description: "Number of programmable block worker threads in the Manual mode. Not used yet: scripts still run on the main thread.", enabledBy: nameof(ScriptThreadCountEditable))]
+    [Slider(ScriptThreads.Min, ScriptThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "PB threads", description: "Number of threads running programmable block scripts in the Manual mode, the main thread included.", enabledBy: nameof(ScriptThreadCountEditable))]
     public int ScriptThreadCount
     {
         get;

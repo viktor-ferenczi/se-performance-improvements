@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using HarmonyLib;
 using Sandbox.Definitions;
+using Sandbox.Game.Entities;
+using Sandbox.Game.Entities.Blocks;
 using Sandbox.ModAPI.Ingame;
 using Shared.Config;
 using Shared.Plugin;
@@ -40,6 +43,12 @@ namespace Shared.Patches
         private sealed class Decision
         {
             public bool Proxied;
+            public bool UsesIgc;
+
+            // The proxied IGC getter, see IgcPrefix
+            public Func<IMyIntergridCommunicationSystem> Igc;
+
+            public bool TypesReady;
         }
 
         private static readonly ConditionalWeakTable<MyGridProgram, Decision> Decisions =
@@ -68,26 +77,58 @@ namespace Shared.Patches
         public static bool IsProxied(Sandbox.ModAPI.IMyGridProgram program) =>
             program is MyGridProgram p && Decisions.TryGetValue(p, out var d) && d.Proxied;
 
-        private static bool Decide(MyGridProgram program) =>
-            Decisions
-                .GetValue(
-                    program,
-                    p =>
-                    {
-                        var proxied = Enabled;
-                        if (proxied)
-                        {
-                            var result = ScriptEligibility.Of(p.GetType().Assembly);
-                            proxied = result.OffMain;
-                            if (!proxied)
-                                Common.Logger.Debug(
-                                    $"PB script stays on the main thread: {string.Join(", ", result.Blocking)}"
-                                );
-                        }
-                        return new Decision { Proxied = proxied };
-                    }
-                )
-                .Proxied;
+        // On the main thread, before a proxied script runs off it. The game creates the IGC
+        // context of a PB on first use, in a dictionary shared by all PBs. The proxy types of the
+        // classes the script will most likely meet are made here once, as making one takes long
+        // enough to push a script's first runs on a worker over the run limits.
+        public static void Prepare(Sandbox.ModAPI.IMyGridProgram program, MyProgrammableBlock pb)
+        {
+            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d))
+                return;
+            if (d.UsesIgc && d.Igc != null)
+                d.Igc();
+            if (d.TypesReady)
+                return;
+            d.TypesReady = true;
+
+            var types = new HashSet<Type> { pb.CubeGrid.GetType(), pb.SlimBlock.GetType() };
+            var blocks = MyCubeGridGroups
+                .Static.Logical.GetGroup(pb.CubeGrid)
+                ?.GroupData.TerminalSystem?.Blocks;
+            if (blocks != null)
+            {
+                foreach (var block in blocks)
+                {
+                    types.Add(block.GetType());
+                    for (var i = 0; i < block.InventoryCount; i++)
+                        types.Add(MyEntityExtensions.GetInventory(block, i)?.GetType());
+                    if (block is IMyTextSurfaceProvider surfaces)
+                        for (var i = 0; i < surfaces.SurfaceCount; i++)
+                            types.Add(surfaces.GetSurface(i)?.GetType());
+                }
+            }
+            foreach (var type in types)
+                if (type != null)
+                    ScriptProxies.Prepare(type);
+        }
+
+        private static bool Decide(MyGridProgram program) => DecisionOf(program).Proxied;
+
+        private static Decision DecisionOf(MyGridProgram program) =>
+            Decisions.GetValue(
+                program,
+                p =>
+                {
+                    if (!Enabled)
+                        return new Decision();
+                    var result = ScriptEligibility.Of(p.GetType().Assembly);
+                    if (!result.OffMain)
+                        Common.Logger.Debug(
+                            $"PB script stays on the main thread: {string.Join(", ", result.Blocking)}"
+                        );
+                    return new Decision { Proxied = result.OffMain, UsesIgc = result.UsesIgc };
+                }
+            );
 
         // The display name of a block definition with a variant is built in a StringBuilder of the
         // definition, shared by every block of that type. Scripts read it through CustomName and
@@ -152,10 +193,14 @@ namespace Shared.Patches
                 ref Func<IMyIntergridCommunicationSystem> value
             )
             {
-                if (value == null || !Decide(__instance))
+                var decision = DecisionOf(__instance);
+                if (value == null || !decision.Proxied)
                     return;
                 var getter = value;
-                value = () => ScriptProxies.WrapAs<IMyIntergridCommunicationSystem>(getter());
+                IMyIntergridCommunicationSystem proxy = null;
+                value = () =>
+                    proxy ??= ScriptProxies.WrapAs<IMyIntergridCommunicationSystem>(getter());
+                decision.Igc = value;
             }
         }
     }

@@ -335,7 +335,8 @@ public interface IPluginConfig : INotifyPropertyChanged
     float ScriptFrameBudgetMs { get; set; }
 
     // Whether the programmable block worker thread count is decided automatically or taken from
-    // ScriptThreadCount. Not used yet: scripts run on the main thread only.
+    // ScriptThreadCount. FixScriptScheduler runs the scripts with proxies (FixScriptProxies) on that
+    // many threads, the main thread included.
     ScriptThreadCountMode ScriptThreadCountMode { get; set; }
 
     // Number of programmable block worker threads in the Manual mode
