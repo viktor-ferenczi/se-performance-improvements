@@ -48,13 +48,16 @@ def prepare(world: Path, options: list[str]) -> tuple[Path, int]:
         )
     legacy = PULSAR / "Legacy"
     sources = legacy / "Sources/sources.xml"
-    # A Pulsar install that never ran the Legacy edition has no sources yet
+    # A Pulsar install that never ran the Legacy edition has no sources yet. The core plugins
+    # (dotnet-compat, linux-compat) come from PluginHub.
     if not sources.exists():
         sources.parent.mkdir(parents=True, exist_ok=True)
         sources.write_text(
             '<?xml version="1.0" encoding="utf-8"?>\n<SourcesConfig><ShowWarning>false</ShowWarning>'
-            "<LocalHubSources /><RemoteHubSources /><RemotePluginSources /><LocalPluginSources />"
-            "<ModSources /></SourcesConfig>\n"
+            "<LocalHubSources /><RemoteHubSources><RemoteHub><Name>PluginHub</Name>"
+            "<Repo>StarCpt/PluginHub</Repo><Branch>main</Branch><Enabled>true</Enabled>"
+            "<Trusted>true</Trusted></RemoteHub></RemoteHubSources><RemotePluginSources />"
+            "<LocalPluginSources /><ModSources /></SourcesConfig>\n"
         )
     rig.register_source(sources, "remote", REMOTE, "Remote.xml")
     rig.register_source(sources, "performance", rig.REPO, "PerformanceClient.xml")
