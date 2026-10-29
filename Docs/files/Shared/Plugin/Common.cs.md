@@ -27,7 +27,7 @@ All patch code reads `Common.Logger`, `Common.Config`, and `Common.Tick` (via `P
 | `Logger` | Static property | The [`IPluginLogger.cs`](../Logging/IPluginLogger.cs.md) extracted from `Plugin.Log`; used by all patch classes. |
 | `Config` | Static property | The [`IPluginConfig.cs`](../Config/IPluginConfig.cs.md) extracted from `Plugin.Config`; gates every patch. |
 | `GameVersion` | Static property | Game version string (including build number) used to detect cache invalidation. |
-| `PluginVersion` | Const string | Plugin version string (`"1.11.22"`); triggers debug dump cleanup when changed. |
+| `PluginVersion` | Const string | Plugin version string; triggers debug dump cleanup when changed. One of the four places a version bump changes, see "Plugin version" in the [README](../../../../README.md#plugin-version). |
 | `DataDir` / `CacheDir` / `DebugDir` | Static properties | Derived filesystem paths under the platform storage directory. |
 | `SetPlugin(ICommonPlugin, string, string)` | Static method | One-time per-process setup: `AttachPlugin`, record game version, derive/clean the storage directories, then `PatchHelpers.Configure()`. Client calls it from `Init`; server from its early bootstrap with a stand-in. |
 | `AttachPlugin(ICommonPlugin)` | Static method | Points `Plugin` / `Logger` / `Config` at the given instance. Called by `SetPlugin`, and again from the server's `Init` to swap the stand-in for the live instance. |

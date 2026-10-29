@@ -166,9 +166,28 @@ For development guidance see [se-dev-skills](https://github.com/viktor-ferenczi/
 
 ### Plugin version
 
-The plugin version lives in `Version.Build.props`, which **is** committed and imported by
-`Directory.Build.props`. Keeping the version separate from the local path overrides means it
-is shared by all contributors and stays under version control. Bump the version there.
+The version is written in four places, and a version bump changes all of them in one commit:
+
+| File | What | Used by |
+|---|---|---|
+| `Version.Build.props` | `<Version>` | local builds (`dotnet build`), imported by `Directory.Build.props` |
+| `ClientPlugin/Plugin.cs` | `AssemblyVersion` and `AssemblyFileVersion` under `#if !LOCAL_BUILD` | the client plugin built from source by Pulsar |
+| `ServerPlugin/Plugin.cs` | the same two attributes | the server plugin built from source by Magnetar |
+| `Shared/Plugin/Common.cs` | `PluginVersion` | both plugins; a change clears the debug files of the old version |
+
+Pulsar and Magnetar compile only the `.cs` files, so they never see `Version.Build.props`. A
+version missing from the `.cs` files goes unnoticed in a local build but ships the old version
+number to the players.
+
+To bump, for example from 1.16.1 to 1.16.2:
+
+```bash
+git grep -l -F 1.16.1 -- Version.Build.props ClientPlugin/Plugin.cs ServerPlugin/Plugin.cs Shared/Plugin/Common.cs | xargs sed -i 's/1\.16\.1/1.16.2/g'
+git grep -n -F 1.16.2 -- Version.Build.props ClientPlugin/Plugin.cs ServerPlugin/Plugin.cs Shared/Plugin/Common.cs
+```
+
+The second command has to list six lines: one in `Version.Build.props` and `Common.cs`, two in
+each `Plugin.cs`.
 
 ### Folder path overrides
 
