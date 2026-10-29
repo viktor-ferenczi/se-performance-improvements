@@ -78,13 +78,6 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Cache compiled scripts", description: "Caches compiled in-game scripts (PB programs) to reduce lag")]
-    public bool CacheScripts
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
     [Checkbox(label: "Disable Mod API statistics", description: "Disable the collection of Mod API call statistics to eliminate the overhead")]
     public bool DisableModApiStatistics
     {
@@ -220,9 +213,9 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Separator("Optional")]
-    [Checkbox(label: "Less frequent update of block access rights", description: "Caches the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason")]
-    public bool FixAccess
+    [Separator("Programmable blocks")]
+    [Checkbox(label: "Cache compiled scripts", description: "Caches compiled in-game scripts (PB programs) to reduce lag")]
+    public bool CacheScripts
     {
         get;
         set => SetField(ref field, value);
@@ -285,6 +278,14 @@ public class Config : IPluginConfig
     } = ScriptThreads.Auto;
 
     public bool ScriptThreadCountEditable => ScriptThreadCountMode == ScriptThreadCountMode.Manual;
+
+    [Separator("Optional")]
+    [Checkbox(label: "Less frequent update of block access rights", description: "Caches the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason")]
+    public bool FixAccess
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     // Server only
     public bool FixTextPanel
