@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using HarmonyLib;
 using Havok;
+using Sandbox;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
@@ -14,8 +15,9 @@ using VRageMath;
 
 namespace StuckProbe;
 
-// Measurement probe for SE-753 on the dedicated server. Rams a ship (STUCK_SHIP, with its whole
-// physical group) into a station (STUCK_STATION) and measures the simulation speed.
+// Measurement probe for SE-753, on the dedicated server or an offline client. Rams a ship
+// (STUCK_SHIP, with its whole physical group) into a station (STUCK_STATION) and measures the
+// simulation speed.
 //
 // STUCK_SHOTS lists the shots to try, separated by ';', each "x,y,z,dx,dy,dz,speed[,advance]": the
 // station cell aimed at, the direction of flight in the station's own axes, the speed in m/s and
@@ -121,6 +123,10 @@ public static class Probe
                 "shot\tsecond\tframes\tupdate_ms\tphysics_ratio\tdistance_m\tspeed_mps\tcontacts\tdeep\tdeepest_m"
             );
         }
+
+        // The world has no player, and the respawn screen pauses an offline game
+        if (MySandboxGame.IsPaused)
+            MySandboxGame.IsPaused = false;
 
         frames++;
         updateTicks += ticks;

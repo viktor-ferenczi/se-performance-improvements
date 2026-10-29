@@ -6,6 +6,7 @@ using Havok;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
+using Sandbox.Game.Multiplayer;
 using Shared.Config;
 using Shared.Logging;
 using Shared.Plugin;
@@ -25,8 +26,9 @@ namespace Shared.Patches
     // deep contact for StuckTicks updates is stuck. The grids which may move (not static and not
     // attached to a static grid) are then moved away from the center of their contact points,
     // StepMeters per update, until they no longer touch, and left to the physics at rest.
-    // Static grids never move. The server moves the grids, the clients follow through the usual
-    // position replication.
+    // Static grids never move. Only the server moves the grids, the clients follow through the
+    // usual position replication. In the client plugin that means offline games and the
+    // multiplayer games the client hosts.
     [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     [HarmonyPatch(typeof(MyGridPhysics))]
@@ -110,7 +112,7 @@ namespace Shared.Patches
         )
         {
             var distance = value.ContactPoint.Distance;
-            if (distance > -TouchDepth)
+            if (distance > -TouchDepth || !Sync.IsServer)
                 return;
 
             var a = value.GetPhysicsBody(0)?.Entity as MyCubeGrid;
@@ -140,7 +142,7 @@ namespace Shared.Patches
         public static void Update()
         {
             Optional.Update();
-            if (!Config.Enabled || !Config.SeparateStuckGrids)
+            if (!Config.Enabled || !Config.SeparateStuckGrids || !Sync.IsServer)
             {
                 Pairs.Clear();
                 return;
