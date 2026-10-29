@@ -251,6 +251,32 @@ profile, hit rate 99.97%.
 
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/24389-performance-frequent-update-of-pb-access-rights-to-blocks)
 
+## Per-thread PB instruction counter and run time limit
+
+`FixScriptCounter`, off by default, needs a restart. It is the groundwork for running
+programmable block scripts off the main thread, and on its own it changes nothing a player
+sees.
+
+The game counts the work of a running script in `VRage.Library.Compiler.IlInjector`: the
+calls it injects into every block of a script, and the allocation tracking of the
+MemorySafe collections, update plain static fields (instructions, call depth, stack limit,
+time baseline, memory, a dead flag and one shared counter handle). Two scripts running at the
+same time on two threads would reset and corrupt each other's counters. With the option on,
+a Cecil prepatch marks those fields `[ThreadStatic]` and gives each thread its own counter
+handle. Script IL does not change, so compiled script caches stay valid, and on the main
+thread the counter behaves exactly as before. The Preloader reads the option from the config
+file itself, since the patch must be in place before the game loads; with the option off it
+leaves `VRage.Library` alone.
+
+`ScriptRunner.Execute` runs a script on the calling thread with the game's own checks and
+limits, so a runaway script on a worker thread is stopped by its own counter. Off the main
+thread it keeps the game's "PB invoked from parallel thread" report from firing, which throws
+on a server where no mod script was ever compiled.
+
+`ScriptRunLimitMs` (1 to 3000, default 3000) replaces the game's 3 s wall clock limit per
+run while `FixScriptCounter` is on. A script over the limit is stopped like one over the
+instruction limit, with a message that names the limit.
+
 ## Less frequent update of block access rights
 
 Caches the result of `MyCubeBlock.GetUserRelationToOwner` and

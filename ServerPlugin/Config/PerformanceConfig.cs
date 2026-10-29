@@ -122,6 +122,12 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Cache the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason", Parent = "optional")]
     public bool FixAccess { get; set => SetField(ref field, value); } = false;
 
+    [BoolOption("Give every thread its own programmable block instruction counter, so scripts can run off the main thread (needs restart)", Parent = "optional")]
+    public bool FixScriptCounter { get; set => SetField(ref field, value); } = false;
+
+    [IntOption(1, 3000, "Longest time a single programmable block run may take, in milliseconds; the game's own limit is 3000. A script over the limit is stopped like one over the instruction limit. Needs the per-thread instruction counter", Parent = "optional")]
+    public int ScriptRunLimitMs { get; set => SetField(ref field, value); } = 3000;
+
     [BoolOption("Disable UpdateVisibility of LCD surfaces on multiplayer servers (disable if LCDs flicker on clients)", Parent = "optional")]
     public bool FixTextPanel { get; set => SetField(ref field, value); } = false;
 

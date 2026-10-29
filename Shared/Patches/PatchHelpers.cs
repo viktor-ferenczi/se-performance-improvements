@@ -182,6 +182,7 @@ namespace Shared.Patches
             MyWindTurbinePatch.Configure();
             MyDefinitionIdToStringPatch.Configure();
             MyImagePatch.Configure();
+            ScriptRunner.Configure();
             // MyCubeBlockPatch.Configure();
             // MyTerminalBlockPatch.Configure();
 
@@ -206,6 +207,7 @@ namespace Shared.Patches
             MyGridTargetingPatch.Update();
             MyEntityPatchForProjection.Update();
             MyConveyorLinePatch.Update();
+            ScriptRunner.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
 

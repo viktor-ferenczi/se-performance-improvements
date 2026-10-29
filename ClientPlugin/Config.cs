@@ -235,6 +235,20 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(label: "Per-thread PB instruction counter (needs restart)", description: "Gives every thread its own programmable block instruction counter, so scripts can run off the main thread. Needs a restart.")]
+    public bool FixScriptCounter
+    {
+        get;
+        set => SetField(ref field, value);
+    } = false;
+
+    [Slider(1f, 3000f, 1f, SliderAttribute.SliderType.Integer, label: "PB run time limit (ms)", description: "Longest time a single programmable block run may take. The game's own limit is 3000 ms. A script over the limit is stopped like one over the instruction limit. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
+    public int ScriptRunLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 3000;
+
     // Server only
     public bool FixTextPanel
     {

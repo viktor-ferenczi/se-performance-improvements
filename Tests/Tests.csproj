@@ -15,6 +15,7 @@
     <PackageReference Include="xunit" Version="2.9.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="Lib.Harmony" Version="2.4.2" />
+    <PackageReference Include="Mono.Cecil" Version="0.11.6" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,6 +26,8 @@
     <!-- Its only game-dependent reference, Common.Logger, is stubbed in the test -->
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
     <Compile Include="..\Shared\Tools\ScriptCacheKey.cs" Link="Shared\Tools\ScriptCacheKey.cs" />
+    <!-- The prepatch needs only Mono.Cecil; the test loads the game's VRage.Library.dll itself -->
+    <Compile Include="..\Shared\Patches\ScriptRunner\IlInjectorPrepatch.cs" Link="Shared\Patches\IlInjectorPrepatch.cs" />
   </ItemGroup>
 
 </Project>
