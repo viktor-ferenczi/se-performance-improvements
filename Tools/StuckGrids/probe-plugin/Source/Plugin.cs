@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using HarmonyLib;
 using Havok;
+using Sandbox;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
@@ -122,6 +123,10 @@ public static class Probe
                 "shot\tsecond\tframes\tupdate_ms\tphysics_ratio\tdistance_m\tspeed_mps\tcontacts\tdeep\tdeepest_m"
             );
         }
+
+        // The world has no player, and the respawn screen pauses an offline game
+        if (MySandboxGame.IsPaused)
+            MySandboxGame.IsPaused = false;
 
         frames++;
         updateTicks += ticks;
