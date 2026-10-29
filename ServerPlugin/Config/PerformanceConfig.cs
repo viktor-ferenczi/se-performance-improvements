@@ -126,7 +126,22 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     public bool FixScriptCounter { get; set => SetField(ref field, value); } = false;
 
     [IntOption(1, 3000, "Longest time a single programmable block run may take, in milliseconds; the game's own limit is 3000. A script over the limit is stopped like one over the instruction limit. Needs the per-thread instruction counter", Parent = "optional")]
-    public int ScriptRunLimitMs { get; set => SetField(ref field, value); } = 3000;
+    public int ScriptRunLimitMs { get; set => SetField(ref field, value); } = 100;
+
+    [IntOption(1, 3000, "A programmable block script whose own code runs longer than this, in milliseconds, in 3 runs in a row is stopped; one slow run does not stop it. Needs the per-thread instruction counter", Parent = "optional")]
+    public int ScriptSoftLimitMs { get; set => SetField(ref field, value); } = 5;
+
+    [BoolOption("Hold the programmable block runs of a frame to the time budget below and delay the rest to later frames, the longest waiting first. Runs from timers, buttons and other scripts are not delayed, but count against the budget. Needs the per-thread instruction counter", Parent = "optional")]
+    public bool FixScriptScheduler { get; set => SetField(ref field, value); } = false;
+
+    [IntOption(1, 100, "Programmable block time per frame, in milliseconds. A run starts only if the time used so far plus the longest of its last 10 run times fits", Parent = "optional")]
+    public int ScriptFrameBudgetMs { get; set => SetField(ref field, value); } = 5;
+
+    [EnumOption("Programmable block thread count: Auto is the same number as the automatic physics thread count; Manual is exactly the number below. Not used yet: scripts still run on the main thread", Parent = "optional")]
+    public ScriptThreadCountMode ScriptThreadCountMode { get; set => SetField(ref field, value); } = ScriptThreadCountMode.Auto;
+
+    [IntOption(ScriptThreads.Min, ScriptThreads.Max, "Number of programmable block worker threads in the Manual mode. Not used yet", Parent = "optional")]
+    public int ScriptThreadCount { get; set => SetField(ref field, value); } = ScriptThreads.Auto;
 
     [BoolOption("Disable UpdateVisibility of LCD surfaces on multiplayer servers (disable if LCDs flicker on clients)", Parent = "optional")]
     public bool FixTextPanel { get; set => SetField(ref field, value); } = false;

@@ -273,9 +273,49 @@ limits, so a runaway script on a worker thread is stopped by its own counter. Of
 thread it keeps the game's "PB invoked from parallel thread" report from firing, which throws
 on a server where no mod script was ever compiled.
 
-`ScriptRunLimitMs` (1 to 3000, default 3000) replaces the game's 3 s wall clock limit per
-run while `FixScriptCounter` is on. A script over the limit is stopped like one over the
-instruction limit, with a message that names the limit.
+`ScriptRunLimitMs` (1 to 3000, default 100) is the hard limit. It replaces the game's 3 s
+wall clock limit per run while `FixScriptCounter` is on. A script over it is stopped in the
+middle of the run like one over the instruction limit, with a message that names the limit,
+and stays stopped until it is recompiled, as in the game.
+
+`ScriptSoftLimitMs` (1 to 3000, default 5) is the soft limit. It is checked after each run,
+against the time of the script's own code, without the game's work before it such as the
+ownership walk. A script over it in 3 runs in a row is stopped the same way, with its own
+message; a run under it starts the count over. Both limits are wall clock time, so a short
+stall of the whole process (a garbage collection, another busy program) counts against every
+run in it. In a test with a 5 ms hard limit, 30 scripts that normally run for 1.4 ms were all
+stopped by one stall of about 100 ms. The soft limit lets a script survive such a stall and
+still stops one that is slow every time.
+
+## PB time budget per frame
+
+`FixScriptScheduler`, off by default, needs `FixScriptCounter`. The game runs every script
+whose update frequency is due, in the after simulation update of its block, with no limit on
+their total time. With the option on, those runs go to a queue instead, and once every entity
+has had its update the queue runs on the main thread until the frame's PB time reaches
+`ScriptFrameBudgetMs` (1 to 100, default 5). The runs left over wait for the next frame. A
+PB due again while it waits still runs once, with the update types of all its due runs, the
+way the game merges them too.
+
+The queue runs the PBs passed over the most times first, in random order among equal waits,
+so with N PBs due and room for K runs a frame, no PB waits much longer than N/K frames. A run
+starts only if the time used so far plus the longest of that PB's last 10 run times fits the
+budget. A PB with no run times yet reserves nothing, and the first run of a frame always
+starts, so the queue moves even when other work used the budget up. A run can therefore end
+past the budget, by at most one run limit. Runs that come from timers, buttons, IGC
+callbacks, other scripts (`TryRun`), mods and players are not delayed, since `TryRun` returns
+the result of the run, but their time counts against the budget.
+
+The run limit is not lowered when the budget can't keep up: a script stopped by the limit
+loses its state and stays stopped until a player recompiles it. Scripts run less often
+instead. When a PB waited more than 10 frames in a row, a warning in the log says, once a
+minute, how many frames were over, how many runs were due and ran per frame, the longest
+wait, and the PB time per frame.
+
+`ScriptThreadCountMode` (Auto or Manual) and `ScriptThreadCount` set how many threads will
+run PB scripts once they can run off the main thread; Auto takes the automatic physics
+thread count. This version runs the queue on the main thread only, so they have no effect
+yet.
 
 ## Less frequent update of block access rights
 
