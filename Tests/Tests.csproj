@@ -33,6 +33,7 @@
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptPolicyTable.cs" Link="Shared\Patches\ScriptPolicyTable.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptProxies.cs" Link="Shared\Patches\ScriptProxies.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptWrites.cs" Link="Shared\Patches\ScriptWrites.cs" />
+    <Compile Include="..\Shared\Patches\ScriptRunner\StandIn.cs" Link="Shared\Patches\StandIn.cs" />
     <!-- The prepatch needs only Mono.Cecil; the test loads the game's VRage.Library.dll itself -->
     <Compile Include="..\Shared\Patches\ScriptRunner\IlInjectorPrepatch.cs" Link="Shared\Patches\IlInjectorPrepatch.cs" />
     <!-- The game's PB whitelist, made by Tools/PbProfile/whitelist.py -->

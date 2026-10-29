@@ -144,6 +144,15 @@ public static class ScriptProxies
             )
         )
             return MemberPolicy.Main;
+        if (
+            policy == MemberPolicy.StandIn
+            && (
+                method.DeclaringType?.IsInterface != true
+                || method.IsGenericMethodDefinition
+                || StandInMethods.Of(ScriptPolicy.MemberName(method)) == null
+            )
+        )
+            return MemberPolicy.Main;
         return policy;
     }
 
@@ -302,7 +311,25 @@ public static class ScriptProxies
             il.Emit(OpCodes.Ldarg, i + 1);
             ConvertIn(il, parameterTypes[i]);
         }
-        il.Emit(OpCodes.Callvirt, target);
+        // Off the main thread a stand-in takes the same arguments, the game object first
+        if (PolicyOf(method) == MemberPolicy.StandIn && !writers.ContainsKey(method))
+        {
+            var standIn = StandInMethods.Of(ScriptPolicy.MemberName(method));
+            var virtualCall = il.DefineLabel();
+            var called = il.DefineLabel();
+            il.Emit(
+                OpCodes.Call,
+                typeof(ScriptWrites).GetProperty(nameof(ScriptWrites.Active)).GetMethod
+            );
+            il.Emit(OpCodes.Brfalse, virtualCall);
+            il.Emit(OpCodes.Call, standIn);
+            il.Emit(OpCodes.Br, called);
+            il.MarkLabel(virtualCall);
+            il.Emit(OpCodes.Callvirt, target);
+            il.MarkLabel(called);
+        }
+        else
+            il.Emit(OpCodes.Callvirt, target);
 
         var result = returnType == typeof(void) ? null : il.DeclareLocal(returnType);
         if (result != null)
@@ -346,7 +373,7 @@ public static class ScriptProxies
     {
         var policy = writers.ContainsKey(method) ? MemberPolicy.Queue : PolicyOf(method);
         var readBack = policy == MemberPolicy.Pass ? ReadBackSetter(iface, method, writers) : -1;
-        if (policy == MemberPolicy.Pass && readBack < 0)
+        if (policy == MemberPolicy.Pass && readBack < 0 || policy == MemberPolicy.StandIn)
             return;
 
         var forward = il.DefineLabel();

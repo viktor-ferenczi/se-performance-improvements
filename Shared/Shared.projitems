@@ -59,6 +59,8 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptWrites.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptScheduler.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptStandIns.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\StandIn.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyGridTargetingPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />

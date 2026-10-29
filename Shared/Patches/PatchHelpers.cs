@@ -211,6 +211,7 @@ namespace Shared.Patches
             ScriptRunner.Update();
             ScriptScheduler.Update();
             ScriptRoots.Update();
+            ScriptStandIns.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
 

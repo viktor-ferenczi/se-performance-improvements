@@ -18,19 +18,27 @@ public enum MemberPolicy
     // A write without a result, or with a bool result that is true (WriteText): recorded on the
     // worker, applied on the main thread afterwards
     Queue,
+
+    // Off the main thread the proxy calls a replacement made for workers instead, see
+    // StandInForAttribute
+    StandIn,
 }
 
 // The policy of each game member for scripts running off the main thread, from the table in
-// ScriptPolicyTable. A policy other than pass and queue reads as main.
+// ScriptPolicyTable. A policy other than pass, queue and standin reads as main. A policy may
+// name the mechanism it relies on after an @, like pass@Terminal: then a script calling the
+// member runs off the main thread only while that mechanism is on (StandIn).
 public static class ScriptPolicy
 {
-    private static Dictionary<string, (MemberPolicy Get, MemberPolicy Set)> table =
-        new Dictionary<string, (MemberPolicy, MemberPolicy)>();
+    private static Dictionary<
+        string,
+        (MemberPolicy Get, MemberPolicy Set, StandIn GetNeeds, StandIn SetNeeds)
+    > table = new Dictionary<string, (MemberPolicy, MemberPolicy, StandIn, StandIn)>();
 
     // Replaces the table, for the plugin at startup and for tests
     public static void Load(TextReader reader)
     {
-        var loaded = new Dictionary<string, (MemberPolicy, MemberPolicy)>();
+        var loaded = new Dictionary<string, (MemberPolicy, MemberPolicy, StandIn, StandIn)>();
         string line;
         while ((line = reader.ReadLine()) != null)
         {
@@ -39,7 +47,9 @@ public static class ScriptPolicy
             var columns = line.Split('\t');
             if (columns.Length < 3)
                 continue;
-            loaded[columns[0].Trim()] = (Parse(columns[1]), Parse(columns[2]));
+            var (get, getNeeds) = Parse(columns[1]);
+            var (set, setNeeds) = Parse(columns[2]);
+            loaded[columns[0].Trim()] = (get, set, getNeeds, setNeeds);
         }
         table = loaded;
     }
@@ -50,25 +60,41 @@ public static class ScriptPolicy
 
     private static readonly string[] AccessorPrefixes = { "get_", "set_", "add_", "remove_" };
 
-    private static MemberPolicy Parse(string text)
+    private static (MemberPolicy, StandIn) Parse(string text)
     {
-        switch (text.Trim())
+        text = text.Trim();
+        var needs = StandIn.None;
+        var at = text.IndexOf('@');
+        if (at >= 0)
+        {
+            if (!Enum.TryParse(text.Substring(at + 1), out needs))
+                return (MemberPolicy.Main, StandIn.None);
+            text = text.Substring(0, at);
+        }
+        switch (text)
         {
             case "pass":
-                return MemberPolicy.Pass;
+                return (MemberPolicy.Pass, needs);
             case "queue":
-                return MemberPolicy.Queue;
+                return (MemberPolicy.Queue, needs);
+            case "standin":
+                return (MemberPolicy.StandIn, needs);
             default:
-                return MemberPolicy.Main;
+                return (MemberPolicy.Main, StandIn.None);
         }
     }
 
     // The policy of a method, a property accessor or an event accessor
-    public static MemberPolicy Of(MethodBase method)
+    public static MemberPolicy Of(MethodBase method) => Lookup(method).Policy;
+
+    // The mechanism the policy of a member relies on
+    public static StandIn NeedsOf(MethodBase method) => Lookup(method).Needs;
+
+    private static (MemberPolicy Policy, StandIn Needs) Lookup(MethodBase method)
     {
         var type = method.DeclaringType;
         if (type == null)
-            return MemberPolicy.Main;
+            return (MemberPolicy.Main, StandIn.None);
 
         var name = method.Name;
         var setter = false;
@@ -84,9 +110,22 @@ public static class ScriptPolicy
             }
         }
 
-        if (!table.TryGetValue($"{TypeName(type)}.{name}", out var policy))
-            return MemberPolicy.Main;
-        return setter ? policy.Set : policy.Get;
+        if (!table.TryGetValue(MemberName(type, name), out var policy))
+            return (MemberPolicy.Main, StandIn.None);
+        return setter ? (policy.Set, policy.SetNeeds) : (policy.Get, policy.GetNeeds);
+    }
+
+    public static string MemberName(Type type, string name) => $"{TypeName(type)}.{name}";
+
+    // The table name of the member a method belongs to: get_X and set_X are both X
+    public static string MemberName(MethodBase method)
+    {
+        var name = method.Name;
+        if (method.IsSpecialName)
+            foreach (var prefix in AccessorPrefixes)
+                if (name.StartsWith(prefix))
+                    return MemberName(method.DeclaringType, name.Substring(prefix.Length));
+        return MemberName(method.DeclaringType, name);
     }
 
     // Namespace and name, without generic arity or arguments, nested types joined with a dot

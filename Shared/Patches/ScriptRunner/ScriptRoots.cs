@@ -45,6 +45,13 @@ namespace Shared.Patches
             public bool Proxied;
             public bool UsesIgc;
 
+            // Why not proxied: null if the proxies were off when the script was created
+            public string[] Blocking;
+
+            // The mechanisms a proxied script needs off the main thread, see ScriptEligibility
+            public StandIn Needs;
+            public string[] Needing;
+
             // The proxied IGC getter, see IgcPrefix
             public Func<IMyIntergridCommunicationSystem> Igc;
 
@@ -76,6 +83,33 @@ namespace Shared.Patches
         // True if this script instance runs with proxies behind its roots
         public static bool IsProxied(Sandbox.ModAPI.IMyGridProgram program) =>
             program is MyGridProgram p && Decisions.TryGetValue(p, out var d) && d.Proxied;
+
+        // Where a script may run now: -1 on the main thread for good (no proxies), otherwise the
+        // mechanisms it needs that are off (StandIn), 0 if none, when it may run off the main thread
+        public static int State(Sandbox.ModAPI.IMyGridProgram program)
+        {
+            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d) || !d.Proxied)
+                return -1;
+            return (int)(d.Needs & ~ScriptStandIns.Active);
+        }
+
+        // The reason behind State, for ScriptLogThreadDecisions
+        public static string Explain(Sandbox.ModAPI.IMyGridProgram program)
+        {
+            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d))
+                return "main thread: created before PB proxies were on";
+            if (!d.Proxied)
+                return d.Blocking == null
+                    ? "main thread: created while PB proxies were off"
+                    : $"main thread: calls {string.Join(", ", d.Blocking)}";
+            var uses = d.Needing.Length == 0 ? "" : $" ({string.Join("; ", d.Needing)})";
+            var missing = d.Needs & ~ScriptStandIns.Active;
+            if (missing != StandIn.None)
+                return $"main thread: needs {ScriptStandIns.Names(missing)}, which are off{uses}";
+            return d.Needs == StandIn.None
+                ? "off the main thread"
+                : $"off the main thread, with {ScriptStandIns.Names(d.Needs)}{uses}";
+        }
 
         // On the main thread, before a proxied script runs off it. The game creates the IGC
         // context of a PB on first use, in a dictionary shared by all PBs. The proxy types of the
@@ -126,7 +160,14 @@ namespace Shared.Patches
                         Common.Logger.Debug(
                             $"PB script stays on the main thread: {string.Join(", ", result.Blocking)}"
                         );
-                    return new Decision { Proxied = result.OffMain, UsesIgc = result.UsesIgc };
+                    return new Decision
+                    {
+                        Proxied = result.OffMain,
+                        UsesIgc = result.UsesIgc,
+                        Blocking = result.Blocking,
+                        Needs = result.Needs,
+                        Needing = result.Needing,
+                    };
                 }
             );
 

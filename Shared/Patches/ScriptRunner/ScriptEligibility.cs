@@ -10,9 +10,11 @@ namespace Shared.Patches;
 // Decides from a compiled script's IL whether the script can run off the main thread (SE-626).
 //
 // Every method the script calls is looked up: one of the game's (not of the .NET libraries or
-// of the script itself) must have the pass or queue policy, unless its type is plain data (a
-// value type, VRageMath, the ini and command line parsers). A script calling anything else keeps
-// running on the main thread. The scan reads the IL once per script assembly.
+// of the script itself) must have the pass, queue or standin policy, unless its type is plain
+// data (a value type, VRageMath, the ini and command line parsers). A script calling anything
+// else keeps running on the main thread. The mechanisms (StandIn) the policies of its calls rely
+// on are collected in Needs: the script runs off the main thread only while all of them are on.
+// The scan reads the IL once per script assembly.
 public static class ScriptEligibility
 {
     public sealed class Result
@@ -24,6 +26,12 @@ public static class ScriptEligibility
 
         // Whether the script reads MyGridProgram.IGC
         public bool UsesIgc;
+
+        // The mechanisms the script needs off the main thread
+        public StandIn Needs;
+
+        // The members needing them, at most MaxListed per mechanism, like "Terminal: GetProperty"
+        public string[] Needing;
     }
 
     private const int MaxListed = 5;
@@ -52,6 +60,8 @@ public static class ScriptEligibility
     private static Result Scan(Assembly assembly)
     {
         var blocking = new SortedSet<string>();
+        var needing = new SortedDictionary<StandIn, SortedSet<string>>();
+        var needs = StandIn.None;
         var usesIgc = false;
         try
         {
@@ -69,10 +79,17 @@ public static class ScriptEligibility
                     usesIgc |=
                         called.Name == "get_IGC"
                         && called.DeclaringType?.FullName == "Sandbox.ModAPI.Ingame.MyGridProgram";
-                    if (!Allowed(called, assembly))
+                    if (!Allowed(called, assembly, out var calledNeeds))
                         blocking.Add(
                             $"{ScriptPolicy.TypeName(called.DeclaringType)}.{called.Name}"
                         );
+                    else if (calledNeeds != StandIn.None)
+                    {
+                        needs |= calledNeeds;
+                        if (!needing.TryGetValue(calledNeeds, out var members))
+                            needing[calledNeeds] = members = new SortedSet<string>();
+                        members.Add($"{called.DeclaringType.Name}.{called.Name}");
+                    }
                 }
             }
         }
@@ -86,6 +103,10 @@ public static class ScriptEligibility
             OffMain = blocking.Count == 0,
             Blocking = blocking.Take(MaxListed).ToArray(),
             UsesIgc = usesIgc,
+            Needs = needs,
+            Needing = needing
+                .Select(n => $"{n.Key}: {string.Join(", ", n.Value.Take(MaxListed))}")
+                .ToArray(),
         };
     }
 
@@ -96,8 +117,9 @@ public static class ScriptEligibility
         | BindingFlags.Static
         | BindingFlags.DeclaredOnly;
 
-    private static bool Allowed(MethodBase called, Assembly script)
+    private static bool Allowed(MethodBase called, Assembly script, out StandIn needs)
     {
+        needs = StandIn.None;
         var type = called.DeclaringType;
         if (type == null || type.Assembly == script || IsLibrary(type.Assembly))
             return true;
@@ -122,7 +144,10 @@ public static class ScriptEligibility
         var policy = called is MethodInfo method
             ? ScriptProxies.PolicyOf(method)
             : ScriptPolicy.Of(called);
-        return policy == MemberPolicy.Pass || policy == MemberPolicy.Queue;
+        if (policy == MemberPolicy.Main)
+            return false;
+        needs = ScriptPolicy.NeedsOf(called);
+        return true;
     }
 
     private static bool IsLibrary(Assembly assembly)
