@@ -184,6 +184,7 @@ namespace Shared.Patches
             MyImagePatch.Configure();
             ScriptRunner.Configure();
             ScriptRoots.Configure();
+            ScriptStandIns.Configure();
             // MyCubeBlockPatch.Configure();
             // MyTerminalBlockPatch.Configure();
 

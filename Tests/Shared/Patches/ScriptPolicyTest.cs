@@ -172,6 +172,30 @@ namespace Tests.Shared.Patches
         }
 
         [Fact]
+        public void LaterCallsReplayInOrderWithTheWrites()
+        {
+            var (lamp, proxy) = Make();
+            var blinksSeen = -1;
+            var log = new ScriptWrites();
+            log.Begin();
+            try
+            {
+                proxy.Blink(1);
+                ScriptWrites.Later(() => blinksSeen = lamp.Blinks);
+                proxy.Blink(1);
+            }
+            finally
+            {
+                ScriptWrites.End();
+            }
+
+            Assert.Equal(-1, blinksSeen);
+            log.Replay(e => throw e);
+            Assert.Equal(1, blinksSeen);
+            Assert.Equal(2, lamp.Blinks);
+        }
+
+        [Fact]
         public void QueuedBoolMethodsReturnTrue()
         {
             var (lamp, proxy) = Make();

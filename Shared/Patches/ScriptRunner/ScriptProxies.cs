@@ -149,7 +149,7 @@ public static class ScriptProxies
             && (
                 method.DeclaringType?.IsInterface != true
                 || method.IsGenericMethodDefinition
-                || StandInMethods.Of(ScriptPolicy.MemberName(method)) == null
+                || StandInMethods.Of(method) == null
             )
         )
             return MemberPolicy.Main;
@@ -314,7 +314,7 @@ public static class ScriptProxies
         // Off the main thread a stand-in takes the same arguments, the game object first
         if (PolicyOf(method) == MemberPolicy.StandIn && !writers.ContainsKey(method))
         {
-            var standIn = StandInMethods.Of(ScriptPolicy.MemberName(method));
+            var standIn = StandInMethods.Of(method);
             var virtualCall = il.DefineLabel();
             var called = il.DefineLabel();
             il.Emit(

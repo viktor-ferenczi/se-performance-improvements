@@ -82,6 +82,12 @@ public sealed class ScriptWrites
         }
     }
 
+    // Called by a stand-in: makes the call on the main thread at replay, in order with the others
+    public static void Later(Action call)
+    {
+        current.calls.Add((-1, call, null));
+    }
+
     public static Exception Refuse(string member) =>
         new InvalidOperationException(
             $"{member} is not available to programmable block scripts running off the main thread"
@@ -94,7 +100,10 @@ public sealed class ScriptWrites
         {
             try
             {
-                ScriptProxies.Write(writer, target, args);
+                if (writer < 0)
+                    ((Action)target)();
+                else
+                    ScriptProxies.Write(writer, target, args);
             }
             catch (Exception e)
             {

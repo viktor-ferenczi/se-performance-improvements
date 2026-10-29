@@ -59,33 +59,33 @@ public sealed class StandInForAttribute : Attribute
     }
 }
 
-// Marks a Harmony patch class a mechanism needs; it is applied only while the mechanism is
-// wanted (ScriptStandIns.Wanted). Its Prepare must return ScriptStandIns.Prepare(its type).
-[AttributeUsage(AttributeTargets.Class)]
-public sealed class StandInPatchAttribute : Attribute
-{
-    public readonly StandIn StandIn;
-
-    public StandInPatchAttribute(StandIn standIn)
-    {
-        StandIn = standIn;
-    }
-}
-
 // The stand-in methods by the member they replace
 public static class StandInMethods
 {
-    private static Dictionary<string, MethodInfo> methods;
+    private static Dictionary<string, List<MethodInfo>> methods;
 
-    // The stand-in method of an interface member, by its policy table name, or null
-    public static MethodInfo Of(string member)
+    // The stand-in of an interface method: one for its member whose parameters are the
+    // interface and the method's own, and with the same return type; null if none
+    public static MethodInfo Of(MethodInfo member)
     {
         methods ??= typeof(StandInMethods)
             .Assembly.GetTypes()
             .SelectMany(t => t.GetMethods(BindingFlags.Public | BindingFlags.Static))
             .Select(m => (Method: m, For: m.GetCustomAttribute<StandInForAttribute>()))
             .Where(x => x.For != null)
-            .ToDictionary(x => x.For.Member, x => x.Method);
-        return methods.TryGetValue(member, out var method) ? method : null;
+            .GroupBy(x => x.For.Member)
+            .ToDictionary(g => g.Key, g => g.Select(x => x.Method).ToList());
+        if (!methods.TryGetValue(ScriptPolicy.MemberName(member), out var candidates))
+            return null;
+
+        var parameters = member.GetParameters().Select(p => p.ParameterType).ToArray();
+        return candidates.FirstOrDefault(m =>
+        {
+            var own = m.GetParameters();
+            return own.Length == parameters.Length + 1
+                && own[0].ParameterType.IsAssignableFrom(member.DeclaringType)
+                && own.Skip(1).Select(p => p.ParameterType).SequenceEqual(parameters)
+                && m.ReturnType == member.ReturnType;
+        });
     }
 }

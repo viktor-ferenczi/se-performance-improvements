@@ -56,6 +56,9 @@ namespace Shared.Patches
             public Func<IMyIntergridCommunicationSystem> Igc;
 
             public bool TypesReady;
+
+            // The game made the PB's IGC context, see Prepare
+            public bool IgcReady;
         }
 
         private static readonly ConditionalWeakTable<MyGridProgram, Decision> Decisions =
@@ -93,6 +96,15 @@ namespace Shared.Patches
             return (int)(d.Needs & ~ScriptStandIns.Active);
         }
 
+        // Whether a script's first use of IGC off the main thread is safe: its context was made
+        // on the main thread, or the IGC stand-in serializes making it
+        public static bool Prepared(Sandbox.ModAPI.IMyGridProgram program) =>
+            !(program is MyGridProgram p)
+            || !Decisions.TryGetValue(p, out var d)
+            || !d.UsesIgc
+            || d.IgcReady
+            || (ScriptStandIns.Active & StandIn.Igc) != 0;
+
         // The reason behind State, for ScriptLogThreadDecisions
         public static string Explain(Sandbox.ModAPI.IMyGridProgram program)
         {
@@ -120,7 +132,10 @@ namespace Shared.Patches
             if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d))
                 return;
             if (d.UsesIgc && d.Igc != null)
+            {
                 d.Igc();
+                d.IgcReady = true;
+            }
             if (d.TypesReady)
                 return;
             d.TypesReady = true;

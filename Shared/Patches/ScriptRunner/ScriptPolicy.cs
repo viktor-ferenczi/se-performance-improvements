@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace Shared.Patches;
@@ -57,6 +58,14 @@ public static class ScriptPolicy
     public static void LoadDefault() => Load(new StringReader(ScriptPolicyTable.Text));
 
     public static int Count => table.Count;
+
+    // The members with a standin policy
+    public static IEnumerable<string> StandInMembers() =>
+        table
+            .Where(row =>
+                row.Value.Get == MemberPolicy.StandIn || row.Value.Set == MemberPolicy.StandIn
+            )
+            .Select(row => row.Key);
 
     private static readonly string[] AccessorPrefixes = { "get_", "set_", "add_", "remove_" };
 

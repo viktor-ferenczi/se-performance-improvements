@@ -148,13 +148,18 @@ namespace Shared.Patches
             RunQueue<MyProgrammableBlock>.DrainResult result;
             var parallel = Parallel ? ParallelRuns : null;
             if (parallel != null)
+            {
                 parallel.Threads = Threads;
+                ScriptStandIns.BeforePhase();
+                ScriptStandIns.InPhase = true;
+            }
             try
             {
                 result = Queue.Drain(usedTicks, BudgetTicks, RunBlock, Clock, parallel);
             }
             finally
             {
+                ScriptStandIns.InPhase = false;
                 draining = false;
                 usedTicks = 0;
                 ApplyFinished();
@@ -260,12 +265,14 @@ namespace Shared.Patches
 
             string response;
             writes.Begin();
+            ScriptStandIns.CurrentGroup = MyCubeGridGroups.Static.Logical.GetGroup(pb.CubeGrid);
             try
             {
                 ScriptRunner.Execute(pb, string.Empty, (UpdateType)updateType, out response);
             }
             finally
             {
+                ScriptStandIns.CurrentGroup = null;
                 ScriptWrites.End();
             }
 
