@@ -183,10 +183,10 @@ def main():
                 break
             # An XML-only save stops on an INFO box ("file format of this world is outdated")
             try:
-                if (
-                    not api.get_state().get("ready")
-                    and api.get_screen(0).get("type") == "MyGuiScreenMessageBox"
-                ):
+                if api.get_state().get("ready"):
+                    # The world has no player, and the respawn screen pauses an offline game
+                    api.unpause()
+                elif api.get_screen(0).get("type") == "MyGuiScreenMessageBox":
                     api.control_click("OK")
             except Exception:  # noqa: BLE001 -- no screen or no API yet
                 pass
