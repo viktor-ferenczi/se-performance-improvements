@@ -184,6 +184,7 @@ public class Plugin : IPlugin, ICommonPlugin
     {
         // TODO: Put your update code here. It is called on every simulation frame!
         PatchHelpers.PatchUpdates();
+        StuckGridsPatch.Update();
     }
 
     // ReSharper disable once UnusedMember.Global

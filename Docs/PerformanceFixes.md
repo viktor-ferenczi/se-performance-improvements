@@ -192,7 +192,7 @@ block breaks, so nothing lets the two grids come apart, and Havok solves the dee
 penetration again on every physics step for as long as it lasts. Large collisions
 elsewhere can do the same for a while.
 
-The server plugin hooks the grids' contact point callback
+The plugin hooks the grids' contact point callback
 (`MyGridPhysics.RigidBody_ContactPointCallbackImpl`), which reports how deep each
 contact is. Static grids get no callback, so every contact with a station comes from the
 ship's side. A pair of grids with contact points deeper than 0.5 m on 60 updates, with no
@@ -205,7 +205,10 @@ moves more, by the inverse of their masses. Grids in the same physical group (ro
 pistons, connectors) are left alone. The server moves the grids, the clients see it
 through the normal position replication. It gives up after 300 m.
 
-Server only, option `SeparateStuckGrids`. The repro rig is in `Tools/StuckGrids`.
+Option `SeparateStuckGrids`, on by default in both plugins. The client plugin does it only
+where the game runs as the server: offline games and the multiplayer games the client
+hosts. A client joined to a remote server leaves it to that server. The repro rig is in
+`Tools/StuckGrids`.
 
 Measured on a Linux Magnetar server (polaris, alone on the host) with the Octahedron
 Alpha Station in its no-damage safe zone and an IMDC Rhea (40 grids) placed 55 m deep

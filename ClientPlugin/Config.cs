@@ -163,12 +163,12 @@ public class Config : IPluginConfig
         set { }
     }
 
-    // Server only
+    [Checkbox(label: "Separate stuck grids", description: "Pushes apart grids stuck inside each other after a collision, like a ship rammed into a station in a no-damage safe zone. Only in offline games and multiplayer games hosted by this client.")]
     public bool SeparateStuckGrids
     {
-        get => false;
-        set { }
-    }
+        get;
+        set => SetField(ref field, value);
+    } = true;
 
     [Checkbox(label: "Fix turret target groups", description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)")]
     public bool FixTargetGroups
