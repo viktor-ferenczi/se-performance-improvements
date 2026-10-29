@@ -109,6 +109,8 @@ def stop(group: int | None) -> None:
 
 def configure(world: Path, performance: bool) -> None:
     CONFIG.mkdir(parents=True, exist_ok=True)
+    # Magnetar keeps a DevFolder build across runs even after its sources changed
+    shutil.rmtree(CONFIG / "DevFolder", ignore_errors=True)
     if not (CONFIG / "Sources").exists():
         shutil.copytree(MAGNETAR / "Magnetar/Sources", CONFIG / "Sources")
         shutil.copy(MAGNETAR / "Magnetar/config.xml", CONFIG / "config.xml")
