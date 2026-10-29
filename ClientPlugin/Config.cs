@@ -242,12 +242,49 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = false;
 
-    [Slider(1f, 3000f, 1f, SliderAttribute.SliderType.Integer, label: "PB run time limit (ms)", description: "Longest time a single programmable block run may take. The game's own limit is 3000 ms. A script over the limit is stopped like one over the instruction limit. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
+    [Slider(1f, 3000f, 1f, SliderAttribute.SliderType.Integer, label: "PB run time limit (ms)", description: "Longest time a single programmable block run may take. The game's own limit is 3000 ms. A script over the limit is stopped in the middle of the run, like one over the instruction limit. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
     public int ScriptRunLimitMs
     {
         get;
         set => SetField(ref field, value);
-    } = 3000;
+    } = 100;
+
+    [Slider(1f, 3000f, 1f, SliderAttribute.SliderType.Integer, label: "PB soft run time limit (ms)", description: "A script whose own code runs longer than this in 3 runs in a row is stopped. One slow run does not stop it. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
+    public int ScriptSoftLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 5;
+
+    [Checkbox(label: "PB frame budget", description: "Holds the programmable block runs of a frame to the time budget below and delays the rest to later frames, the longest waiting first. Runs from timers, buttons and other scripts are not delayed, but count against the budget. Needs the per-thread PB instruction counter.")]
+    public bool FixScriptScheduler
+    {
+        get;
+        set => SetField(ref field, value);
+    } = false;
+
+    [Slider(1f, 100f, 1f, SliderAttribute.SliderType.Integer, label: "PB frame budget (ms)", description: "Programmable block time per frame. A run starts only if the time used so far plus the longest of its last 10 run times fits.", enabledBy: nameof(FixScriptScheduler))]
+    public int ScriptFrameBudgetMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 5;
+
+    [Dropdown(label: "PB thread count", description: "Auto: the same number as the automatic physics thread count. Manual: exactly the number below. Not used yet: scripts still run on the main thread.")]
+    public ScriptThreadCountMode ScriptThreadCountMode
+    {
+        get;
+        set => SetField(ref field, value);
+    } = ScriptThreadCountMode.Auto;
+
+    [Slider(ScriptThreads.Min, ScriptThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "PB threads", description: "Number of programmable block worker threads in the Manual mode. Not used yet: scripts still run on the main thread.", enabledBy: nameof(ScriptThreadCountEditable))]
+    public int ScriptThreadCount
+    {
+        get;
+        set => SetField(ref field, value);
+    } = ScriptThreads.Auto;
+
+    public bool ScriptThreadCountEditable => ScriptThreadCountMode == ScriptThreadCountMode.Manual;
 
     // Server only
     public bool FixTextPanel

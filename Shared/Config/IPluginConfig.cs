@@ -203,6 +203,25 @@ public static class HavokThreads
     }
 }
 
+// How the number of programmable block worker threads is decided (ScriptScheduler)
+public enum ScriptThreadCountMode
+{
+    // The same number as the automatic Havok physics thread count (HavokThreads.Auto)
+    Auto,
+
+    // Exactly the configured number of threads
+    Manual,
+}
+
+// The range and the automatic value of the programmable block worker thread count
+public static class ScriptThreads
+{
+    public const int Min = 1;
+    public const int Max = 64;
+
+    public static int Auto => HavokThreads.Auto;
+}
+
 // Configuration properties shared by the patches in the Shared project.
 //
 // The client implements this interface with its in-game settings dialog
@@ -299,6 +318,24 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Longest time a single programmable block run may take, in milliseconds (the game's own limit
     // is 3000). Takes effect only with FixScriptCounter.
     int ScriptRunLimitMs { get; set; }
+
+    // A programmable block script whose own code runs longer than this, in milliseconds, in
+    // ScriptRunner.SoftLimitRuns runs in a row is stopped. Takes effect only with FixScriptCounter.
+    int ScriptSoftLimitMs { get; set; }
+
+    // Holds the programmable block runs of a frame to ScriptFrameBudgetMs, delaying the rest to
+    // later frames. Takes effect only with FixScriptCounter.
+    bool FixScriptScheduler { get; set; }
+
+    // Programmable block time per thread and frame, in milliseconds, for FixScriptScheduler
+    int ScriptFrameBudgetMs { get; set; }
+
+    // Whether the programmable block worker thread count is decided automatically or taken from
+    // ScriptThreadCount. Not used yet: scripts run on the main thread only.
+    ScriptThreadCountMode ScriptThreadCountMode { get; set; }
+
+    // Number of programmable block worker threads in the Manual mode
+    int ScriptThreadCount { get; set; }
 
     // Disables UpdateVisibility of LCD surfaces on multiplayer servers
     bool FixTextPanel { get; set; }

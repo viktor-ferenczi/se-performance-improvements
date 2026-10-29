@@ -208,6 +208,7 @@ namespace Shared.Patches
             MyEntityPatchForProjection.Update();
             MyConveyorLinePatch.Update();
             ScriptRunner.Update();
+            ScriptScheduler.Update();
             // MyCubeBlockPatch.Update();
             // MyTerminalBlockPatch.Update();
 

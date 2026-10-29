@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using HarmonyLib;
 using Sandbox;
@@ -17,9 +18,16 @@ using VRage.Scripting;
 
 namespace Shared.Patches
 {
-    // Runs programmable block scripts on any thread and applies the per-run time limit
-    // (FixScriptCounter, ScriptRunLimitMs). Needs the per-thread counter of IlInjectorPrepatch,
-    // which the Preloader applies before the game loads; without it everything here stays off.
+    // Runs programmable block scripts on any thread and applies the per-run time limits
+    // (FixScriptCounter, ScriptRunLimitMs, ScriptSoftLimitMs). Needs the per-thread counter of
+    // IlInjectorPrepatch, which the Preloader applies before the game loads; without it
+    // everything here stays off.
+    //
+    // The hard limit, ScriptRunLimitMs, replaces the game's 3 s and stops a script in the middle
+    // of a run. The soft limit, ScriptSoftLimitMs, is checked after a run: a script whose own
+    // code (without the game's work before it, like the ownership walk) ran longer than that
+    // SoftLimitRuns times in a row is stopped the same way. One slow run, say from a garbage
+    // collection or a busy machine, does not stop a script; a script that is slow every time does.
     //
     // Execute runs a script the way MyProgrammableBlock.Run does on the server, minus the
     // DetailedInfo update, which raises network events and so belongs on the main thread
@@ -36,6 +44,9 @@ namespace Shared.Patches
 
         // The game's own limit and the text that goes with it
         public const int VanillaRunLimitMs = 3000;
+
+        // Runs in a row over the soft limit that stop a script
+        public const int SoftLimitRuns = 3;
 
         // True if IlInjectorPrepatch made the counter per thread in this process
         public static readonly bool CounterPerThread =
@@ -60,6 +71,35 @@ namespace Shared.Patches
         private static int appliedLimitMs = VanillaRunLimitMs;
         private static string vanillaText;
 
+        // Time of the last script run on this thread, -1 while ExecuteCode has not run one
+        [ThreadStatic]
+        private static long scriptTicks;
+
+        // Runs in a row over the soft limit, per PB
+        private sealed class SlowRuns
+        {
+            public int Count;
+        }
+
+        private static readonly ConditionalWeakTable<MyProgrammableBlock, SlowRuns> SlowRunsOf =
+            new ConditionalWeakTable<MyProgrammableBlock, SlowRuns>();
+
+        private static readonly Action<
+            MyProgrammableBlock,
+            MyProgrammableBlock.ScriptTerminationReason
+        > Terminate = AccessTools.MethodDelegate<
+            Action<MyProgrammableBlock, MyProgrammableBlock.ScriptTerminationReason>
+        >(AccessTools.Method(typeof(MyProgrammableBlock), "OnProgramTermination"));
+
+        // Patches the run path of every script, so it is applied only while it is used
+        private static readonly OptionalPatch SoftLimit = new OptionalPatch(
+            typeof(SoftLimitPatch),
+            () => Enabled
+        );
+
+        // The run limit in effect, in milliseconds
+        public static int RunLimitMs => appliedLimitMs;
+
         public static bool Enabled => CounterPerThread && Config.Enabled && Config.FixScriptCounter;
 
         public static void Configure()
@@ -80,6 +120,8 @@ namespace Shared.Patches
         // after a language reload replaced it
         public static void Update()
         {
+            SoftLimit.Update();
+
             if (!CounterPerThread || Common.Plugin.Tick % 60 != 0)
                 return;
 
@@ -166,6 +208,72 @@ namespace Shared.Patches
 
             __result = false;
             return false;
+        }
+
+        // Applied only while the limits are in effect, see OptionalPatch
+        [HarmonyPatch]
+        private static class SoftLimitPatch
+        {
+            private static bool Prepare() => SoftLimit.Prepare();
+
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(MyProgrammableBlock), "ExecuteCode")]
+            private static void ExecuteCodePrefix()
+            {
+                scriptTicks = -1;
+            }
+
+            // Times the script itself; also runs for the constructor, but the run of Main comes
+            // after it and overwrites the time
+            [HarmonyPrefix]
+            [HarmonyPatch(typeof(MyProgrammableBlock), "RunSandboxedProgramActionCore")]
+            private static void RunCorePrefix(out long __state)
+            {
+                __state = Stopwatch.GetTimestamp();
+            }
+
+            [HarmonyFinalizer]
+            [HarmonyPatch(typeof(MyProgrammableBlock), "RunSandboxedProgramActionCore")]
+            private static void RunCoreFinalizer(long __state)
+            {
+                scriptTicks = Stopwatch.GetTimestamp() - __state;
+            }
+
+            // A run nested in another (TryRun) is judged here before the outer run ends, so the
+            // outer run's time, which includes it, is the one left for the outer postfix
+            [HarmonyPostfix]
+            [HarmonyPatch(typeof(MyProgrammableBlock), "ExecuteCode")]
+            private static void ExecuteCodePostfix(
+                MyProgrammableBlock __instance,
+                ref MyProgrammableBlock.ScriptTerminationReason __result,
+                ref string response
+            )
+            {
+                // Only a completed run counts; a failed one has already ended the script
+                if (__result != MyProgrammableBlock.ScriptTerminationReason.None || scriptTicks < 0)
+                    return;
+
+                var limitMs = Math.Max(1, Config.ScriptSoftLimitMs);
+                var slowRuns = SlowRunsOf.GetOrCreateValue(__instance);
+                if (scriptTicks * 1000 <= limitMs * Stopwatch.Frequency)
+                {
+                    slowRuns.Count = 0;
+                    return;
+                }
+
+                if (++slowRuns.Count < SoftLimitRuns)
+                    return;
+
+                slowRuns.Count = 0;
+                Terminate(
+                    __instance,
+                    MyProgrammableBlock.ScriptTerminationReason.InstructionOverflow
+                );
+                var text =
+                    $"Script execution terminated, script ran longer than this server's {limitMs} ms limit in {SoftLimitRuns} runs in a row. Spread the work over several runs.";
+                response = string.IsNullOrEmpty(response) ? text : response + "\n" + text;
+                __result = MyProgrammableBlock.ScriptTerminationReason.InstructionOverflow;
+            }
         }
     }
 }

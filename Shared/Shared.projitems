@@ -51,6 +51,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\IlInjectorPrepatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyGridTargetingPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />
@@ -79,6 +80,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloadConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloaderHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RateLimiter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\RunQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ScriptCacheKey.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockDictionary.cs" />
