@@ -256,7 +256,7 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = false;
 
-    [Slider(1f, 100f, 1f, SliderAttribute.SliderType.Integer, label: "PB frame budget (ms)", description: "Programmable block time per frame. A run starts only if the time used so far plus the longest of its last 10 run times fits.", enabledBy: nameof(FixScriptScheduler))]
+    [Slider(1f, 100f, 1f, SliderAttribute.SliderType.Integer, label: "PB frame budget (ms)", description: "Programmable block time per frame. A run starts only if the time used so far plus the longest of its last 10 run times fits.", enabledBy: nameof(ScriptFrameBudgetEditable))]
     public int ScriptFrameBudgetMs
     {
         get;
@@ -276,6 +276,8 @@ public class Config : IPluginConfig
         get;
         set => SetField(ref field, value);
     } = ScriptThreads.Auto;
+
+    public bool ScriptFrameBudgetEditable => FixScriptCounter && FixScriptScheduler;
 
     public bool ScriptThreadCountEditable => ScriptThreadCountMode == ScriptThreadCountMode.Manual;
 
