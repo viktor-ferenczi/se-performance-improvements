@@ -35,6 +35,8 @@ Most are `bool`. The exception is the Havok physics thread count, which is a `Ha
 | `FixScriptProxies` | Property | Gives the PB scripts that may run off the main thread proxies behind their roots, with the policy of `ScriptPolicyTable.cs` for every game member they call. |
 | `FixScriptScheduler` / `ScriptFrameBudgetMs` | Properties | PB time budget per frame in ms; the scheduled runs over it wait for later frames. |
 | `ScriptThreadCountMode` / `ScriptThreadCount` | Properties | PB worker thread count (`ScriptThreadCountMode`, `ScriptThreads`); not used until scripts run off the main thread. |
+| `ScriptOffMain*` | Properties | One per mechanism (`StandIn`) that lets scripts calling its members run off the main thread; Sensing and Transfers are off by default. |
+| `ScriptLogThreadDecisions` | Property | Logs where each PB's script runs and why, when a PB is first seen and when that changes. |
 | `FixMemoryStats` | Property | Read the process memory size for the statistics once per second instead of every frame. |
 | `FixTargetGroups` | Property | Refresh the turret target groups in linear instead of quadratic time. |
 | `FixToolbar` | Property | Cache the terminal actions of block groups on the toolbar (client only). |
