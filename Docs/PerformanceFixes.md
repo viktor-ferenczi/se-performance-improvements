@@ -339,8 +339,8 @@ too, so every game call it makes goes through one.
 
 Whether a script may run off the main thread is decided once per script instance, when the
 PB creates it, by scanning the IL of the script assembly. Each game member it calls is looked
-up in `ScriptPolicyTable.cs`, which says for 433 members of the script API what calling them on a
-worker thread would do:
+up in `ScriptPolicyTable.cs`, which says for every member of the game's script whitelist (about
+900, apart from plain data types) what calling it on a worker thread would do:
 
 - **pass**: it only reads, or writes only caches of objects of the script's own grid group,
   like a block's world matrix, which no other thread touches while the script runs. The
@@ -356,10 +356,13 @@ worker thread would do:
   listener registration, inventory transfers and `TryRun`.
 
 A script that calls any main member, or a game member missing from the table, stays on the
-main thread and keeps the game objects. So does a script whose IL can't be read. The table
-was built from the members used by the scripts of a public script collection and classified
-from the decompiled game code. Members that need a worker-safe stand-in of their own are
-main for now; adding stand-ins for the most used ones (`DrawFrame`, `GetProperty`,
+main thread and keeps the game objects. So does a script whose IL can't be read. Every member
+was classified from the decompiled game code. A static member is pass only if it uses its
+block argument through the block's interfaces, since a proxy fails a type test or cast to a
+game class. A unit test checks the table against a snapshot of the whitelist,
+`Tests/Shared/Patches/ScriptWhitelist.txt`, so after a game update a refreshed snapshot shows
+the new members (`Tools/PbProfile/whitelist.py` says how). Members that need a worker-safe
+stand-in of their own are main for now; adding stand-ins for the most used ones (`DrawFrame`, `GetProperty`,
 `DetailedInfo`, `AcceptMessage`) would let more scripts leave the main thread.
 
 On the main thread the proxies only forward calls, so with the option on and the scripts

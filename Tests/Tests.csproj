@@ -35,6 +35,8 @@
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptWrites.cs" Link="Shared\Patches\ScriptWrites.cs" />
     <!-- The prepatch needs only Mono.Cecil; the test loads the game's VRage.Library.dll itself -->
     <Compile Include="..\Shared\Patches\ScriptRunner\IlInjectorPrepatch.cs" Link="Shared\Patches\IlInjectorPrepatch.cs" />
+    <!-- The game's PB whitelist, made by Tools/PbProfile/whitelist.py -->
+    <None Include="Shared\Patches\ScriptWhitelist.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
