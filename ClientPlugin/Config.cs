@@ -163,6 +163,13 @@ public class Config : IPluginConfig
         set { }
     }
 
+    // Server only
+    public bool SeparateStuckGrids
+    {
+        get => false;
+        set { }
+    }
+
     [Checkbox(label: "Fix turret target groups", description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)")]
     public bool FixTargetGroups
     {

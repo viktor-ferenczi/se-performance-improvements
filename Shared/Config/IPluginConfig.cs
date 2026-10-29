@@ -304,6 +304,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Disables the tracking of wheel trails on the server, where they are not needed (trails are only visual)
     bool FixWheelTrail { get; set; }
 
+    // Pushes apart grids stuck inside each other after a collision (server only)
+    bool SeparateStuckGrids { get; set; }
+
     // Disables functional blocks in projected grids without affecting the blocks built from the projection
     bool FixProjection { get; set; }
 

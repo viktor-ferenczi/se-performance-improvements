@@ -183,6 +183,43 @@ Caches the result of `MySafeZone.IsActionAllowed` and
 
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/24391-performance-safe-zone-isactionallowed)
 
+## Separating grids stuck inside each other
+
+A large ship rammed into a station inside a safe zone without damage can end up with
+part of its hull inside the station: in the Octahedron world blocks of a Rhea got into
+the lobby behind the glass pyramid and could not get back out through the windows. No
+block breaks, so nothing lets the two grids come apart, and Havok solves the deep
+penetration again on every physics step for as long as it lasts. Large collisions
+elsewhere can do the same for a while.
+
+The server plugin hooks the grids' contact point callback
+(`MyGridPhysics.RigidBody_ContactPointCallbackImpl`), which reports how deep each
+contact is. Static grids get no callback, so every contact with a station comes from the
+ship's side. A pair of grids with contact points deeper than 0.5 m on 60 updates, with no
+gap longer than 30 updates, is stuck. The grids that may move are then teleported away
+from the center of their contact points, towards their own center, 0.5 m per update
+(30 m/s), until they have had no contact deeper than 5 cm for 5 updates. Then their
+velocity is zeroed and the physics takes over again. Static grids, and grids attached to
+a static grid by a connector or landing gear, never move. Of two ships the lighter one
+moves more, by the inverse of their masses. Grids in the same physical group (rotors,
+pistons, connectors) are left alone. The server moves the grids, the clients see it
+through the normal position replication. It gives up after 300 m.
+
+Server only, option `SeparateStuckGrids`. The repro rig is in `Tools/StuckGrids`.
+
+Measured on a Linux Magnetar server (polaris, alone on the host) with the Octahedron
+Alpha Station in its no-damage safe zone and an IMDC Rhea (40 grids) placed 55 m deep
+into the top of the station's glass pyramid. 90 seconds from the placement, three runs
+each, interleaved:
+
+| | update time | simulation speed | deep contact |
+| --- | --- | --- | --- |
+| without the fix | 22.7 - 23.5 ms | 0.72 - 0.74 | all 90 s |
+| with the fix | 4.5 - 4.8 ms | 1.00 | 5 - 6 s, then moved out by 36.5 - 37.5 m |
+
+With nothing stuck the update time was the same with and without the fix (5.2 - 5.5 ms
+with the Rhea and its subgrids touching each other).
+
 ## Skipping redundant updates of PB access to blocks
 
 Before every run of a programmable block the game calls
