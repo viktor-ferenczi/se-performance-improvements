@@ -27,6 +27,7 @@
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
     <Compile Include="..\Shared\Tools\ScriptCacheKey.cs" Link="Shared\Tools\ScriptCacheKey.cs" />
     <Compile Include="..\Shared\Tools\RunQueue.cs" Link="Shared\Tools\RunQueue.cs" />
+    <Compile Include="..\Shared\Tools\WorkerPool.cs" Link="Shared\Tools\WorkerPool.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptEligibility.cs" Link="Shared\Patches\ScriptEligibility.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptPolicy.cs" Link="Shared\Patches\ScriptPolicy.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptPolicyTable.cs" Link="Shared\Patches\ScriptPolicyTable.cs" />

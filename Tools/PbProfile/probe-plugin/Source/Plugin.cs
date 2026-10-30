@@ -7,7 +7,9 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using HarmonyLib;
+using Sandbox;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Blocks;
 using Sandbox.Game.World;
@@ -72,10 +74,17 @@ public static class Probe
     private static readonly HashSet<MyProgrammableBlock> Seen = new();
 
     private static int frame = -1;
-    private static int depth;
     private static int frameRuns;
     private static long frameTicks;
+
+    // Per thread: the Performance plugin runs scripts on worker threads too (SE-626 stage 4)
+    [ThreadStatic]
+    private static int depth;
+
+    [ThreadStatic]
     private static long scriptStart;
+
+    [ThreadStatic]
     private static long scriptTicks;
     private static bool done;
 
@@ -157,19 +166,24 @@ public static class Probe
         depth--;
         if (!Measuring)
             return;
-        Seen.Add(pb);
-        // A nested TryRun shares the caller's counters and is inside the caller's time
-        if (depth == 0)
-        {
-            frameRuns++;
-            frameTicks += ticks;
-        }
         var instructions = Instructions != null ? (int)Instructions.GetValue(null) : -1;
-        RunLines.Append(
-            FormattableString.Invariant(
-                $"{frame}\t{pb.EntityId}\t{(int)type}\t{depth}\t{ticks * TickUs:F1}\t{scriptTicks * TickUs:F1}\t{instructions}\t{result}\n"
-            )
-        );
+        var main = Thread.CurrentThread == MySandboxGame.Static.UpdateThread ? 1 : 0;
+        lock (RunLines)
+        {
+            Seen.Add(pb);
+            // A nested TryRun shares the caller's counters and is inside the caller's time.
+            // With worker threads, the PB time of a frame is the sum over all threads.
+            if (depth == 0)
+            {
+                frameRuns++;
+                frameTicks += ticks;
+            }
+            RunLines.Append(
+                FormattableString.Invariant(
+                    $"{frame}\t{pb.EntityId}\t{(int)type}\t{depth}\t{ticks * TickUs:F1}\t{scriptTicks * TickUs:F1}\t{instructions}\t{result}\t{main}\n"
+                )
+            );
+        }
     }
 
     public static void BeginScript() => scriptStart = Stopwatch.GetTimestamp();
@@ -196,7 +210,7 @@ public static class Probe
         Directory.CreateDirectory(Path.Combine(Dir, "programs"));
         File.WriteAllText(
             Path.Combine(Dir, "runs.tsv"),
-            "frame\tpb\tupdate_type\tdepth\ttotal_us\tscript_us\tinstructions\tresult\n" + RunLines
+            "frame\tpb\tupdate_type\tdepth\ttotal_us\tscript_us\tinstructions\tresult\tmain\n" + RunLines
         );
         File.WriteAllText(
             Path.Combine(Dir, "frames.tsv"),
@@ -208,7 +222,7 @@ public static class Probe
         );
 
         var pbs = new StringBuilder(
-            "pb\tgrid\tname\tprogram_sha1\tprogram_chars\tenabled\tworking\tinstance\ttermination\tran\tinfo\n"
+            "pb\tgrid\tname\tprogram_sha1\tprogram_chars\tenabled\tworking\tinstance\ttermination\tran\tinfo\tcustom_data\n"
         );
         foreach (
             var pb in MyEntities
@@ -233,7 +247,7 @@ public static class Probe
             pbs.Append(
                 $"{pb.EntityId}\t{Clean(pb.CubeGrid.DisplayName)}\t{Clean(pb.CustomName.ToString())}\t{hash}\t{program.Length}\t"
                     + $"{pb.Enabled}\t{pb.IsWorking}\t{Instance?.GetValue(pb) != null}\t{Termination?.GetValue(pb)}\t{Seen.Contains(pb)}\t"
-                    + $"{(info.Length > 200 ? info.Substring(0, 200) : info)}\n"
+                    + $"{(info.Length > 200 ? info.Substring(0, 200) : info)}\t{Clean(pb.CustomData)}\n"
             );
             if (program.Length > 0)
                 File.WriteAllText(Path.Combine(Dir, "programs", hash + ".cs"), program);

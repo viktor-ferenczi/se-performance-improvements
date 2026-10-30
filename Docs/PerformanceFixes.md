@@ -315,10 +315,19 @@ instead. When a PB waited more than 10 frames in a row, a warning in the log say
 minute, how many frames were over, how many runs were due and ran per frame, the longest
 wait, and the PB time per frame.
 
-`ScriptThreadCountMode` (Auto or Manual) and `ScriptThreadCount` set how many threads will
-run PB scripts once they can run off the main thread; Auto takes the automatic physics
-thread count. This version runs the queue on the main thread only, so they have no effect
-yet.
+`ScriptThreadCountMode` (Auto or Manual) and `ScriptThreadCount` set how many threads run
+PB scripts, the main thread included; Auto takes the automatic physics thread count. Only
+scripts with proxies (`FixScriptProxies`, below) leave the main thread. With the proxies on
+and more than one thread, the queue first runs the other scripts on the main thread, then
+the scripts with proxies in a parallel phase on all the threads, each thread with a budget
+of its own. The main thread does nothing else meanwhile. Two PBs of one logical grid group
+never run at the same time: a run writes the PB access flags of its whole group, and the
+policy of the members a script calls assumes that nothing else changes the group during
+the phase. The writes the proxies held back are made on the main thread after the phase,
+PB by PB in EntityId order, so the result does not depend on which thread ran what. Then
+each PB gets its DetailedInfo, as after a run on the main thread. A held back write that
+fails is counted in the once a minute warning. The warning also says how many threads ran
+and which share of the runs was parallel.
 
 ## Proxies for PB scripts
 

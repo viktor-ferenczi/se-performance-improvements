@@ -21,6 +21,9 @@ public static class ScriptEligibility
 
         // The members that keep the script on the main thread, at most MaxListed of them
         public string[] Blocking;
+
+        // Whether the script reads MyGridProgram.IGC
+        public bool UsesIgc;
     }
 
     private const int MaxListed = 5;
@@ -49,6 +52,7 @@ public static class ScriptEligibility
     private static Result Scan(Assembly assembly)
     {
         var blocking = new SortedSet<string>();
+        var usesIgc = false;
         try
         {
             foreach (var type in assembly.GetTypes())
@@ -62,6 +66,9 @@ public static class ScriptEligibility
                     continue;
                 foreach (var called in Calls(method))
                 {
+                    usesIgc |=
+                        called.Name == "get_IGC"
+                        && called.DeclaringType?.FullName == "Sandbox.ModAPI.Ingame.MyGridProgram";
                     if (!Allowed(called, assembly))
                         blocking.Add(
                             $"{ScriptPolicy.TypeName(called.DeclaringType)}.{called.Name}"
@@ -78,6 +85,7 @@ public static class ScriptEligibility
         {
             OffMain = blocking.Count == 0,
             Blocking = blocking.Take(MaxListed).ToArray(),
+            UsesIgc = usesIgc,
         };
     }
 

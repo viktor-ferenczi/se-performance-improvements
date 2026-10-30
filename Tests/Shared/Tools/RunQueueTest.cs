@@ -189,4 +189,110 @@ public class RunQueueTest
         Assert.Equal(1, queue.Count);
         Assert.Equal(1, Drain(100).Ran);
     }
+
+    // Parallel drains: each thread has a clock of its own, advanced by the cost of its runs
+    private readonly System.Threading.ThreadLocal<long> threadNow = new(() => 0);
+    private static readonly WorkerPool Pool = new WorkerPool("RunQueueTest");
+
+    private RunQueue<Pb>.Parallel Parallel(
+        int threads,
+        Func<Pb, object> groupOf,
+        Action<Pb> during = null
+    ) =>
+        new RunQueue<Pb>.Parallel
+        {
+            Pool = Pool,
+            Threads = threads,
+            GroupOf = groupOf,
+            Run = (pb, flags) =>
+            {
+                lock (pb.Runs)
+                    pb.Runs.Add(flags);
+                during?.Invoke(pb);
+                threadNow.Value += pb.Cost;
+            },
+        };
+
+    private RunQueue<Pb>.DrainResult DrainParallel(long budget, RunQueue<Pb>.Parallel parallel) =>
+        queue.Drain(0, budget, Run, () => threadNow.Value, parallel);
+
+    [Fact]
+    public void ParallelRunsEveryItemOnce()
+    {
+        var pbs = Make(40, 1);
+        AddAll(pbs);
+
+        var result = DrainParallel(1000, Parallel(4, pb => pb.Name));
+
+        Assert.Equal(40, result.Ran);
+        Assert.All(pbs, pb => Assert.Single(pb.Runs));
+        Assert.Equal(0, queue.Count);
+    }
+
+    [Fact]
+    public void ItemsOfAGroupNeverOverlap()
+    {
+        var pbs = Make(24, 1);
+        AddAll(pbs);
+        var running = new int[3];
+        var overlaps = 0;
+
+        DrainParallel(
+            1000,
+            Parallel(
+                4,
+                pb => int.Parse(pb.Name.Substring(2)) % 3,
+                pb =>
+                {
+                    var group = int.Parse(pb.Name.Substring(2)) % 3;
+                    if (System.Threading.Interlocked.Increment(ref running[group]) > 1)
+                        System.Threading.Interlocked.Increment(ref overlaps);
+                    System.Threading.Thread.Sleep(1);
+                    System.Threading.Interlocked.Decrement(ref running[group]);
+                }
+            )
+        );
+
+        Assert.Equal(0, overlaps);
+        Assert.All(pbs, pb => Assert.Single(pb.Runs));
+    }
+
+    [Fact]
+    public void EveryThreadHasABudget()
+    {
+        var pbs = Make(8, 3);
+        AddAll(pbs);
+        DrainParallel(1000, Parallel(1, pb => pb.Name));
+
+        // 3 + 3 does not fit 5: one run per thread
+        AddAll(pbs);
+        Assert.Equal(1, DrainParallel(5, Parallel(1, pb => pb.Name)).Ran);
+        Assert.Equal(4, DrainParallel(5, Parallel(4, pb => pb.Name)).Ran);
+        Assert.Equal(3, queue.Count);
+        Assert.Equal(3, queue.Drain(0, 5, Run, () => now).MaxWait);
+    }
+
+    [Fact]
+    public void ItemsWithoutAGroupRunOnTheCallingThread()
+    {
+        var pbs = Make(6, 1);
+        AddAll(pbs);
+        var caller = System.Threading.Thread.CurrentThread;
+        var mainRuns = new List<Pb>();
+
+        queue.Drain(
+            0,
+            1000,
+            (pb, flags) =>
+            {
+                Assert.Same(caller, System.Threading.Thread.CurrentThread);
+                mainRuns.Add(pb);
+            },
+            () => 0,
+            Parallel(3, pb => pb.Name.EndsWith("0") || pb.Name.EndsWith("1") ? null : pb.Name)
+        );
+
+        Assert.Equal(new[] { "pb0", "pb1" }, mainRuns.Select(pb => pb.Name).OrderBy(n => n));
+        Assert.Equal(4, pbs.Count(pb => pb.Runs.Count == 1));
+    }
 }

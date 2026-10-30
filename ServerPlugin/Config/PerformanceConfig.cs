@@ -159,9 +159,9 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [FloatOption(0.1f, 100f, "Programmable block time per frame, in milliseconds. A run starts only if the time used so far plus the longest of its last 10 run times fits", Parent = "scripts")]
     public float ScriptFrameBudgetMs { get; set => SetField(ref field, value); } = 5f;
 
-    [EnumOption("Programmable block thread count: Auto is the same number as the automatic physics thread count; Manual is exactly the number below. Not used yet: scripts still run on the main thread", Parent = "scripts")]
+    [EnumOption("Programmable block thread count: Auto is the same number as the automatic physics thread count; Manual is exactly the number below. Used by the PB frame budget for the scripts with proxies, which then run on that many threads, the main thread included", Parent = "scripts")]
     public ScriptThreadCountMode ScriptThreadCountMode { get; set => SetField(ref field, value); } = ScriptThreadCountMode.Auto;
 
-    [IntOption(ScriptThreads.Min, ScriptThreads.Max, "Number of programmable block worker threads in the Manual mode. Not used yet", Parent = "scripts")]
+    [IntOption(ScriptThreads.Min, ScriptThreads.Max, "Number of threads running programmable block scripts in the Manual mode, the main thread included", Parent = "scripts")]
     public int ScriptThreadCount { get; set => SetField(ref field, value); } = ScriptThreads.Auto;
 }

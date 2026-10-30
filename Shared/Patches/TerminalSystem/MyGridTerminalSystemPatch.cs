@@ -103,7 +103,8 @@ namespace Shared.Patches
                 {
                     applied = new Applied();
                     Entries.Add(__instance, applied);
-                    size++;
+                    // Scripts of different grid groups run on several threads at once (SE-626)
+                    Interlocked.Increment(ref size);
                 }
 
                 var tick = Common.Plugin.Tick;
