@@ -278,12 +278,13 @@ closes the grids that are dynamic, have active (not sleeping) physics, and whose
 bounding sphere is more than 100 m below the planet's surface, measured straight down from
 the grid's center on the heightmap, and whose sampled block centers (up to 64) are all
 inside the planet's voxel content. The heightmap knows nothing about mined tunnels and
-shafts, so the content check is what keeps a drone miner deep in a shaft. Every grid connected to one
-by rotors, pistons or connectors must be buried as well, and none of them may be static, so
-the buried wheel of a rover on the surface stays. What is on the grid, power, inventory or a
-pilot, does not matter. A sleeping grid costs nothing per step, so it stays, and so does a
-grid resting on the ground or only partly inside, which `StuckInVoxelPatch` pushes out. Each
-removal is logged with the grid's name, entity id, block count and position.
+shafts, so the content check is what keeps a drone miner deep in a shaft. Every grid
+connected to one by rotors, pistons or connectors must be buried as well, and none of them
+may be static, so the buried wheel of a rover on the surface stays. What is on the grid,
+power, inventory or a pilot, does not matter. A sleeping grid costs nothing per step, so it
+stays, and so does a grid resting on the ground or only partly inside, which
+`StuckInVoxelPatch` pushes out. Each removal is logged with the grid's name, entity id,
+block count and position.
 
 Option `RemoveBuriedGrids`, on by default in both plugins, only where the game is the server.
 

@@ -44,7 +44,8 @@ namespace StuckProbe;
 // no-damage safe zone when STUCK_SAFEZONE=1. STUCK_UNPOWERED=1 turns off the functional blocks of
 // the ship's grids after the placement, so it falls like debris (SE-779). STUCK_HOLE=<meters> cuts
 // a sphere of that radius out of the voxel around the placement, like a mined cavern, and
-// STUCK_SPIN=1 sets the ship turning every second, so its physics never sleeps. The distance column is the ship's distance from
+// STUCK_SPIN=1 sets the ship turning every second, so its physics never sleeps. STUCK_STATIC=1
+// converts the placed ship to a static grid. The distance column is the ship's distance from
 // where it was placed, the contact columns count ship-voxel contacts.
 public class Plugin : IPlugin
 {
@@ -81,6 +82,7 @@ public static class Probe
     private static readonly bool Unpowered = Environment.GetEnvironmentVariable("STUCK_UNPOWERED") == "1";
     private static readonly double Hole = Number("STUCK_HOLE", 0);
     private static readonly bool Spin = Environment.GetEnvironmentVariable("STUCK_SPIN") == "1";
+    private static readonly bool Static = Environment.GetEnvironmentVariable("STUCK_STATIC") == "1";
     private static MyVoxelBase voxel;
     private static Vector3D placedCenter;
     private static readonly double Seconds = Number("STUCK_SECONDS", 180);
@@ -387,6 +389,9 @@ public static class Probe
         ship.Teleport(world);
         Stop(ship);
 
+        if (Static)
+            ship.ConvertToStatic();
+
         // Debris has no power: no dampeners hold it against the gravity
         if (Unpowered)
         {
@@ -416,7 +421,7 @@ public static class Probe
             MyEntities.CreateFromObjectBuilderAndAdd(zone, false);
         }
 
-        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}, spin {Spin}");
+        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}, spin {Spin}, static {ship.IsStatic}");
     }
 
     public static void Contact(ref HkContactPointEvent value)
