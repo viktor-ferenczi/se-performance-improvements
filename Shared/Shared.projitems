@@ -51,7 +51,13 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\IlInjectorPrepatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptEligibility.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptPolicy.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptPolicyTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptProxies.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRoots.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRunner.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptWrites.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyGridTargetingPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />

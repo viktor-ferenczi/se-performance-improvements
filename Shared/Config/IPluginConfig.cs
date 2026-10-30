@@ -323,6 +323,10 @@ public interface IPluginConfig : INotifyPropertyChanged
     // ScriptRunner.SoftLimitRuns runs in a row is stopped. Takes effect only with FixScriptCounter.
     float ScriptSoftLimitMs { get; set; }
 
+    // Hands programmable block scripts that can run off the main thread proxies instead of the
+    // game objects behind their roots; applies to scripts created after it changes
+    bool FixScriptProxies { get; set; }
+
     // Holds the programmable block runs of a frame to ScriptFrameBudgetMs, delaying the rest to
     // later frames. Takes effect only with FixScriptCounter.
     bool FixScriptScheduler { get; set; }
