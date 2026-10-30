@@ -229,7 +229,7 @@ public class Config : IPluginConfig
 
     [Checkbox(
         label: "Remove buried grids",
-        description: "Removes the dynamic grids that lie entirely inside a planet and keep moving, like debris that fell through the surface and jitters near the planet's center. Static and sleeping grids stay. Only in offline games and multiplayer games hosted by this client."
+        description: "Removes the dynamic grids that lie entirely inside a planet, like debris that fell through the surface and jitters near the planet's center. Static grids stay. Only in offline games and multiplayer games hosted by this client."
     )]
     public bool RemoveBuriedGrids
     {

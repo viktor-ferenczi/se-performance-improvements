@@ -18,14 +18,15 @@ namespace Shared.Patches
     // plugin).
     //
     // Debris that falls through a planet's surface never settles. It sinks towards the planet's
-    // center and jitters there, and the physics step keeps paying for it. Every few minutes this
-    // closes the dynamic grids that are not sleeping and lie entirely inside a planet: the whole
-    // bounding sphere more than MarginMeters under the heightmap, and every sampled block center
-    // inside the voxel content. Every grid connected to one by rotors, pistons or connectors must
-    // be buried as well, and none of them static. What is on the grid (power, inventory, a pilot)
-    // does not matter. A sleeping grid costs nothing per step, so it stays. Grids only partly
-    // inside are pushed out by StuckInVoxelPatch instead. A sweep is spread over updates,
-    // GridsPerUpdate grids each. Only the server removes grids.
+    // center and jitters there, and the physics step keeps paying for it. A ship anywhere that
+    // deep can't be reached in regular gameplay either, it got there by mistake. Every few minutes
+    // this closes the dynamic grids that lie entirely inside a planet: the whole bounding sphere
+    // more than MarginMeters under the heightmap, and every sampled block center inside the voxel
+    // content. Every grid connected to one by rotors, pistons or connectors must be buried as
+    // well, and none of them static. What is on the grid (power, inventory, a pilot) does not
+    // matter, and neither does whether its physics sleeps. Grids only partly inside are pushed out
+    // by StuckInVoxelPatch instead. A sweep is spread over updates, GridsPerUpdate grids each, and
+    // one that runs past the start of the next cancels that one. Only the server removes grids.
     public static class BuriedGridSweeper
     {
         private static IPluginConfig Config => Common.Config;
@@ -57,13 +58,14 @@ namespace Shared.Patches
                 return;
             }
 
+            var now = MySession.Static.ElapsedGameTime.TotalSeconds;
+            var interval = 60.0 * Math.Max(1, Config.BuriedGridSweepMinutes);
             if (Pending.Count == 0)
             {
-                var now = MySession.Static.ElapsedGameTime.TotalSeconds;
                 if (now < nextSweep)
                     return;
 
-                nextSweep = now + 60.0 * Math.Max(1, Config.BuriedGridSweepMinutes);
+                nextSweep = now + interval;
                 foreach (MyEntity entity in MyEntities.GetEntities())
                 {
                     if (entity is MyCubeGrid grid && !grid.IsStatic)
@@ -76,11 +78,18 @@ namespace Shared.Patches
                 Check(Pending[i]);
 
             Pending.RemoveRange(Pending.Count - count, count);
+
+            // A sweep that ran past the start of the next one cancels that one
+            if (Pending.Count == 0)
+            {
+                while (nextSweep <= now)
+                    nextSweep += interval;
+            }
         }
 
         private static void Check(MyCubeGrid grid)
         {
-            if (grid.MarkedForClose || grid.Physics == null || !grid.Physics.IsActive)
+            if (grid.MarkedForClose || grid.Physics == null)
                 return;
 
             var planet = BuriedIn(grid);

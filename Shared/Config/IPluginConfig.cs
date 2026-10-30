@@ -412,7 +412,7 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Pushes non-static grids out of planets and asteroids they are stuck in (only where the game is the server)
     bool PushGridsOutOfVoxels { get; set; }
 
-    // Removes dynamic, non-sleeping grids lying entirely inside a planet (only where the game is the server)
+    // Removes dynamic grids lying entirely inside a planet (only where the game is the server)
     bool RemoveBuriedGrids { get; set; }
 
     // Minutes between two sweeps for buried grids
