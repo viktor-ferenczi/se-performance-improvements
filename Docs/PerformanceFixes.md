@@ -276,12 +276,12 @@ limits, so a runaway script on a worker thread is stopped by its own counter. Of
 thread it keeps the game's "PB invoked from parallel thread" report from firing, which throws
 on a server where no mod script was ever compiled.
 
-`ScriptRunLimitMs` (1 to 3000, default 100) is the hard limit. It replaces the game's 3 s
+`ScriptRunLimitMs` (0.1 to 1000 ms in steps of 0.1, default 100) is the hard limit. It replaces the game's 3 s
 wall clock limit per run while `FixScriptCounter` is on. A script over it is stopped in the
 middle of the run like one over the instruction limit, with a message that names the limit,
 and stays stopped until it is recompiled, as in the game.
 
-`ScriptSoftLimitMs` (1 to 3000, default 5) is the soft limit. It is checked after each run,
+`ScriptSoftLimitMs` (0.1 to 100 ms, default 5) is the soft limit. It is checked after each run,
 against the time of the script's own code, without the game's work before it such as the
 ownership walk. A script over it in 3 runs in a row is stopped the same way, with its own
 message; a run under it starts the count over. Both limits are wall clock time, so a short
@@ -296,7 +296,7 @@ still stops one that is slow every time.
 whose update frequency is due, in the after simulation update of its block, with no limit on
 their total time. With the option on, those runs go to a queue instead, and once every entity
 has had its update the queue runs on the main thread until the frame's PB time reaches
-`ScriptFrameBudgetMs` (1 to 100, default 5). The runs left over wait for the next frame. A
+`ScriptFrameBudgetMs` (0.1 to 100 ms, default 5). The runs left over wait for the next frame. A
 PB due again while it waits still runs once, with the update types of all its due runs, the
 way the game merges them too.
 

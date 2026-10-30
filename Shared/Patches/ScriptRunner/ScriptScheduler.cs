@@ -75,7 +75,11 @@ namespace Shared.Patches
         public static bool Enabled => ScriptRunner.Enabled && Config.FixScriptScheduler;
 
         private static long BudgetTicks =>
-            Math.Max(1, Config.ScriptFrameBudgetMs) * Stopwatch.Frequency / 1000;
+            (long)(
+                Math.Max(ScriptRunner.MinLimitMs, Config.ScriptFrameBudgetMs)
+                * Stopwatch.Frequency
+                / 1000.0
+            );
 
         // Called on every update, on the main thread between frames
         public static void Update()
@@ -118,7 +122,7 @@ namespace Shared.Patches
                     $"PB scheduler over budget in {overloadFrames} of the last {frames} frames: "
                         + $"{(double)dueRuns / frames:0.0} runs due per frame, {(double)ranRuns / frames:0.0} ran ({100.0 * ranRuns / Math.Max(1, dueRuns):0}%), "
                         + $"longest wait {longestWait} frames, PB time {1000.0 * frameTicks / Stopwatch.Frequency / frames:0.00} ms per frame "
-                        + $"(budget {Config.ScriptFrameBudgetMs} ms, run limit {ScriptRunner.RunLimitMs} ms)"
+                        + $"(budget {ScriptRunner.Ms(Config.ScriptFrameBudgetMs)} ms, run limit {ScriptRunner.Ms(ScriptRunner.RunLimitMs)} ms)"
                 );
             }
 

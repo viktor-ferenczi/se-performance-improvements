@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -45,6 +46,9 @@ namespace Shared.Patches
         // The game's own limit and the text that goes with it
         public const int VanillaRunLimitMs = 3000;
 
+        // The smallest limit accepted, as the settings allow 0.1 ms steps
+        public const float MinLimitMs = 0.1f;
+
         // Runs in a row over the soft limit that stop a script
         public const int SoftLimitRuns = 3;
 
@@ -68,7 +72,7 @@ namespace Shared.Patches
         [ThreadStatic]
         private static bool offMain;
 
-        private static int appliedLimitMs = VanillaRunLimitMs;
+        private static float appliedLimitMs = VanillaRunLimitMs;
         private static string vanillaText;
 
         // Time of the last script run on this thread, -1 while ExecuteCode has not run one
@@ -98,7 +102,7 @@ namespace Shared.Patches
         );
 
         // The run limit in effect, in milliseconds
-        public static int RunLimitMs => appliedLimitMs;
+        public static float RunLimitMs => appliedLimitMs;
 
         public static bool Enabled => CounterPerThread && Config.Enabled && Config.FixScriptCounter;
 
@@ -126,11 +130,11 @@ namespace Shared.Patches
                 return;
 
             var limitMs = Enabled
-                ? Math.Max(1, Math.Min(VanillaRunLimitMs, Config.ScriptRunLimitMs))
+                ? Math.Max(MinLimitMs, Math.Min(VanillaRunLimitMs, Config.ScriptRunLimitMs))
                 : VanillaRunLimitMs;
             if (limitMs != appliedLimitMs)
             {
-                MaxAllowedTicks.SetValue(null, limitMs * Stopwatch.Frequency / 1000);
+                MaxAllowedTicks.SetValue(null, (long)(limitMs * Stopwatch.Frequency / 1000.0));
                 appliedLimitMs = limitMs;
             }
 
@@ -140,7 +144,7 @@ namespace Shared.Patches
             if (limitMs < VanillaRunLimitMs)
             {
                 var text =
-                    $"Script execution terminated, script ran longer than this server's {limitMs} ms limit per run. Spread the work over several runs.";
+                    $"Script execution terminated, script ran longer than this server's {Ms(limitMs)} ms limit per run. Spread the work over several runs.";
                 if (current != text)
                 {
                     vanillaText = current;
@@ -153,6 +157,9 @@ namespace Shared.Patches
                 vanillaText = null;
             }
         }
+
+        // A limit for the player's eyes: 100, 2.5
+        public static string Ms(float ms) => ms.ToString("0.#", CultureInfo.InvariantCulture);
 
         private static void SetText(string text) =>
             Texts?.AddMessage(
@@ -253,9 +260,9 @@ namespace Shared.Patches
                 if (__result != MyProgrammableBlock.ScriptTerminationReason.None || scriptTicks < 0)
                     return;
 
-                var limitMs = Math.Max(1, Config.ScriptSoftLimitMs);
+                var limitMs = Math.Max(MinLimitMs, Config.ScriptSoftLimitMs);
                 var slowRuns = SlowRunsOf.GetOrCreateValue(__instance);
-                if (scriptTicks * 1000 <= limitMs * Stopwatch.Frequency)
+                if (scriptTicks * 1000.0 <= limitMs * (double)Stopwatch.Frequency)
                 {
                     slowRuns.Count = 0;
                     return;
@@ -270,7 +277,7 @@ namespace Shared.Patches
                     MyProgrammableBlock.ScriptTerminationReason.InstructionOverflow
                 );
                 var text =
-                    $"Script execution terminated, script ran longer than this server's {limitMs} ms limit in {SoftLimitRuns} runs in a row. Spread the work over several runs.";
+                    $"Script execution terminated, script ran longer than this server's {Ms(limitMs)} ms limit in {SoftLimitRuns} runs in a row. Spread the work over several runs.";
                 response = string.IsNullOrEmpty(response) ? text : response + "\n" + text;
                 __result = MyProgrammableBlock.ScriptTerminationReason.InstructionOverflow;
             }

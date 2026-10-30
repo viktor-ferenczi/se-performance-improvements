@@ -78,13 +78,6 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Cache compiled scripts", description: "Caches compiled in-game scripts (PB programs) to reduce lag")]
-    public bool CacheScripts
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
     [Checkbox(label: "Disable Mod API statistics", description: "Disable the collection of Mod API call statistics to eliminate the overhead")]
     public bool DisableModApiStatistics
     {
@@ -228,64 +221,6 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
-    [Checkbox(label: "Skip redundant updates of PB access to blocks", description: "Skips MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)")]
-    public bool FixTerminal
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
-    [Checkbox(label: "Per-thread PB instruction counter (needs restart)", description: "Gives every thread its own programmable block instruction counter, so scripts can run off the main thread. Needs a restart.")]
-    public bool FixScriptCounter
-    {
-        get;
-        set => SetField(ref field, value);
-    } = false;
-
-    [Slider(1f, 3000f, 1f, SliderAttribute.SliderType.Integer, label: "PB run time limit (ms)", description: "Longest time a single programmable block run may take. The game's own limit is 3000 ms. A script over the limit is stopped in the middle of the run, like one over the instruction limit. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
-    public int ScriptRunLimitMs
-    {
-        get;
-        set => SetField(ref field, value);
-    } = 100;
-
-    [Slider(1f, 3000f, 1f, SliderAttribute.SliderType.Integer, label: "PB soft run time limit (ms)", description: "A script whose own code runs longer than this in 3 runs in a row is stopped. One slow run does not stop it. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
-    public int ScriptSoftLimitMs
-    {
-        get;
-        set => SetField(ref field, value);
-    } = 5;
-
-    [Checkbox(label: "PB frame budget", description: "Holds the programmable block runs of a frame to the time budget below and delays the rest to later frames, the longest waiting first. Runs from timers, buttons and other scripts are not delayed, but count against the budget. Needs the per-thread PB instruction counter.")]
-    public bool FixScriptScheduler
-    {
-        get;
-        set => SetField(ref field, value);
-    } = false;
-
-    [Slider(1f, 100f, 1f, SliderAttribute.SliderType.Integer, label: "PB frame budget (ms)", description: "Programmable block time per frame. A run starts only if the time used so far plus the longest of its last 10 run times fits.", enabledBy: nameof(FixScriptScheduler))]
-    public int ScriptFrameBudgetMs
-    {
-        get;
-        set => SetField(ref field, value);
-    } = 5;
-
-    [Dropdown(label: "PB thread count", description: "Auto: the same number as the automatic physics thread count. Manual: exactly the number below. Not used yet: scripts still run on the main thread.")]
-    public ScriptThreadCountMode ScriptThreadCountMode
-    {
-        get;
-        set => SetField(ref field, value);
-    } = ScriptThreadCountMode.Auto;
-
-    [Slider(ScriptThreads.Min, ScriptThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "PB threads", description: "Number of programmable block worker threads in the Manual mode. Not used yet: scripts still run on the main thread.", enabledBy: nameof(ScriptThreadCountEditable))]
-    public int ScriptThreadCount
-    {
-        get;
-        set => SetField(ref field, value);
-    } = ScriptThreads.Auto;
-
-    public bool ScriptThreadCountEditable => ScriptThreadCountMode == ScriptThreadCountMode.Manual;
-
     // Server only
     public bool FixTextPanel
     {
@@ -313,6 +248,74 @@ public class Config : IPluginConfig
         get;
         set => SetField(ref field, value);
     } = true;
+
+    [Separator("Programmable blocks")]
+    [Checkbox(label: "Cache compiled scripts", description: "Caches compiled in-game scripts (PB programs) to reduce lag")]
+    public bool CacheScripts
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Skip redundant updates of PB access to blocks", description: "Skips MyGridTerminalSystem.UpdateGridBlocksOwnership before a programmable block run when the owner, the blocks and their ownership have not changed since the last run (faction and admin changes are picked up within 2 seconds)")]
+    public bool FixTerminal
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Per-thread PB instruction counter (needs restart)", description: "Gives every thread its own programmable block instruction counter, so scripts can run off the main thread. Needs a restart.")]
+    public bool FixScriptCounter
+    {
+        get;
+        set => SetField(ref field, value);
+    } = false;
+
+    [Slider(0.1f, 1000f, 0.1f, SliderAttribute.SliderType.Float, label: "PB run time limit (ms)", description: "Longest time a single programmable block run may take. The game's own limit is 3000 ms. A script over the limit is stopped in the middle of the run, like one over the instruction limit. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
+    public float ScriptRunLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 100f;
+
+    [Slider(0.1f, 100f, 0.1f, SliderAttribute.SliderType.Float, label: "PB soft run time limit (ms)", description: "A script whose own code runs longer than this in 3 runs in a row is stopped. One slow run does not stop it. Needs the per-thread PB instruction counter.", enabledBy: nameof(FixScriptCounter))]
+    public float ScriptSoftLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 5f;
+
+    [Checkbox(label: "PB frame budget", description: "Holds the programmable block runs of a frame to the time budget below and delays the rest to later frames, the longest waiting first. Runs from timers, buttons and other scripts are not delayed, but count against the budget. Needs the per-thread PB instruction counter.")]
+    public bool FixScriptScheduler
+    {
+        get;
+        set => SetField(ref field, value);
+    } = false;
+
+    [Slider(0.1f, 100f, 0.1f, SliderAttribute.SliderType.Float, label: "PB frame budget (ms)", description: "Programmable block time per frame. A run starts only if the time used so far plus the longest of its last 10 run times fits.", enabledBy: nameof(ScriptFrameBudgetEditable))]
+    public float ScriptFrameBudgetMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 5f;
+
+    [Dropdown(label: "PB thread count", description: "Auto: the same number as the automatic physics thread count. Manual: exactly the number below. Not used yet: scripts still run on the main thread.")]
+    public ScriptThreadCountMode ScriptThreadCountMode
+    {
+        get;
+        set => SetField(ref field, value);
+    } = ScriptThreadCountMode.Auto;
+
+    [Slider(ScriptThreads.Min, ScriptThreads.Max, 1f, SliderAttribute.SliderType.Integer, label: "PB threads", description: "Number of programmable block worker threads in the Manual mode. Not used yet: scripts still run on the main thread.", enabledBy: nameof(ScriptThreadCountEditable))]
+    public int ScriptThreadCount
+    {
+        get;
+        set => SetField(ref field, value);
+    } = ScriptThreads.Auto;
+
+    public bool ScriptFrameBudgetEditable => FixScriptCounter && FixScriptScheduler;
+
+    public bool ScriptThreadCountEditable => ScriptThreadCountMode == ScriptThreadCountMode.Manual;
 
     #region Property change notification boilerplate
 

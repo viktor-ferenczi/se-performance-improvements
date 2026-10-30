@@ -317,18 +317,18 @@ public interface IPluginConfig : INotifyPropertyChanged
 
     // Longest time a single programmable block run may take, in milliseconds (the game's own limit
     // is 3000). Takes effect only with FixScriptCounter.
-    int ScriptRunLimitMs { get; set; }
+    float ScriptRunLimitMs { get; set; }
 
     // A programmable block script whose own code runs longer than this, in milliseconds, in
     // ScriptRunner.SoftLimitRuns runs in a row is stopped. Takes effect only with FixScriptCounter.
-    int ScriptSoftLimitMs { get; set; }
+    float ScriptSoftLimitMs { get; set; }
 
     // Holds the programmable block runs of a frame to ScriptFrameBudgetMs, delaying the rest to
     // later frames. Takes effect only with FixScriptCounter.
     bool FixScriptScheduler { get; set; }
 
     // Programmable block time per thread and frame, in milliseconds, for FixScriptScheduler
-    int ScriptFrameBudgetMs { get; set; }
+    float ScriptFrameBudgetMs { get; set; }
 
     // Whether the programmable block worker thread count is decided automatically or taken from
     // ScriptThreadCount. Not used yet: scripts run on the main thread only.
