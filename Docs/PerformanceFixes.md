@@ -265,6 +265,29 @@ in the safe zone the Rhea, with pieces split off by then, kept bouncing on the g
 gravity after it was out, at 20 - 100 m/s, which cost most of the simulation speed as well.
 The ship 300 m above the asteroid costs nothing (7 ms, sim 0.99).
 
+## Removing grids buried inside a planet
+
+Debris that falls through a planet's surface never settles. It sinks towards the planet's
+center and jitters there, and the physics step keeps paying for it. On a cluster partition
+18 such fragments and 3 wrecks cost 14 - 20 times as much per PCU as a normal partition.
+
+`BuriedGridSweeper`, moved here from the cluster plugin, starts a sweep every
+`BuriedGridSweepMinutes` (5 by default). A sweep checks 20 grids per update, so on a world
+with thousands of grids it spreads over many updates instead of making one long frame. A
+sweep that runs past the start of the next one cancels that one. It closes the dynamic grids
+whose whole bounding sphere is more than 100 m below the planet's surface, measured straight
+down from the grid's center on the heightmap, and whose sampled block centers (up to 64) are
+all inside the planet's voxel content. The heightmap knows nothing about mined tunnels and
+shafts, so the content check is what keeps a drone miner deep in a shaft. Every grid
+connected to one by rotors, pistons or connectors must be buried as well, and none of them
+may be static, so the buried wheel of a rover on the surface stays. What is on the grid,
+power, inventory or a pilot, does not matter, and neither does whether its physics sleeps: a
+ship that deep can't be reached in regular gameplay and got there by mistake. A grid resting
+on the ground or only partly inside stays, `StuckInVoxelPatch` pushes it out. Each removal
+is logged with the grid's name, entity id, block count and position.
+
+Option `RemoveBuriedGrids`, on by default in both plugins, only where the game is the server.
+
 ## Skipping redundant updates of PB access to blocks
 
 Before every run of a programmable block the game calls

@@ -232,6 +232,23 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = true;
 
     [BoolOption(
+        "Remove the dynamic grids that lie entirely inside a planet, like debris that fell through the surface and jitters near the planet's center, costing physics time on every step. Static grids stay",
+        Parent = "simulation"
+    )]
+    public bool RemoveBuriedGrids
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [IntOption(1, 60, "Minutes between two sweeps for buried grids", Parent = "simulation")]
+    public int BuriedGridSweepMinutes
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 5;
+
+    [BoolOption(
         "Refresh the turret target groups in linear instead of quadratic time",
         Parent = "simulation"
     )]
