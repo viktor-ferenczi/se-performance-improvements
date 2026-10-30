@@ -14,16 +14,18 @@ using VRageMath;
 
 namespace Shared.Patches
 {
-    // Removes dynamic grids lying entirely inside a planet (SE-779, moved from the cluster plugin).
+    // Removes dynamic grids lying entirely inside a planet (SE-779, moved from the cluster
+    // plugin).
     //
     // Debris that falls through a planet's surface never settles. It sinks towards the planet's
     // center and jitters there, and the physics step keeps paying for it. Every few minutes this
-    // closes the grids that are dynamic, not sleeping, and whose whole bounding sphere is more
-    // than MarginMeters under the surface, along with every grid connected to them by rotors,
-    // pistons or connectors. None of them may be static or have anybody in a cockpit. A sleeping
-    // grid costs nothing per step, so it stays. Grids only partly inside are pushed out by
-    // StuckInVoxelPatch instead. A sweep is spread over updates, GridsPerUpdate grids each.
-    // Only the server removes grids.
+    // closes the dynamic grids that are not sleeping and lie entirely inside a planet: the whole
+    // bounding sphere more than MarginMeters under the heightmap, and every sampled block center
+    // inside the voxel content. Every grid connected to one by rotors, pistons or connectors must
+    // be buried as well, and none of them static. What is on the grid (power, inventory, a pilot)
+    // does not matter. A sleeping grid costs nothing per step, so it stays. Grids only partly
+    // inside are pushed out by StuckInVoxelPatch instead. A sweep is spread over updates,
+    // GridsPerUpdate grids each. Only the server removes grids.
     public static class BuriedGridSweeper
     {
         private static IPluginConfig Config => Common.Config;
@@ -85,7 +87,7 @@ namespace Shared.Patches
             if (planet == null)
                 return;
 
-            // A buried rotor head or wheel of a ship still on the surface is not debris
+            // A buried drill head or wheel of a ship still on the surface is not debris
             var group = MyCubeGridGroups.Static.Physical.GetGroup(grid);
             foreach (
                 var node in group?.Nodes
@@ -93,7 +95,7 @@ namespace Shared.Patches
             )
             {
                 var other = node.NodeData;
-                if (other.IsStatic || IsCrewed(other) || other != grid && BuriedIn(other) == null)
+                if (other.IsStatic || other != grid && BuriedIn(other) == null)
                     return;
             }
 
@@ -104,20 +106,11 @@ namespace Shared.Patches
             grid.Close();
         }
 
-        private static bool IsCrewed(MyCubeGrid grid)
-        {
-            foreach (var block in grid.GetFatBlocks())
-            {
-                if (block is MyCockpit cockpit && cockpit.Pilot != null)
-                    return true;
-            }
-
-            return false;
-        }
-
-        // The planet whose surface is above the grid's whole bounding sphere, or null.
-        // GetClosestSurfacePointGlobal projects onto the surface along the ray from the planet's
-        // center, so the depth is measured straight down, not against a nearby canyon wall.
+        // The planet whose surface is above the grid's whole bounding sphere and whose voxel
+        // content holds every sampled block center, or null. GetClosestSurfacePointGlobal projects
+        // onto the heightmap along the ray from the planet's center, so the depth is measured
+        // straight down, not against a nearby canyon wall. The heightmap knows nothing about mined
+        // tunnels and shafts, so a grid under it is checked against the voxel content too.
         private static MyPlanet BuriedIn(MyCubeGrid grid)
         {
             var position = grid.PositionComp.GetPosition();
@@ -133,7 +126,11 @@ namespace Shared.Patches
             var surface = planet.GetClosestSurfacePointGlobal(position);
             var depth = fromCenter - Vector3D.Distance(surface, center);
             var radius = grid.PositionComp.LocalVolume.Radius;
-            return depth + radius + MarginMeters < 0.0 ? planet : null;
+            if (depth + radius + MarginMeters >= 0.0)
+                return null;
+
+            var (sampled, inside) = StuckInVoxelPatch.CountInside(grid, planet);
+            return sampled > 0 && inside == sampled ? planet : null;
         }
     }
 }

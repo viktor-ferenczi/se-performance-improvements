@@ -232,7 +232,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = true;
 
     [BoolOption(
-        "Remove the dynamic grids that lie entirely inside a planet and keep moving, like debris that fell through the surface and jitters near the planet's center, costing physics time on every step. Static grids, sleeping grids and grids with a pilot stay",
+        "Remove the dynamic grids that lie entirely inside a planet and keep moving, like debris that fell through the surface and jitters near the planet's center, costing physics time on every step. Static and sleeping grids stay",
         Parent = "simulation"
     )]
     public bool RemoveBuriedGrids

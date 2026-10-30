@@ -42,7 +42,9 @@ namespace StuckProbe;
 // 60 km from the station when the world is ready. A shot then places the ship with its center
 // STUCK_DEPTH meters below the voxel's surface, on the side facing the station, inside a new
 // no-damage safe zone when STUCK_SAFEZONE=1. STUCK_UNPOWERED=1 turns off the functional blocks of
-// the ship's grids after the placement, so it falls like debris (SE-779). The distance column is the ship's distance from
+// the ship's grids after the placement, so it falls like debris (SE-779). STUCK_HOLE=<meters> cuts
+// a sphere of that radius out of the voxel around the placement, like a mined cavern, and
+// STUCK_SPIN=1 sets the ship turning every second, so its physics never sleeps. The distance column is the ship's distance from
 // where it was placed, the contact columns count ship-voxel contacts.
 public class Plugin : IPlugin
 {
@@ -77,6 +79,8 @@ public static class Probe
     private static readonly double Depth = Number("STUCK_DEPTH", 0);
     private static readonly bool SafeZone = Environment.GetEnvironmentVariable("STUCK_SAFEZONE") == "1";
     private static readonly bool Unpowered = Environment.GetEnvironmentVariable("STUCK_UNPOWERED") == "1";
+    private static readonly double Hole = Number("STUCK_HOLE", 0);
+    private static readonly bool Spin = Environment.GetEnvironmentVariable("STUCK_SPIN") == "1";
     private static MyVoxelBase voxel;
     private static Vector3D placedCenter;
     private static readonly double Seconds = Number("STUCK_SECONDS", 180);
@@ -140,7 +144,7 @@ public static class Probe
             if (VoxelKind != null)
                 SpawnVoxel();
             table.WriteLine(
-                "shot\tsecond\tframes\tupdate_ms\tphysics_ratio\tdistance_m\tspeed_mps\tcontacts\tdeep\tdeepest_m"
+                "shot\tsecond\tframes\tupdate_ms\tphysics_ratio\tdistance_m\tspeed_mps\tcontacts\tdeep\tdeepest_m\tactive"
             );
         }
 
@@ -185,6 +189,9 @@ public static class Probe
                 )
                 : -1;
         var speed = ship?.Physics?.LinearVelocity.Length() ?? -1;
+        var active = ship?.Physics == null ? -1 : ship.Physics.IsActive ? 1 : 0;
+        if (Spin && ship?.Physics != null && launchedAt >= placedAt && shot >= 0)
+            ship.Physics.AngularVelocity = Vector3.Up;
         var launched = shot >= 0 && launchedAt >= placedAt;
         table.WriteLine(
             string.Join(
@@ -204,7 +211,8 @@ public static class Probe
                 speed.ToString("F1", CultureInfo.InvariantCulture),
                 c,
                 d,
-                dd.ToString("F3", CultureInfo.InvariantCulture)
+                dd.ToString("F3", CultureInfo.InvariantCulture),
+                active
             )
         );
         table.Flush();
@@ -364,6 +372,14 @@ public static class Probe
         }
 
         placedCenter = surface - up * Depth;
+        if (Hole > 0)
+        {
+            var sphere = MyAPIGateway.Session.VoxelMaps.GetSphereVoxelHand();
+            sphere.Center = placedCenter;
+            sphere.Radius = (float)Hole;
+            MyAPIGateway.Session.VoxelMaps.CutOutShape(voxel, sphere);
+            Log($"cut a {Hole} m hole");
+        }
         Stop(ship);
         var offset = ship.PositionComp.WorldAABB.Center - ship.PositionComp.GetPosition();
         var world = ship.WorldMatrix;
@@ -400,7 +416,7 @@ public static class Probe
             MyEntities.CreateFromObjectBuilderAndAdd(zone, false);
         }
 
-        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}");
+        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}, spin {Spin}");
     }
 
     public static void Contact(ref HkContactPointEvent value)

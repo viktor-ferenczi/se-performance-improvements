@@ -243,7 +243,7 @@ namespace Shared.Patches
         }
 
         // Samples up to SampledBlocks block centers spread over the grid
-        private static (int Sampled, int Inside) CountInside(MyCubeGrid grid, MyVoxelBase voxel)
+        internal static (int Sampled, int Inside) CountInside(MyCubeGrid grid, MyVoxelBase voxel)
         {
             var blocks = grid.GetBlocks();
             var stride = blocks.Count / SampledBlocks + 1;
