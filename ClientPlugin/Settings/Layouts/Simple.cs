@@ -75,7 +75,19 @@ internal class Simple : Layout
 
             // Horizontal
 
-            var totalMinWidth = row.Select(c => (c.FixedWidth ?? c.MinWidth) + c.RightMargin).Sum();
+            // A label or value wider than its minimum takes its room from the filling controls
+            // instead of pushing the end of the row past the right edge.
+            var totalMinWidth = row.Select(c =>
+                    (
+                        c.FixedWidth
+                        ?? (
+                            c.FillFactor.HasValue
+                                ? c.MinWidth
+                                : Math.Max(c.MinWidth, c.GuiControl.Size.X)
+                        )
+                    ) + c.RightMargin
+                )
+                .Sum();
             var remainingWidth = Math.Max(0f, totalWidth - totalMinWidth);
             var sumFillFactors = row.Select(c => c.FixedWidth.HasValue ? 0f : c.FillFactor ?? 0f)
                 .Sum();

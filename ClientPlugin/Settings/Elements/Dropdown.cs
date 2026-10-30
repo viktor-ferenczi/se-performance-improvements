@@ -70,7 +70,12 @@ internal class DropdownAttribute : Attribute, IElement
         var label = Tools.Tools.GetLabelOrDefault(name, Label);
         return new List<Control>()
         {
-            new Control(new MyGuiControlLabel(text: label), minWidth: Control.LabelMinWidth),
+            Control.Indent(),
+            new Control(
+                new MyGuiControlLabel(text: label),
+                minWidth: Control.LabelMinWidth,
+                rightMargin: Control.LabelGap
+            ),
             // A fixed, narrow width: filling the row would stretch the box far wider than the
             // few words of an enum value need. Widen this if a longer value ever gets clipped.
             new Control(dropdown, fixedWidth: DropdownWidth),
