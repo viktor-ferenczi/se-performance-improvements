@@ -41,7 +41,8 @@ namespace StuckProbe;
 // Voxel mode (SE-770): STUCK_VOXEL=planet or asteroid spawns a Moon (19 km) or an asteroid prefab
 // 60 km from the station when the world is ready. A shot then places the ship with its center
 // STUCK_DEPTH meters below the voxel's surface, on the side facing the station, inside a new
-// no-damage safe zone when STUCK_SAFEZONE=1. The distance column is the ship's distance from
+// no-damage safe zone when STUCK_SAFEZONE=1. STUCK_UNPOWERED=1 turns off the functional blocks of
+// the ship's grids after the placement, so it falls like debris (SE-779). The distance column is the ship's distance from
 // where it was placed, the contact columns count ship-voxel contacts.
 public class Plugin : IPlugin
 {
@@ -75,6 +76,7 @@ public static class Probe
     private static readonly string VoxelKind = Environment.GetEnvironmentVariable("STUCK_VOXEL");
     private static readonly double Depth = Number("STUCK_DEPTH", 0);
     private static readonly bool SafeZone = Environment.GetEnvironmentVariable("STUCK_SAFEZONE") == "1";
+    private static readonly bool Unpowered = Environment.GetEnvironmentVariable("STUCK_UNPOWERED") == "1";
     private static MyVoxelBase voxel;
     private static Vector3D placedCenter;
     private static readonly double Seconds = Number("STUCK_SECONDS", 180);
@@ -369,6 +371,16 @@ public static class Probe
         ship.Teleport(world);
         Stop(ship);
 
+        // Debris has no power: no dampeners hold it against the gravity
+        if (Unpowered)
+        {
+            foreach (var node in MyCubeGridGroups.Static.Physical.GetGroup(ship).Nodes)
+            {
+                foreach (var block in node.NodeData.GetFatBlocks().OfType<MyFunctionalBlock>())
+                    block.Enabled = false;
+            }
+        }
+
         if (SafeZone)
         {
             var zone = new MyObjectBuilder_SafeZone
@@ -388,7 +400,7 @@ public static class Probe
             MyEntities.CreateFromObjectBuilderAndAdd(zone, false);
         }
 
-        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}");
+        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}");
     }
 
     public static void Contact(ref HkContactPointEvent value)
