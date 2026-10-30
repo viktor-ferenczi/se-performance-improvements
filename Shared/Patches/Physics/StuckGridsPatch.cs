@@ -268,7 +268,7 @@ namespace Shared.Patches
         }
 
         // Static grids and the grids attached to one never move
-        private static bool IsAnchored(MyCubeGrid grid)
+        internal static bool IsAnchored(MyCubeGrid grid)
         {
             return grid.IsStatic
                 || MyCubeGridGroups
@@ -290,7 +290,7 @@ namespace Shared.Patches
         }
 
         // Teleport moves the grid's whole physical group (subgrids, docked ships) along with it
-        private static void Move(MyCubeGrid grid, Vector3D step)
+        internal static void Move(MyCubeGrid grid, Vector3D step)
         {
             if (step == Vector3D.Zero)
                 return;
@@ -302,7 +302,7 @@ namespace Shared.Patches
         }
 
         // The grids would collide again with the speed they had when they got stuck
-        private static void Stop(MyCubeGrid grid, Vector3D step)
+        internal static void Stop(MyCubeGrid grid, Vector3D step)
         {
             if (step == Vector3D.Zero)
                 return;
@@ -318,6 +318,6 @@ namespace Shared.Patches
             }
         }
 
-        private static string Name(MyCubeGrid grid) => $"\"{grid.DisplayName}\" ({grid.EntityId})";
+        internal static string Name(MyCubeGrid grid) => $"\"{grid.DisplayName}\" ({grid.EntityId})";
     }
 }

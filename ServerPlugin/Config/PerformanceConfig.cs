@@ -222,6 +222,16 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = true;
 
     [BoolOption(
+        "Push a grid stuck inside a planet or an asteroid out of it, which costs most of the simulation speed while it lasts, like a ship teleported into the ground or rammed into an asteroid in a safe zone without damage. Static grids never move",
+        Parent = "simulation"
+    )]
+    public bool PushGridsOutOfVoxels
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [BoolOption(
         "Refresh the turret target groups in linear instead of quadratic time",
         Parent = "simulation"
     )]

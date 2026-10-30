@@ -409,6 +409,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Pushes apart grids stuck inside each other after a collision (only where the game is the server)
     bool SeparateStuckGrids { get; set; }
 
+    // Pushes non-static grids out of planets and asteroids they are stuck in (only where the game is the server)
+    bool PushGridsOutOfVoxels { get; set; }
+
     // Disables functional blocks in projected grids without affecting the blocks built from the projection
     bool FixProjection { get; set; }
 
