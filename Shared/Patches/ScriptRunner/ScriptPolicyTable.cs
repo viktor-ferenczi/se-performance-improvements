@@ -9,9 +9,9 @@ namespace Shared.Patches;
 // .cs files only. It has a row for every member of the game's PB whitelist that
 // ScriptEligibility looks up (Tests/Shared/Patches/ScriptWhitelist.txt, made by
 // Tools/PbProfile/whitelist.py), each classified from the decompiled game code (SE-626).
-// Members needing a worker-safe stand-in are main until they have one. Static members can
-// only be pass or main, and pass only if they use a game object argument through its
-// interfaces: a proxy fails a type test or cast to a game class.
+// A policy with @ names the mechanism it relies on (StandIn), see ScriptPolicy. Static members
+// can only be pass or main, and pass only if they use a game object argument through its
+// interfaces (a proxy fails a type test or cast to a game class) or a patch unwraps it.
 internal static class ScriptPolicyTable
 {
     public const string Text =
@@ -38,8 +38,8 @@ Sandbox.Game.EntityComponents.MyResourceSourceComponent.ProductionEnabled	pass	-
 Sandbox.Game.EntityComponents.MyResourceSourceComponent.ProductionEnabledByType	pass	-	MyResourceSourceComponent.cs:344 m_dataPerType[GetTypeIndex].IsProducerEnabled read
 Sandbox.Game.EntityComponents.MyResourceSourceComponent.RemainingCapacity	pass	-	MyResourceSourceComponent.cs:120 -> RemainingCapacityByType :249 array read
 Sandbox.Game.EntityComponents.MyResourceSourceComponent.ResourceTypes	pass	-	MyResourceSourceComponent.cs:140 new ListReader over m_resourceIds
-Sandbox.Game.Gui.TerminalActionExtensions.ApplyAction	main	-	TerminalActionExtensions.cs:14/19 static: GetActionWithName (shared static m_actionList scratch) then Apply writes; static so no queue
-Sandbox.Game.Gui.TerminalActionExtensions.GetAction	main	-	TerminalActionExtensions.cs:9 -> GetActionWithName -> MyTerminalControlFactoryHelper shared static m_actionList scratch (see IMyTerminalBlock row)
+Sandbox.Game.Gui.TerminalActionExtensions.ApplyAction	pass@Terminal	-	TerminalActionExtensions.cs:14/19 GetActionWithName (TerminalStandIn) then Apply through the action proxy, queued
+Sandbox.Game.Gui.TerminalActionExtensions.GetAction	pass@Terminal	-	TerminalActionExtensions.cs:9 GetActionWithName through the block proxy (TerminalStandIn)
 Sandbox.ModAPI.Ingame.IMyAssembler.CooperativeMode	pass	queue	MyAssembler.cs:356 get IsSlave=Sync read; set m_slave.Value (Sync<T>.Value set (network event))
 Sandbox.ModAPI.Ingame.IMyAssembler.CurrentProgress	pass	-	MyAssembler.cs:222 Sync read
 Sandbox.ModAPI.Ingame.IMyAssembler.DisassembleEnabled	pass	-	MyAssembler.cs:338 -> DisassembleEnabled :307 m_disassembleEnabled field read
@@ -86,7 +86,7 @@ Sandbox.ModAPI.Ingame.IMyCameraBlock.AvailableScanRange	pass	-	lazy accumulation
 Sandbox.ModAPI.Ingame.IMyCameraBlock.CanScan	pass	-	reads AvailableScanRange, see there. Agent: MyCameraBlock.cs:813-860 all overloads read AvailableScanRange (lazy write, see AvailableScanRange); replace with the non-storing range calc + same limit/CheckAngleLimits math
 Sandbox.ModAPI.Ingame.IMyCameraBlock.EnableRaycast	pass	queue	MyCameraBlock.cs:224 get auto-property; set writes m_lastUpdateTime and ResourceSink.Update()
 Sandbox.ModAPI.Ingame.IMyCameraBlock.IsActive	pass	-	MyCameraBlock.cs:249 m_activeViewers Sync read
-Sandbox.ModAPI.Ingame.IMyCameraBlock.Raycast	main	-	MyCameraBlock.cs:709 writes AvailableScanRange (lazy + decrement), m_debugRenderComponent.SetRaycastInfo, voxel Storage.GetGeometry().Intersect; result via MyDetectedEntityInfoHelper.Create (lazy WorldAABB/BigOwners writes)
+Sandbox.ModAPI.Ingame.IMyCameraBlock.Raycast	pass@Sensing	-	MyCameraBlock.cs:709 own scan range, CastRay under the Havok world lock; planet voxel test serialized (SensingStandIn)
 Sandbox.ModAPI.Ingame.IMyCameraBlock.RaycastConeLimit	pass	-	MyCameraBlock.cs:241 definition read
 Sandbox.ModAPI.Ingame.IMyCameraBlock.RaycastDistanceLimit	pass	-	MyCameraBlock.cs:243 definition read
 Sandbox.ModAPI.Ingame.IMyCameraBlock.RaycastTimeMultiplier	pass	-	MyCameraBlock.cs:245 definition read
@@ -130,7 +130,7 @@ Sandbox.ModAPI.Ingame.IMyEventControllerBlock.IsAndModeEnabled	pass	queue	MyEven
 Sandbox.ModAPI.Ingame.IMyEventControllerBlock.IsLowerOrEqualCondition	pass	queue	MyEventControllerBlock.cs:188 m_conditionInvert Sync read / Sync.Value set
 Sandbox.ModAPI.Ingame.IMyEventControllerBlock.Threshold	pass	queue	MyEventControllerBlock.cs:176 m_threshold Sync read; set Clamp(0,1) + Sync.Value set (pending get returns unclamped value)
 Sandbox.ModAPI.Ingame.IMyFarmPlotLogic.AmountOfSeedsRequired	pass	-	MyFarmPlotLogic.cs:383 component definition read
-Sandbox.ModAPI.Ingame.IMyFarmPlotLogic.GetDetailedInfoWithoutRequiredInput	main	-	MyFarmPlotLogic.cs:885 UpdateDetailedInfo uses MyValueFormatter.GetFormatedFloat which mutates shared static m_numberFormatInfoHelper (MyValueFormatter.cs:101)
+Sandbox.ModAPI.Ingame.IMyFarmPlotLogic.GetDetailedInfoWithoutRequiredInput	standin@DetailedInfo	-	MyFarmPlotLogic.cs:885 new StringBuilder, shared MyValueFormatter; the stand-in holds FormatLock
 Sandbox.ModAPI.Ingame.IMyFarmPlotLogic.IsAlive	pass	-	MyFarmPlotLogic.cs:335 m_plantHealthSync read
 Sandbox.ModAPI.Ingame.IMyFarmPlotLogic.IsHarvestable	pass	-	MyFarmPlotLogic.cs:341 IsPlantPlanted/IsPlantFullyGrown/IsAlive field and Sync reads
 Sandbox.ModAPI.Ingame.IMyFarmPlotLogic.IsPlantFullyGrown	pass	-	MyFarmPlotLogic.cs:337 m_growthProgressSync read
@@ -171,7 +171,7 @@ Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.LargeShipMaxSpeed	pass	-	MyProgram
 Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.PressurizationEnabled	pass	-	MyProgrammableBlock.cs:93 session settings reads
 Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.SmallShipMaxAngularSpeed	pass	-	MyProgrammableBlock.cs:113 MySector.EnvironmentDefinition read
 Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.SmallShipMaxSpeed	pass	-	MyProgrammableBlock.cs:111 MySector.EnvironmentDefinition read
-Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.CanAccess	main	-	MyProgrammableBlock.cs:252/275 (MyGridTerminalWrapper); grid overload reads MyCubeGrid.BigOwners which lazily recalculates owners (MyCubeGrid.cs:3195) on possibly foreign grids; could become replace if BigOwners read only when !NeedRecalculateOwners
+Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.CanAccess	standin@Access	-	MyProgrammableBlock.cs:252/275 reads; the grid overload's BigOwners lacks the parent fallback off main, AccessStandIn applies it
 Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.GetBlockGroupWithName	pass	-	MyGridTerminalSystem.cs:478 StringBuilder.CompareTo extension, read only
 Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.GetBlockGroups	pass	-	MyGridTerminalSystem.cs:417 iterates group-private BlockGroups list; proxy wraps results and collect args
 Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.GetBlockWithId	pass	-	MyGridTerminalSystem.cs:491 m_blockTable.TryGetValue read
@@ -186,11 +186,11 @@ Sandbox.ModAPI.Ingame.IMyGyro.Roll	pass	queue	MyGyro.cs:175 same as Pitch
 Sandbox.ModAPI.Ingame.IMyGyro.Yaw	pass	queue	MyGyro.cs:141 same as Pitch
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.DisableBroadcastListener	queue	-	MyIntergridCommunicationContext.cs:276 unregisters from global MyIGCSystemSessionComponent; proxy should do the ArgumentException check at call time
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.GetBroadcastListeners	pass	-	MyIntergridCommunicationContext.cs:288 iterates PB-private m_broadcastListeners into caller list; proxy wraps results and collect args
-Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.IsEndpointReachable	main	-	MyIntergridCommunicationContext.cs:207 -> IsConnectedTo writes m_connectionCache LRU, EvaluateConnectionTo uses static scratch m_broadcasters (line 158) and antenna system
+Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.IsEndpointReachable	pass@Igc	-	MyIntergridCommunicationContext.cs:207 IsConnectedTo: locked LRU per context, antenna walk under AntennaLock (IgcStandIn)
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.Me	pass	-	MyIntergridCommunicationContext.cs ProgrammableBlock.EntityId
-Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.RegisterBroadcastListener	main	-	MyIntergridCommunicationContext.cs:248 writes m_broadcastListeners and global MyIGCSystemSessionComponent.RegisterBroadcastListener (line 193). Replace: if an active listener with the tag exists return it (read only); else create the BroadcastListener object and queue the global registration (delivery only happens on main in UpdateBeforeSimulation)
-Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.SendBroadcastMessage	queue	-	MyIntergridCommunicationContext.cs:226 enqueues into global MyIGCSystemSessionComponent queue; run BoxMessage type check at call time so the exception reaches the script
-Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.SendUnicastMessage	main	-	MyIntergridCommunicationContext.cs:232 returns bool from IsConnectedTo (LRU cache write, static m_broadcasters scratch) then enqueues globally
+Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.RegisterBroadcastListener	pass@Igc	-	MyIntergridCommunicationContext.cs:248 own set + session component's listeners, locked in the phase (IgcStandIn)
+Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.SendBroadcastMessage	pass@Igc	-	MyIntergridCommunicationContext.cs:226 generic, so it cannot be queued; boxes the message and EnqueueMessage, locked in the phase (IgcStandIn)
+Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.SendUnicastMessage	pass@Igc	-	MyIntergridCommunicationContext.cs:232 IsConnectedTo (see IsEndpointReachable) and EnqueueMessage, locked in the phase (IgcStandIn)
 Sandbox.ModAPI.Ingame.IMyIntergridCommunicationSystem.UnicastListener	pass	-	MyIntergridCommunicationContext.cs auto-property read
 Sandbox.ModAPI.Ingame.IMyJumpDrive.CurrentStoredPower	pass	-	MyJumpDrive.cs:350 Sync read
 Sandbox.ModAPI.Ingame.IMyJumpDrive.JumpDistanceMeters	pass	queue	MyJumpDrive.cs:369 get ComputeMaxDistance: own JumpSystem drive loop, grid mass ([ThreadStatic] m_tmpGroupNodes); set m_jumpDistanceRatio Sync
@@ -202,10 +202,10 @@ Sandbox.ModAPI.Ingame.IMyJumpDrive.Recharge	pass	queue	MyJumpDrive.cs:424 m_isRe
 Sandbox.ModAPI.Ingame.IMyJumpDrive.Status	pass	-	MyJumpDrive.cs:408 IsJumping/IsWorking/m_storedPower reads
 Sandbox.ModAPI.Ingame.IMyLargeTurretBase.AIEnabled	pass	-	MyLargeTurretBase.cs:623 definition read
 Sandbox.ModAPI.Ingame.IMyLargeTurretBase.Azimuth	pass	queue	MyLargeTurretBase.cs:1211 get m_rotation; set SetManualAzimuth
-Sandbox.ModAPI.Ingame.IMyLargeTurretBase.CanControl	main	-	MyTurretController.cs:219 MyAntennaSystem.CheckConnection -> GetConnectedGridsInfo fills shared m_tmpReceivers/m_tmpBroadcasters of the singleton
+Sandbox.ModAPI.Ingame.IMyLargeTurretBase.CanControl	pass@Sensing	-	MyTurretController.cs:219 antenna CheckConnection under AntennaLock in the phase; a dedicated server returns before it
 Sandbox.ModAPI.Ingame.IMyLargeTurretBase.Elevation	pass	queue	MyLargeTurretBase.cs:1199 get m_elevation; set SetManualElevation
 Sandbox.ModAPI.Ingame.IMyLargeTurretBase.EnableIdleRotation	pass	queue	MyLargeTurretBase.cs:663 Sync read/set
-Sandbox.ModAPI.Ingame.IMyLargeTurretBase.GetTargetedEntity	main	-	MyLargeTurretBase.cs:3708 -> MyDetectedEntityInfoHelper.Create: PositionComp.WorldAABB lazy recompute (MyPositionComponentBase.cs:105) and grid BigOwners lazy recalc (MyCubeGrid.cs:3195). Replace: copy of Create computing AABB from LocalAABB*WorldMatrix and BigOwners only when not dirty (else main); read Target once
+Sandbox.ModAPI.Ingame.IMyLargeTurretBase.GetTargetedEntity	pass@Sensing	-	MyLargeTurretBase.cs:3708 Target set by main; MyDetectedEntityInfoHelper.Create reads, lazy WorldAABB is an idempotent write (SensingStandIn)
 Sandbox.ModAPI.Ingame.IMyLargeTurretBase.GetTargetingGroup	pass	-	MyLargeTurretBase.cs:3771 m_targetingGroup Sync read, MyStringHash.String under shared lock
 Sandbox.ModAPI.Ingame.IMyLargeTurretBase.GetTargetingGroups	pass	-	MyLargeTurretBase.cs:3747 definition list copied and sorted in a new list; both overloads read only
 Sandbox.ModAPI.Ingame.IMyLargeTurretBase.HasTarget	pass	-	MyLargeTurretBase.cs:1191 m_targetingSystem.Target reference read (targeting tasks may swap it; atomic)
@@ -261,7 +261,7 @@ Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.SafetyLock	pass	queue	MyMecha
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.SafetyLockSpeed	pass	queue	MyMechanicalConnectionBlockBase.cs:377 m_weldSpeed Sync read; set clamps and sets Sync
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.Top	pass	-	MyMechanicalConnectionBlockBase.cs:240 m_topBlock read
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.TopGrid	pass	-	MyMechanicalConnectionBlockBase.cs:228 m_topBlock.CubeGrid read
-Sandbox.ModAPI.Ingame.IMyMessageProvider.AcceptMessage	main	-	MyMessageListener.cs:83 dequeues the PB-private m_pendingMessages (written only by main in MyIGCSystemSessionComponent.UpdateBeforeSimulation); BroadcastListener.cs:27 may DisposeBroadcastListener when inactive+empty. Replace: dequeue on worker, queue the dispose step
+Sandbox.ModAPI.Ingame.IMyMessageProvider.AcceptMessage	pass@Igc	-	MyMessageListener.cs:83 dequeues the PB's own listener, filled by main before the simulation; an inactive broadcast listener drops from its own context
 Sandbox.ModAPI.Ingame.IMyMessageProvider.DisableMessageCallback	queue	-	MyMessageListener.cs:101 UnregisterFromCallback -> global MyIGCSystemSessionComponent.UnregisterContextWithPendingCallbacks
 Sandbox.ModAPI.Ingame.IMyMessageProvider.HasPendingMessage	pass	-	MyMessageListener.cs Queue.Count read
 Sandbox.ModAPI.Ingame.IMyMessageProvider.MaxWaitingMessages	pass	-	MyMessageListener.cs:26 constant 25
@@ -366,13 +366,13 @@ Sandbox.ModAPI.Ingame.IMyProductionBlock.InsertQueueItem	queue	-	MyProductionBlo
 Sandbox.ModAPI.Ingame.IMyProductionBlock.IsProducing	pass	-	MyProductionBlock.cs:219 Sync<bool> read
 Sandbox.ModAPI.Ingame.IMyProductionBlock.IsQueueEmpty	pass	-	MyProductionBlock.cs:213 m_queue.Count
 Sandbox.ModAPI.Ingame.IMyProductionBlock.MoveQueueItemRequest	queue	-	MyProductionBlock.cs:511 RaiseEvent OnMoveQueueItemCallback; void
-Sandbox.ModAPI.Ingame.IMyProductionBlock.NextItemId	main	-	MyProductionBlock.cs:243 getter is m_nextItemId++ (writes block state and returns it)
+Sandbox.ModAPI.Ingame.IMyProductionBlock.NextItemId	pass@Inventory	-	MyProductionBlock.cs:243 m_nextItemId++ on its own block, in the script's group
 Sandbox.ModAPI.Ingame.IMyProductionBlock.OutputInventory	pass	-	MyProductionBlock.cs:194/285 returns m_outputInventory
 Sandbox.ModAPI.Ingame.IMyProductionBlock.RemoveQueueItem	queue	-	MyProductionBlock.cs:1137 -> RemoveQueueItemRequest :546 RaiseEvent; void
 Sandbox.ModAPI.Ingame.IMyProductionBlock.UseConveyorSystem	pass	queue	MyProductionBlock.cs:245 Sync<bool> read; setter sets Sync
 Sandbox.ModAPI.Ingame.IMyProgrammableBlock.IsRunning	pass	-	MyProgrammableBlock.cs:484 m_isRunning field
 Sandbox.ModAPI.Ingame.IMyProgrammableBlock.TerminalRunArgument	pass	-	MyProgrammableBlock.cs:472 returns m_terminalRunArgument (setter private)
-Sandbox.ModAPI.Ingame.IMyProgrammableBlock.TryRun	main	-	MyProgrammableBlock.cs:1431 executes another PB script synchronously (ExecuteCode, SetDetailedInfo), returns bool
+Sandbox.ModAPI.Ingame.IMyProgrammableBlock.TryRun	standin@TryRun	-	MyProgrammableBlock.cs:1431 runs the other PB on the same thread if it may run off main in the same group, else false (TryRunStandIn)
 Sandbox.ModAPI.Ingame.IMyProjector.BuildableBlocksCount	pass	-	MyProjectorBase.cs:844 int field m_buildableBlocksCount (set by projector work OnComplete on main)
 Sandbox.ModAPI.Ingame.IMyProjector.IsProjecting	pass	-	MyProjectorBase.cs:836/896 m_clipboard.IsActive auto-property (MyGridClipboard.cs:179)
 Sandbox.ModAPI.Ingame.IMyProjector.ProjectionOffset	pass	queue	MyProjectorBase.cs:794 plain field m_projectionOffset; setter queued to keep call order with the queued UpdateOffsetAndRotation
@@ -400,7 +400,7 @@ Sandbox.ModAPI.Ingame.IMyRemoteControl.ClearWaypoints	queue	-	MyRemoteControl.cs
 Sandbox.ModAPI.Ingame.IMyRemoteControl.CurrentWaypoint	pass	-	MyRemoteControl.cs:332 new MyWaypointInfo from MyAutopilotComponent.m_currentWaypoint Name/Coords
 Sandbox.ModAPI.Ingame.IMyRemoteControl.Direction	pass	queue	MyRemoteControl.cs:320 -> MyAutopilotComponent.CurrentDirection :786 Sync read/set
 Sandbox.ModAPI.Ingame.IMyRemoteControl.FlightMode	pass	queue	MyRemoteControl.cs:308 -> MyAutopilotComponent.CurrentFlightMode :771 Sync read/set
-Sandbox.ModAPI.Ingame.IMyRemoteControl.GetNearestPlayer	main	-	MyRemoteControl.cs:899/938 reads base.WorldMatrix of the RC and of the player's controlled entity (a cockpit block of any grid): block WorldMatrix/GetPosition/WorldAABB lazily recompute (MyPositionComponentBase.RecalculateWorldMatrixHRIfNeeded :442, WorldAABB :105 write m_worldMatrix/counters/dirty flags); returns bool
+Sandbox.ModAPI.Ingame.IMyRemoteControl.GetNearestPlayer	pass@Sensing	-	MyRemoteControl.cs:899 online players snapshot (ConcurrentDictionary) and their matrices
 Sandbox.ModAPI.Ingame.IMyRemoteControl.GetWaypointInfo	pass	-	MyRemoteControl.cs:1029 copies m_autopilotComponent.Waypoints into caller list (new MyWaypointInfo)
 Sandbox.ModAPI.Ingame.IMyRemoteControl.IsAutoPilotEnabled	pass	-	MyRemoteControl.cs:270 AutoPilotEnabled Sync read
 Sandbox.ModAPI.Ingame.IMyRemoteControl.SetAutoPilotEnabled	queue	-	MyRemoteControl.cs:884 -> MyAutopilotComponent.SetAutoPilotEnabled :3003 ClearMovementControl + Sync set; void
@@ -452,7 +452,7 @@ Sandbox.ModAPI.Ingame.IMySensorBlock.DetectSubgrids	pass	queue	MySensorBlock.cs:
 Sandbox.ModAPI.Ingame.IMySensorBlock.DetectedEntities	pass	-	MySensorBlock.cs:1700 AddRange from MyConcurrentHashSet m_detectedEntities (own spin lock, enumerator released) into caller list
 Sandbox.ModAPI.Ingame.IMySensorBlock.FrontExtend	pass	queue	MySensorBlock.cs:461-560 reads m_fieldMin/m_fieldMax Sync; setter clamps then FieldMin/FieldMax Sync set + ResourceSink update
 Sandbox.ModAPI.Ingame.IMySensorBlock.IsActive	pass	-	MySensorBlock.cs:791/178 Sync<bool> m_active read
-Sandbox.ModAPI.Ingame.IMySensorBlock.LastDetectedEntity	main	-	MySensorBlock.cs:793 builds MyDetectedEntityInfoHelper.Create (MyDetectedEntityInfoHelper.cs:22) on read: PositionComp.WorldAABB/WorldMatrix of the detected entity (any grid/character): block WorldMatrix/GetPosition/WorldAABB lazily recompute (MyPositionComponentBase.RecalculateWorldMatrixHRIfNeeded :442, WorldAABB :105 write m_worldMatrix/counters/dirty flags); forageables may load models
+Sandbox.ModAPI.Ingame.IMySensorBlock.LastDetectedEntity	pass@Sensing	-	MySensorBlock.cs:793 entity set by the sensor's main thread update; Create as for turrets
 Sandbox.ModAPI.Ingame.IMySensorBlock.LeftExtend	pass	queue	MySensorBlock.cs:461-560 reads m_fieldMin/m_fieldMax Sync; setter clamps then FieldMin/FieldMax Sync set + ResourceSink update
 Sandbox.ModAPI.Ingame.IMySensorBlock.MaxRange	pass	-	MySensorBlock.cs:226 definition read
 Sandbox.ModAPI.Ingame.IMySensorBlock.PlayProximitySound	pass	queue	MySensorBlock.cs:635/240 m_playProximitySound Sync read/set
@@ -475,11 +475,11 @@ Sandbox.ModAPI.Ingame.IMyShipController.CenterOfMass	pass	-	MyShipController.cs:
 Sandbox.ModAPI.Ingame.IMyShipController.ControlThrusters	pass	queue	MyShipController.cs:738 Sync read; setter checks IsMainCockpitFree then Sync set
 Sandbox.ModAPI.Ingame.IMyShipController.ControlWheels	pass	queue	MyShipController.cs:723 Sync read; setter checks then Sync set
 Sandbox.ModAPI.Ingame.IMyShipController.DampenersOverride	pass	queue	MyShipController.cs:768 grid MyEntityThrustComponent.DampenersEnabled auto-prop; setter CubeGrid.EnableDampingInternal
-Sandbox.ModAPI.Ingame.IMyShipController.GetArtificialGravity	main	-	MyShipController.cs:3221 base.WorldMatrix of the controller block plus generator blocks' WorldMatrix/WorldAABB (MyGravityGenerator.cs:275/289, MyGravityGeneratorSphere.cs:256/267, possibly other grids): block WorldMatrix/GetPosition/WorldAABB lazily recompute (MyPositionComponentBase.RecalculateWorldMatrixHRIfNeeded :442, WorldAABB :105 write m_worldMatrix/counters/dirty flags). Tree query itself is thread-safe ([ThreadStatic] collector/stack, rw lock). Replace: position = block LocalMatrix x grid WorldMatrixRef (grid top-level, no lazy) and pre-warm generator WorldAABB on main before the phase, then call CalculateArtificialGravityInPoint
+Sandbox.ModAPI.Ingame.IMyShipController.GetArtificialGravity	pass@Gravity	-	MyShipController.cs:3221 generator matrices and boxes, brought up to date on main before the phase (GravityStandIn)
 Sandbox.ModAPI.Ingame.IMyShipController.GetNaturalGravity	pass	-	planet gravity is thread-safe; the controller's lazy matrix is own-group. Agent: MyShipController.cs:3216 MyGravityProviderSystem.CalculateNaturalGravityInPoint is thread-safe (shared lock, pure planet math) but base.WorldMatrix of the controller block: block WorldMatrix/GetPosition/WorldAABB lazily recompute (MyPositionComponentBase.RecalculateWorldMatrixHRIfNeeded :442, WorldAABB :105 write m_worldMatrix/counters/dirty flags). Replace: translation = Vector3D.Transform(PositionComp.LocalMatrixRef.Translation, CubeGrid.PositionComp.WorldMatrixRef), then call it
 Sandbox.ModAPI.Ingame.IMyShipController.GetShipSpeed	pass	-	MyShipController.cs:3231 Parent.Physics.LinearVelocity (Havok read)
 Sandbox.ModAPI.Ingame.IMyShipController.GetShipVelocities	pass	-	MyShipController.cs:3237 Parent.Physics linear/angular velocity (Havok read)
-Sandbox.ModAPI.Ingame.IMyShipController.GetTotalGravity	main	-	MyShipController.cs:3226 natural + artificial; same lazy block WorldMatrix and generator WorldAABB/WorldMatrix issue as GetArtificialGravity. Replace as GetArtificialGravity (non-lazy position, pre-warmed generators) then CalculateTotalGravityInPoint
+Sandbox.ModAPI.Ingame.IMyShipController.GetTotalGravity	pass@Gravity	-	MyShipController.cs:3226 natural + artificial, see GetArtificialGravity
 Sandbox.ModAPI.Ingame.IMyShipController.HandBrake	pass	queue	MyShipController.cs:753 GridSystems.WheelSystem.HandBrake field; setter re-checks state and calls SwitchHandbrake (toggle), fine applied in order
 Sandbox.ModAPI.Ingame.IMyShipController.HasWheels	pass	-	MyShipController.cs:866 WheelSystem.m_wheels.Count
 Sandbox.ModAPI.Ingame.IMyShipController.IsMainCockpit	pass	queue	MyShipController.cs:706 Sync read; set MyShipController.cs:714 IsMainCockpitFree/CanBeMainCockpit check, then Sync<T>.Value
@@ -509,17 +509,17 @@ Sandbox.ModAPI.Ingame.IMyTerminalBlock.CustomData	pass	queue	MyTerminalBlock.cs:
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.CustomInfo	pass	-	MyTerminalBlock.cs:433 CustomInfo.ToString()
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.CustomName	pass	queue	lazy default name of the own block; DisplayNameText of the shared definition is made thread-safe by ScriptRunner. Agent: MyTerminalBlock.cs:417/252 getter lazily fills m_defaultCustomName via LoadDefaultCustomName :1364 when the block has no custom name (common for unnamed blocks). Replace: m_customName?.ToString() ?? (m_defaultCustomName.Length>0 ? it.ToString() : BlockDefinition.DisplayNameText + (NumberInGrid>1 ? """" """"+NumberInGrid : """""""")) without caching. Setter SetCustomName :668 events + RaiseEvent
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.CustomNameWithFaction	pass	-	MyTerminalBlock.cs:429 CustomNameWithFaction.ToString(); the builder is refilled by GetHudParams :971 on main
-Sandbox.ModAPI.Ingame.IMyTerminalBlock.DetailedInfo	main	-	MyTerminalBlock.cs:431/393 if m_detailedInfoDirty runs virtual UpdateDetailedInfo into shared m_detailedInfo (many overrides, MyTexts etc.). Could be replace only with a main-thread pre-phase refresh of dirty blocks
-Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetActionWithName	main	-	MyTerminalBlock.cs:1403 -> helper :67 uses shared static m_actionList. Replace with a local list from MyTerminalControlFactory.GetActions(GetType(), list) and the same Id/IsValidForToolbarType(ButtonPanel) match
-Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetActions	main	-	MyTerminalBlock.cs:1393 -> MyTerminalControlFactoryHelper.Static shared static m_actionList scratch (MyTerminalControlFactoryHelper.cs:33). Replace: MyTerminalControlFactory.GetActions(GetType(), local list) (read of static m_controls; lazy InitializeControls only for unregistered types) then filter like the helper
-Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetProperties	main	-	MyTerminalBlock.cs:1413 -> helper :105 uses shared static m_valueControls. Replace with local list from MyTerminalControlFactory.GetValueControls(GetType(), list)
-Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetProperty	main	-	MyTerminalBlock.cs:1408 -> helper :86 uses shared static m_valueControls. Replace with local list from MyTerminalControlFactory.GetValueControls(GetType(), list) and Id match
+Sandbox.ModAPI.Ingame.IMyTerminalBlock.DetailedInfo	standin@DetailedInfo	-	MyTerminalBlock.cs:393 refresh if dirty with the shared formatter; DetailedInfoStandIn holds FormatLock, defers five unsafe block types to main
+Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetActionWithName	pass@Terminal	-	MyTerminalBlock.cs:1403 -> helper :67. Lookup with per-thread scratch lists, control lists made under a lock (TerminalStandIn)
+Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetActions	pass@Terminal	-	MyTerminalBlock.cs:1393 -> helper :33. Lookup with per-thread scratch lists, control lists made under a lock (TerminalStandIn)
+Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetProperties	pass@Terminal	-	MyTerminalBlock.cs:1413 -> helper :105. Lookup with per-thread scratch lists, control lists made under a lock (TerminalStandIn)
+Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetProperty	pass@Terminal	-	MyTerminalBlock.cs:1408 -> helper :86. Lookup with per-thread scratch lists, control lists made under a lock (TerminalStandIn)
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasLocalPlayerAccess	pass	-	MyTerminalBlock.cs:894 LocalPlayerId -> HasPlayerAccessReason :933 admin settings and faction dictionary reads (MyIDModule.cs:33)
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasNobodyPlayerAccessToBlock	pass	-	MyTerminalBlock.cs:847 IDModule ShareMode/Owner reads
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasPlayerAccess	pass	-	MyTerminalBlock.cs:917 HasAdminUseTerminals dictionary reads + IDModule.GetUserRelationToOwner faction dictionary reads
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasPlayerAccessWithNobodyCheck	pass	-	MyTerminalBlock.cs:899 as HasPlayerAccess; isForPB path reads own grid BigOwners (recalc off main only under IsAsyncUpdateInProgress)
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.IsSameConstructAs	pass	-	MyTerminalBlock.cs:1418 -> MyCubeGrid.IsSameConstructAs :16421 MyCubeGridGroups.Mechanical.GetGroup dictionary reads
-Sandbox.ModAPI.Ingame.IMyTerminalBlock.SearchActionsOfName	main	-	MyTerminalBlock.cs:1398 -> MyTerminalControlFactoryHelper.cs:50 shared static m_actionList scratch; also delegate parameter
+Sandbox.ModAPI.Ingame.IMyTerminalBlock.SearchActionsOfName	pass@Terminal	-	MyTerminalBlock.cs:1398 -> helper :50. Lookup with per-thread scratch lists, control lists made under a lock (TerminalStandIn)
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.SetCustomName	queue	-	MyTerminalBlock.cs:668/684 UpdateCustomName (events) + RaiseEvent; void; snapshot the StringBuilder overload's text
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.ShowInInventory	pass	queue	MyTerminalBlock.cs:338 Sync<bool> read; setter Sync + event; set MyTerminalBlock.cs:344 Sync<T>.Value + RaiseShowInInventoryChanged
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.ShowInTerminal	pass	queue	MyTerminalBlock.cs:322 Sync<bool> read; setter Sync + event; set MyTerminalBlock.cs:328 Sync<T>.Value + RaiseShowInTerminalChanged
@@ -537,7 +537,7 @@ Sandbox.ModAPI.Ingame.IMyTextSurface.ClearImagesFromSelection	queue	-	MyTextPane
 Sandbox.ModAPI.Ingame.IMyTextSurface.ContentType	pass	queue	MyTextPanel.cs:486/167 / MyTextPanelComponent.cs:994/615 m_contentData Sync read; setter Sync + UpdateIsStaticContent
 Sandbox.ModAPI.Ingame.IMyTextSurface.CurrentlyShownImage	pass	-	MyTextPanel.cs:421 / MyTextPanelComponent.cs:939 reads SelectedTexturesToDraw and m_currentSelectedTexture
 Sandbox.ModAPI.Ingame.IMyTextSurface.DisplayName	pass	-	MyTextPanel.cs:564 / MyTextPanelComponent.cs:1060 m_displayName
-Sandbox.ModAPI.Ingame.IMyTextSurface.DrawFrame	main	-	MyTextPanelComponent.cs:1951 frame (MySpriteDrawFrame, VRage.Game) is a struct the proxy cannot intercept; its Dispose calls DispatchSprites :1956 writing m_renderLayers/m_spriteQueue/m_areSpritesDirty. PoolManager is concurrent. Replace: return new MySpriteDrawFrame(cb) whose cb copies frame.ToCollection() and queues the real DrawFrame()+AddRange+Dispose on main
+Sandbox.ModAPI.Ingame.IMyTextSurface.DrawFrame	pass@Sprites	-	MyTextPanelComponent.cs:1951 new frame with DispatchSprites as callback; the frame is the script's own until Dispose
 Sandbox.ModAPI.Ingame.IMyTextSurface.Font	pass	queue	MyTextPanel.cs:437 / MyTextPanelComponent.cs:955/745 new MyDefinitionId(type, name) -> MyStringHash.GetOrCompute (internally locked, thread-safe); setter definition lookup + Sync
 Sandbox.ModAPI.Ingame.IMyTextSurface.FontColor	pass	queue	MyTextPanel.cs:361 / MyTextPanelComponent.cs:728 m_fontData Sync read; setter Sync
 Sandbox.ModAPI.Ingame.IMyTextSurface.FontSize	pass	queue	MyTextPanel.cs:346 / MyTextPanelComponent.cs:762 m_fontData Sync read; setter rounds + Sync
@@ -598,25 +598,25 @@ Sandbox.ModAPI.Ingame.MyGridProgram.IGC	main	-	MyGridProgram.IGC calls m_IGC_Con
 Sandbox.ModAPI.Ingame.MyGridProgram.Me	pass	pass	Auto-property set to the PB in CreateInstance (MyProgrammableBlock.cs:1194). Read only; setter is the script assigning its own field (no game effect).
 Sandbox.ModAPI.Ingame.MyGridProgram.Runtime	pass	-	Auto-property holding the PB's RuntimeInfo (set in CreateInstance, MyProgrammableBlock.cs:1191). Getter writes nothing; RuntimeInfo members are classified separately.
 Sandbox.ModAPI.Ingame.MyGridProgram.Storage	pass	pass	MyGridProgram.cs:55 reads/writes the script instance's own m_storage. Only read by the PB on main (save, MyProgrammableBlock.cs:698/1108), which cannot run during the phase.
-Sandbox.ModAPI.Ingame.TerminalBlockExtentions.ApplyAction	main	-	Static, so it cannot be queued. block.GetActionWithName(name).Apply(block[, params]). The lookup MyTerminalControlFactoryHelper.GetActionWithName (MyTerminalControlFactoryHelper.cs:67) uses the shared static scratch list m_actionList; Apply writes. Queue the whole call (copy the parameter list). An unknown action name then throws on main, not in the script; to keep that, validate on the worker by scanning MyTerminalControlFactory.GetActions(block.GetType()) (read-only UniqueListReader) and throw NullReferenceException there.
+Sandbox.ModAPI.Ingame.TerminalBlockExtentions.ApplyAction	pass@Terminal	-	TerminalBlockExtentions.cs:15/20 GetActionWithName then Apply, both through proxies (Apply queued)
 Sandbox.ModAPI.Ingame.TerminalBlockExtentions.GetId	pass	-	Returns block.EntityId (MyEntity.m_entityId field).
-Sandbox.ModAPI.Ingame.TerminalBlockExtentions.GetInventory	main	-	TerminalBlockExtentions.cs:84 static, block is MyEntity: a proxied block fails the test
-Sandbox.ModAPI.Ingame.TerminalBlockExtentions.GetInventoryCount	main	-	TerminalBlockExtentions.cs:103 static, casts the block to MyEntity: a proxied block fails the cast
-Sandbox.ModAPI.Ingame.TerminalBlockExtentions.GetUseConveyorSystem	main	-	TerminalBlockExtentions.cs:118 static, casts the block to IMyInventoryOwner: a proxied block fails the cast
-Sandbox.ModAPI.Ingame.TerminalBlockExtentions.HasAction	main	-	Calls GetActionWithName, which uses the shared static scratch list MyTerminalControlFactoryHelper.m_actionList (MyTerminalControlFactoryHelper.cs:73). Would be pass with a worker-safe lookup over MyTerminalControlFactory.GetActions(type) (same helper as for ApplyAction validation).
-Sandbox.ModAPI.Ingame.TerminalBlockExtentions.HasInventory	main	-	TerminalBlockExtentions.cs:64 static, type-tests the block as MyEntity/IMyInventoryOwner: a proxied block fails the test
-Sandbox.ModAPI.Ingame.TerminalBlockExtentions.SetUseConveyorSystem	main	-	TerminalBlockExtentions.cs:133 IMyInventoryOwner.UseConveyorSystem setter writes Sync (network); static, so no queue
+Sandbox.ModAPI.Ingame.TerminalBlockExtentions.GetInventory	pass@Inventory	-	TerminalBlockExtentions.cs:84 reads; block unwrapped, the inventory wrapped (InventoryStandIn)
+Sandbox.ModAPI.Ingame.TerminalBlockExtentions.GetInventoryCount	pass@Inventory	-	TerminalBlockExtentions.cs:103 component read; block unwrapped (InventoryStandIn)
+Sandbox.ModAPI.Ingame.TerminalBlockExtentions.GetUseConveyorSystem	pass@Inventory	-	TerminalBlockExtentions.cs:118 Sync read; block unwrapped (InventoryStandIn)
+Sandbox.ModAPI.Ingame.TerminalBlockExtentions.HasAction	pass@Terminal	-	TerminalBlockExtentions.cs:25 GetActionWithName through the block proxy != null
+Sandbox.ModAPI.Ingame.TerminalBlockExtentions.HasInventory	pass@Inventory	-	TerminalBlockExtentions.cs:64 type tests; the block is unwrapped while proxies are on (InventoryStandIn)
+Sandbox.ModAPI.Ingame.TerminalBlockExtentions.SetUseConveyorSystem	pass@Inventory	-	TerminalBlockExtentions.cs:133 Sync write, made on main after the phase (InventoryStandIn)
 Sandbox.ModAPI.Interfaces.ITerminalAction.Apply	queue	-	MyTerminalAction<TBlock>.Apply (MyTerminalAction.cs:244/253) runs the action delegate (Sync writes, RaiseEvent). Void; queue and copy the ListReader<TerminalActionParameter> argument.
 Sandbox.ModAPI.Interfaces.ITerminalAction.Icon	pass	-	MyTerminalAction.cs:88 returns m_icon field
 Sandbox.ModAPI.Interfaces.ITerminalAction.Id	pass	-	MyTerminalAction.Id returns readonly m_id (MyTerminalAction.cs:80).
-Sandbox.ModAPI.Interfaces.ITerminalAction.IsEnabled	main	-	MyTerminalAction.cs:402/273 invokes the action's Enabled and Callable delegates: per-block game lambdas and mod-added ones, not reviewed
+Sandbox.ModAPI.Interfaces.ITerminalAction.IsEnabled	pass@Terminal	-	MyTerminalAction.cs:273 Enabled and Callable delegates, reads of the block (sampled ~30)
 Sandbox.ModAPI.Interfaces.ITerminalAction.Name	pass	-	Returns the action's shared m_name StringBuilder (MyTerminalAction.cs:84); a read, but the script gets a shared mutable object (same as on main).
-Sandbox.ModAPI.Interfaces.ITerminalAction.WriteValue	main	-	MyTerminalAction.cs:394/314 invokes the Writer delegate; many writers format via MyValueFormatter (shared static helper), mods add more
-Sandbox.ModAPI.Interfaces.ITerminalProperty.GetDefaultValue	main	-	MyTerminalValueControl.cs:127; combobox GetMinimum fills shared m_handlerItems (MyTerminalControlCombobox.cs:260), slider DefaultValueGetter delegate
-Sandbox.ModAPI.Interfaces.ITerminalProperty.GetMaximum	main	-	Abstract per control type: MyTerminalControlCombobox.GetMaximum (MyTerminalControlCombobox.cs:280) fills the shared m_handlerItems scratch list; slider calls per-control Denormalizer delegates (not all reviewed). Checkbox/OnOff/Color/Textbox return constants.
-Sandbox.ModAPI.Interfaces.ITerminalProperty.GetMinimum	main	-	Same as GetMaximum: combobox uses shared m_handlerItems scratch (MyTerminalControlCombobox.cs:265), slider Denormalizer delegates unreviewed.
-Sandbox.ModAPI.Interfaces.ITerminalProperty.GetMininum	main	-	MyTerminalValueControl.cs:133 -> GetMinimum: combobox shared m_handlerItems scratch (MyTerminalControlCombobox.cs:265), slider Denormalizer
-Sandbox.ModAPI.Interfaces.ITerminalProperty.GetValue	main	-	MyTerminalValueControl.GetValue (MyTerminalValueControl.cs:79) invokes the control's Getter delegate: hundreds of game lambdas plus mod-added controls, not all reviewed (some return shared StringBuilders or compute). Replace: pass only for an allowlist of reviewed (block type, property Id) getters that read Sync/fields (e.g. OnOff), main for the rest.
+Sandbox.ModAPI.Interfaces.ITerminalAction.WriteValue	standin@Terminal	-	MyTerminalAction.cs:314 Writer formats with the shared MyValueFormatter; the stand-in holds ScriptStandIns.FormatLock
+Sandbox.ModAPI.Interfaces.ITerminalProperty.GetDefaultValue	pass@Terminal	-	MyTerminalValueControl.cs:127 DefaultValueGetter; combobox -> GetMinimum, serialized (TerminalStandIn)
+Sandbox.ModAPI.Interfaces.ITerminalProperty.GetMaximum	pass@Terminal	-	Slider Denormalizer lambdas; combobox fills its static m_handlerItems, serialized in the phase (TerminalStandIn)
+Sandbox.ModAPI.Interfaces.ITerminalProperty.GetMinimum	pass@Terminal	-	Same as GetMaximum
+Sandbox.ModAPI.Interfaces.ITerminalProperty.GetMininum	pass@Terminal	-	MyTerminalValueControl.cs:133 -> GetMinimum
+Sandbox.ModAPI.Interfaces.ITerminalProperty.GetValue	pass@Terminal	-	MyTerminalValueControl.cs:79 Getter delegate, reads of the block (sampled ~40)
 Sandbox.ModAPI.Interfaces.ITerminalProperty.Id	pass	-	MyTerminalValueControl: returns the control's Id field.
 Sandbox.ModAPI.Interfaces.ITerminalProperty.SetValue	queue	-	MyTerminalValueControl.SetValue (MyTerminalValueControl.cs:84) calls Setter (Sync writes) and block.NotifyTerminalValueChanged; slider/color/combobox overrides clamp first. Void, queue.
 Sandbox.ModAPI.Interfaces.ITerminalProperty.TypeName	pass	-	MyTerminalValueControl: typeof(TValue).Name.
@@ -625,19 +625,19 @@ Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.AsBool	pass	-	property as I
 Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.AsColor	pass	-	property as ITerminalProperty<Color>; pure type test.
 Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.AsFloat	pass	-	property as ITerminalProperty<float>; pure type test.
 Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.Cast	pass	-	As<TValue>() plus an exception built from property.Id/TypeName; reads only.
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetDefaultValue	main	-	TerminalPropertyExtensions.cs:168 GetProperty (shared scratch m_valueControls) + control GetDefaultValue (combobox scratch, delegates)
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetMaximum	main	-	block.GetProperty(id) uses the shared scratch list MyTerminalControlFactoryHelper.m_valueControls (MyTerminalControlFactoryHelper.cs:92); then control GetMaximum (combobox shared scratch, slider delegates).
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetMinimum	main	-	Same as GetMaximum extension: GetProperty shared scratch m_valueControls plus control GetMinimum.
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetMininum	main	-	TerminalPropertyExtensions.cs:181 GetProperty (shared scratch m_valueControls) + control GetMinimum (combobox scratch, slider delegates)
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValue	main	-	block.GetProperty(id) uses the shared static scratch list MyTerminalControlFactoryHelper.m_valueControls (MyTerminalControlFactoryHelper.cs:86-102), then the control's Getter delegate. Replace: look the property up by scanning MyTerminalControlFactory.GetControls(block.GetType()) (read-only; fall back to main if AreControlsCreated(type) is false), throw the same InvalidOperationException as Cast, then pass for an allowlist of reviewed (block type, Id) getters and main otherwise.
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValueBool	main	-	GetValue<bool>: see GetValue extension.
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValueColor	main	-	TerminalPropertyExtensions.cs:134 GetValue<Color>: see GetValue extension (shared scratch lookup + Getter delegate)
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValueFloat	main	-	GetValue<float>: see GetValue extension.
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetDefaultValue	pass@Terminal	-	TerminalPropertyExtensions.cs:168 GetProperty and GetDefaultValue through proxies
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetMaximum	pass@Terminal	-	GetProperty and GetMaximum through proxies
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetMinimum	pass@Terminal	-	GetProperty and GetMinimum through proxies
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetMininum	pass@Terminal	-	TerminalPropertyExtensions.cs:181 GetProperty and GetMininum through proxies
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValue	pass@Terminal	-	TerminalPropertyExtensions.cs:156 GetProperty, Cast and GetValue through proxies
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValueBool	pass@Terminal	-	GetValue<bool>: see GetValue extension.
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValueColor	pass@Terminal	-	GetValue<Color>: see GetValue extension.
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.GetValueFloat	pass@Terminal	-	GetValue<float>: see GetValue extension.
 Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.Is	pass	-	TerminalPropertyExtensions.cs:49 property is ITerminalProperty<TValue>; pure type test
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValue	main	-	Static, so it cannot be queued. GetProperty(id) (shared scratch) + Cast + MyTerminalValueControl.SetValue (Sync writes, NotifyTerminalValueChanged). Void; queue the whole call. Unknown id or wrong type then throws on main instead of in the script; validate on the worker with a read-only GetControls scan if that matters.
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValueBool	main	-	Static, so it cannot be queued. SetValue<bool>: see SetValue extension.
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValueColor	main	-	TerminalPropertyExtensions.cs:145 SetValue<Color>: GetProperty shared scratch + Setter (Sync writes). Static: main (table has SetValueBool as queue)
-Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValueFloat	main	-	Static, so it cannot be queued. SetValue<float>: see SetValue extension.
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValue	pass@Terminal	-	TerminalPropertyExtensions.cs:217 GetProperty and Cast through proxies, then the property's SetValue, queued
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValueBool	pass@Terminal	-	SetValue<bool>: see SetValue extension.
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValueColor	pass@Terminal	-	SetValue<Color>: see SetValue extension.
+Sandbox.ModAPI.Interfaces.TerminalPropertyExtensions.SetValueFloat	pass@Terminal	-	SetValue<float>: see SetValue extension.
 Sandbox.MyInitializer.MyNativeException.StackTrace	pass	-	MyInitializer.cs:53 m_trace.ToString() of the exception's own StackTrace
 Sandbox.MyInitializer.MyOutOfMemoryException.StackTrace	pass	-	MyInitializer.cs:40 returns string.Empty
 SpaceEngineers.Game.ModAPI.Ingame.IMyAirVent.CanPressurize	pass	-	lazy matrices of the own vent and grid. Agent: MyAirVent.CanPressurize (MyAirVent.cs:265) -> GetOxygenBlock (:1015): reads base.WorldMatrix of the vent (block: lazy RecalculateWorldMatrixHRIfNeeded writes, MyPositionComponentBase.cs:442) and CubeGrid.WorldToGridInteger (grid WorldMatrixNormalizedInv lazy cache, :294). Replace: same math with non-caching matrices (LocalMatrixRef * grid WorldMatrixRef, fresh inverse), then GasSystem.GetOxygenBlockAt and Room.IsAirtight (reads; breathing data is a ConcurrentDictionary).
@@ -676,9 +676,9 @@ SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.Atmosphere	pass	-	MyParachute.cs:
 SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.AutoDeploy	pass	queue	MyParachute.cs:193 m_autoDeploy Sync read; setter writes the Sync value
 SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.AutoDeployHeight	pass	queue	MyParachute.cs:178 DeployHeight (m_deployHeight Sync) read; setter clamps and writes the Sync value
 SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.CloseDoor	queue	-	MyParachute.cs:297 -> ToggleDoor -> MyDoorBase.SetOpenRequest RaiseEvent (MyDoorBase.cs:170). Void
-SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.GetArtificialGravity	main	-	MyParachute.cs:972 CalculateArtificialGravityInPoint reads generator WorldMatrix/WorldAABB of any grid (lazy writes), as IMyShipController's
+SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.GetArtificialGravity	pass@Gravity	-	MyParachute.cs:972 see IMyShipController.GetArtificialGravity
 SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.GetNaturalGravity	pass	-	MyParachute.cs:967 CalculateNaturalGravityInPoint (thread-safe planet math) at own block WorldMatrix (lazy, own group)
-SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.GetTotalGravity	main	-	MyParachute.cs:977 CalculateTotalGravityInPoint includes artificial gravity: generator WorldMatrix/WorldAABB lazy writes
+SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.GetTotalGravity	pass@Gravity	-	MyParachute.cs:977 see IMyShipController.GetArtificialGravity
 SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.GetVelocity	pass	-	MyParachute.cs:957 Parent.Physics.GetVelocityAtPoint (Havok read) at own block position
 SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.OpenDoor	queue	-	MyParachute.cs:289 -> ToggleDoor -> MyDoorBase.SetOpenRequest RaiseEvent (MyDoorBase.cs:170). Void
 SpaceEngineers.Game.ModAPI.Ingame.IMyParachute.OpenRatio	pass	-	MyParachute.cs:166 base.Open Sync read
@@ -719,7 +719,7 @@ SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.ClearTools	queue	-	MyTur
 SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.ElevationRotor	pass	queue	Getter returns m_elevator (MyTurretControlBlock.cs:1205); setter writes m_boundElevation Sync (unwrap the proxied rotor).
 SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.GetDirectionSource	pass	-	Returns m_directionBlock (MyTurretControlBlock.cs:3973).
 SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.GetShootDirection	pass	-	ShootDirection (MyTurretControlBlock.cs:1044): WorldMatrix.Forward of the controller, its camera or its bound weapon (MySmallGatlingGun.cs:643 and the others), all on its own construct
-SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.GetTargetedEntity	main	-	MyDetectedEntityInfoHelper.Create(Target, ...) (MyTurretControlBlock.cs:3844): Target is usually an entity of another grid group; reads PositionComp.WorldAABB (lazy dirty-flag write on a foreign entity another worker may touch), BigOwners, Physics. Replace possible with a non-caching AABB/matrix copy of Create.
+SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.GetTargetedEntity	pass@Sensing	-	MyTurretControlBlock.cs:3845 see IMyLargeTurretBase.GetTargetedEntity
 SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.GetTargetingGroup	pass	-	MyTurretControlBlock.cs:3868 m_targetingGroup Sync read, MyStringHash.String (locked table read)
 SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.GetTargetingGroups	pass	-	MyTurretControlBlock.cs:3849 targeting group definitions read; fills the caller's list (obsolete overload returns a new list)
 SpaceEngineers.Game.ModAPI.Ingame.IMyTurretControlBlock.GetTools	pass	-	Clears the script's list and adds values from m_boundTools (MyTurretControlBlock.cs:3883); reads game state, writes only the caller's list.
@@ -810,7 +810,7 @@ VRage.Game.GUI.TextPanel.MySpriteDrawFrame.Add	pass	-	Struct method, not interce
 VRage.Game.GUI.TextPanel.MySpriteDrawFrame.AddRange	pass	-	Struct method: m_sprites.AddRange of the script's enumerable into the frame's own list (MySpriteDrawFrame.cs:50).
 VRage.Game.GUI.TextPanel.MySpriteDrawFrame.AddToList	pass	-	MySpriteDrawFrame.cs:69 copies the frame's own m_sprites into the caller's list
 VRage.Game.GUI.TextPanel.MySpriteDrawFrame.Clip	pass	-	MySpriteDrawFrame.cs:39 Add of a clip sprite to the frame's own list, returns a token struct
-VRage.Game.GUI.TextPanel.MySpriteDrawFrame.Dispose	main	-	Struct method, not interceptable: invokes the submit callback, for LCDs MyTextPanelComponent.DispatchSprites (MyTextPanelComponent.cs:1956), which writes m_renderLayers, m_spriteQueue, m_areSpritesDirty; then returns the list to PoolManager (concurrent pool). Replace in the IMyTextSurface.DrawFrame proxy: return new MySpriteDrawFrame(cb) where cb snapshots the sprites (ToCollection) and queues on main: real DrawFrame(), AddRange(snapshot), Dispose(). Submit order per surface is kept.
+VRage.Game.GUI.TextPanel.MySpriteDrawFrame.Dispose	pass@Sprites	-	MySpriteDrawFrame.cs:77 callback then pool return (thread-safe PoolManager); DispatchSprites :1956 writes only its surface's fields, sent and rendered by the main thread later
 VRage.Game.GUI.TextPanel.MySpriteDrawFrame.ToCollection	pass	-	MySpriteDrawFrame.cs:55 copies the frame's own list into a new array
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.BlockDefinition	pass	-	SlimBlock.BlockDefinition.Id (MyCubeBlock.cs:371).
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.CubeGrid	pass	-	SlimBlock.CubeGrid field (MyCubeBlock.cs:302/375).
@@ -820,7 +820,7 @@ VRage.Game.ModAPI.Ingame.IMyCubeBlock.DisplayNameText	pass	-	MyTerminalBlock.Dis
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.GetOwnerFactionTag	pass	-	MyCubeBlock.GetOwnerFactionTag (MyCubeBlock.cs:443): IDModule.Owner and MyFactionCollection.GetPlayerFaction (two Dictionary reads).
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.GetPlayerRelationToOwner	pass	-	MyCubeBlock.cs:474 LocalHumanPlayer + MyIDModule.GetUserRelationToOwner: faction/relation dictionary reads (MyIDModule.cs:33)
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.GetUserRelationToOwner	pass	-	MyCubeBlock.cs:461 -> MyIDModule.GetRelationPlayerBlock: MyFactionCollection dictionary reads, Sync.Players.IdentityIsNpc HashSet read
-VRage.Game.ModAPI.Ingame.IMyCubeBlock.IsBeingHacked	main	-	MyTerminalBlock.IsBeingHacked (MyTerminalBlock.cs:370) writes m_isBeingHackedPrevValue and raises IsBeingHackedChanged when the value flips.
+VRage.Game.ModAPI.Ingame.IMyCubeBlock.IsBeingHacked	pass@Sensing	-	MyTerminalBlock.cs:370 writes its own previous value, raises IsBeingHackedChanged (no game subscribers)
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.IsFunctional	pass	-	SlimBlock.ComponentStack.IsFunctional: integrity field comparisons (MyComponentStack.cs:131).
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.IsWorking	pass	-	Auto-property IsWorking (MyCubeBlock.cs:327).
 VRage.Game.ModAPI.Ingame.IMyCubeBlock.Mass	pass	-	GetMass() = BlockDefinition.Mass (MyCubeBlock.cs:1722); MySpaceBall override reads VirtualMass.
@@ -861,7 +861,7 @@ VRage.Game.ModAPI.Ingame.IMyEntity.WorldVolume	pass	-	lazy volume of an own-grou
 VRage.Game.ModAPI.Ingame.IMyEntity.WorldVolumeHr	pass	-	same as IMyEntity.WorldVolume: MyEntity.cs:1252 -> PositionComp.WorldVolume (lazy recompute of an own-group entity)
 VRage.Game.ModAPI.Ingame.IMyInventory.CanItemsBeAdded	pass	-	MyInventory.CanItemsBeAdded (MyInventory.cs:619): MyInventoryItemAdapter.Static is [ThreadStatic], definition lookups, Constraint.Check (HashSet reads).
 VRage.Game.ModAPI.Ingame.IMyInventory.CanPutItems	pass	-	MyInventory.cs:508 MyInventoryBase.CanPutItems field
-VRage.Game.ModAPI.Ingame.IMyInventory.CanTransferItemTo	main	-	CanTransferTo (MyInventory.cs:2904) writes the per-inventory LRU m_connectionCache and runs MyGridConveyorSystem.ComputeCanTransfer pathfinding. Unwrap the proxied dst.
+VRage.Game.ModAPI.Ingame.IMyInventory.CanTransferItemTo	pass@Transfers	-	MyInventory.cs:2776 see IsConnectedTo
 VRage.Game.ModAPI.Ingame.IMyInventory.ContainItems	pass	-	MyInventory.cs:2695 -> ContainItems :841 GetItemAmount sum over m_items
 VRage.Game.ModAPI.Ingame.IMyInventory.CurrentMass	pass	-	m_currentMass + ExternalMass fields (MyInventory.cs:428).
 VRage.Game.ModAPI.Ingame.IMyInventory.CurrentVolume	pass	-	m_currentVolume field (MyInventory.cs:414).
@@ -871,14 +871,14 @@ VRage.Game.ModAPI.Ingame.IMyInventory.GetItemAmount	pass	-	MyInventory.GetItemAm
 VRage.Game.ModAPI.Ingame.IMyInventory.GetItemAt	pass	-	IsItemAt + m_items[index].MakeAPIItem (MyInventory.cs:2700).
 VRage.Game.ModAPI.Ingame.IMyInventory.GetItemByID	pass	-	MyInventory.cs:2709 GetItemByID :1405 scans m_items, MakeAPIItem builds a new struct
 VRage.Game.ModAPI.Ingame.IMyInventory.GetItems	pass	-	Iterates m_items, MakeAPIItem, filter, adds to the caller's list (MyInventory.cs:2724).
-VRage.Game.ModAPI.Ingame.IMyInventory.IsConnectedTo	main	-	CanTransferTo(dst, null) (MyInventory.cs:2765/2904): LRU m_connectionCache write and conveyor pathfinding. Unwrap the proxied dst.
+VRage.Game.ModAPI.Ingame.IMyInventory.IsConnectedTo	pass@Transfers	-	MyInventory.cs:2765 CanTransferTo: locked per inventory LRU, ComputeCanTransfer under the Pathfinding lock
 VRage.Game.ModAPI.Ingame.IMyInventory.IsFull	pass	-	Compares m_currentVolume/m_currentMass with MaxVolume/MaxMass (MyInventory.cs:472).
 VRage.Game.ModAPI.Ingame.IMyInventory.IsItemAt	pass	-	MyInventory.cs:1628 m_items.IsValidIndex
 VRage.Game.ModAPI.Ingame.IMyInventory.ItemCount	pass	-	m_items.Count (MyInventory.cs:506).
 VRage.Game.ModAPI.Ingame.IMyInventory.MaxVolume	pass	-	m_maxVolume times session multipliers (MyInventory.cs:347).
 VRage.Game.ModAPI.Ingame.IMyInventory.Owner	pass	-	base.Entity as MyEntity (MyInventory.cs:430).
-VRage.Game.ModAPI.Ingame.IMyInventory.TransferItemFrom	main	-	MyInventory.cs:2746/2760 returns bool; TransferItemsFrom / src.TransferItemTo: CanTransferTo (LRU cache write, conveyor pathfinding), item moves
-VRage.Game.ModAPI.Ingame.IMyInventory.TransferItemTo	main	-	Returns bool; TransferItemsTo/From (MyInventory.cs:2933) checks CanTransferTo (LRU cache write, conveyor pathfinding) then Transfer (moves items or sends a network request).
+VRage.Game.ModAPI.Ingame.IMyInventory.TransferItemFrom	standin@Transfers	-	See TransferItemTo
+VRage.Game.ModAPI.Ingame.IMyInventory.TransferItemTo	standin@Transfers	-	MyInventory.cs:2942 reachability on the worker for the game's result, the move by item id on main after the phase (TransferStandIn)
 VRage.Game.ModAPI.Ingame.IMyInventory.VolumeFillFactor	pass	-	MyInventory.cs:416 CurrentVolume / MaxVolume, field reads
 VRage.Game.ModAPI.Ingame.IMyInventoryItem.Amount	pass	pass	MyPhysicalInventoryItem.cs:149 struct field get/set; the interface boxes a copy, setter writes only the script's box
 VRage.Game.ModAPI.Ingame.IMyInventoryItem.Content	pass	pass	MyPhysicalInventoryItem.cs:179 Content auto-property of the boxed struct copy; setter writes only the script's box

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using HarmonyLib;
@@ -45,10 +46,20 @@ namespace Shared.Patches
             public bool Proxied;
             public bool UsesIgc;
 
+            // Why not proxied: null if the proxies were off when the script was created
+            public string[] Blocking;
+
+            // The mechanisms a proxied script needs off the main thread, see ScriptEligibility
+            public StandIn Needs;
+            public string[] Needing;
+
             // The proxied IGC getter, see IgcPrefix
             public Func<IMyIntergridCommunicationSystem> Igc;
 
             public bool TypesReady;
+
+            // The game made the PB's IGC context, see Prepare
+            public bool IgcReady;
         }
 
         private static readonly ConditionalWeakTable<MyGridProgram, Decision> Decisions =
@@ -77,6 +88,42 @@ namespace Shared.Patches
         public static bool IsProxied(Sandbox.ModAPI.IMyGridProgram program) =>
             program is MyGridProgram p && Decisions.TryGetValue(p, out var d) && d.Proxied;
 
+        // Where a script may run now: -1 on the main thread for good (no proxies), otherwise the
+        // mechanisms it needs that are off (StandIn), 0 if none, when it may run off the main thread
+        public static int State(Sandbox.ModAPI.IMyGridProgram program)
+        {
+            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d) || !d.Proxied)
+                return -1;
+            return (int)(d.Needs & ~ScriptStandIns.Active);
+        }
+
+        // Whether a script's first use of IGC off the main thread is safe: its context was made
+        // on the main thread, or the IGC stand-in serializes making it
+        public static bool Prepared(Sandbox.ModAPI.IMyGridProgram program) =>
+            !(program is MyGridProgram p)
+            || !Decisions.TryGetValue(p, out var d)
+            || !d.UsesIgc
+            || d.IgcReady
+            || (ScriptStandIns.Active & StandIn.Igc) != 0;
+
+        // The reason behind State, for ScriptLogThreadDecisions
+        public static string Explain(Sandbox.ModAPI.IMyGridProgram program)
+        {
+            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d))
+                return "main thread: created before PB proxies were on";
+            if (!d.Proxied)
+                return d.Blocking == null
+                    ? "main thread: created while PB proxies were off"
+                    : $"main thread: calls {string.Join(", ", d.Blocking)}";
+            var uses = d.Needing.Length == 0 ? "" : $" ({string.Join("; ", d.Needing)})";
+            var missing = d.Needs & ~ScriptStandIns.Active;
+            if (missing != StandIn.None)
+                return $"main thread: needs {ScriptStandIns.Names(missing)}, which are off{uses}";
+            return d.Needs == StandIn.None
+                ? "off the main thread"
+                : $"off the main thread, with {ScriptStandIns.Names(d.Needs)}{uses}";
+        }
+
         // On the main thread, before a proxied script runs off it. The game creates the IGC
         // context of a PB on first use, in a dictionary shared by all PBs. The proxy types of the
         // classes the script will most likely meet are made here once, as making one takes long
@@ -86,7 +133,10 @@ namespace Shared.Patches
             if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d))
                 return;
             if (d.UsesIgc && d.Igc != null)
+            {
                 d.Igc();
+                d.IgcReady = true;
+            }
             if (d.TypesReady)
                 return;
             d.TypesReady = true;
@@ -112,6 +162,10 @@ namespace Shared.Patches
                     ScriptProxies.Prepare(type);
         }
 
+        // The source of the script the PB on this thread is creating, see CreatePrefix
+        [ThreadStatic]
+        private static string creating;
+
         private static bool Decide(MyGridProgram program) => DecisionOf(program).Proxied;
 
         private static Decision DecisionOf(MyGridProgram program) =>
@@ -121,12 +175,24 @@ namespace Shared.Patches
                 {
                     if (!Enabled)
                         return new Decision();
-                    var result = ScriptEligibility.Of(p.GetType().Assembly);
+                    var scans = ScriptEligibility.Scans;
+                    var result = ScriptEligibility.Of(p.GetType().Assembly, creating);
+                    if (ScriptEligibility.Scans != scans)
+                        Common.Logger.Debug(
+                            $"PB script eligibility scan: {result.Milliseconds:F1} ms, {ScriptEligibility.Scans} scans so far"
+                        );
                     if (!result.OffMain)
                         Common.Logger.Debug(
                             $"PB script stays on the main thread: {string.Join(", ", result.Blocking)}"
                         );
-                    return new Decision { Proxied = result.OffMain, UsesIgc = result.UsesIgc };
+                    return new Decision
+                    {
+                        Proxied = result.OffMain,
+                        UsesIgc = result.UsesIgc,
+                        Blocking = result.Blocking,
+                        Needs = result.Needs,
+                        Needing = result.Needing,
+                    };
                 }
             );
 
@@ -155,6 +221,29 @@ namespace Shared.Patches
         private static class RootsPatch
         {
             private const string Prefix = "Sandbox.ModAPI.IMyGridProgram.set_";
+
+            // The PB compiles its scripts from m_programData only, which changes only together with
+            // a recompile, so it is the source of the assembly the PB creates the script from
+            [HarmonyPrefix]
+            [HarmonyPatch(
+                typeof(MyProgrammableBlock),
+                "CreateInstance",
+                typeof(Assembly),
+                typeof(IEnumerable<string>),
+                typeof(string)
+            )]
+            private static void CreatePrefix(MyProgrammableBlock __instance) =>
+                creating = __instance.m_programData;
+
+            [HarmonyFinalizer]
+            [HarmonyPatch(
+                typeof(MyProgrammableBlock),
+                "CreateInstance",
+                typeof(Assembly),
+                typeof(IEnumerable<string>),
+                typeof(string)
+            )]
+            private static void CreateFinalizer() => creating = null;
 
             [HarmonyPrefix]
             [HarmonyPatch(typeof(MyGridProgram), Prefix + "Runtime")]

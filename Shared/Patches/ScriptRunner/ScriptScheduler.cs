@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using HarmonyLib;
 using Sandbox;
@@ -147,13 +148,18 @@ namespace Shared.Patches
             RunQueue<MyProgrammableBlock>.DrainResult result;
             var parallel = Parallel ? ParallelRuns : null;
             if (parallel != null)
+            {
                 parallel.Threads = Threads;
+                ScriptStandIns.BeforePhase();
+                ScriptStandIns.InPhase = true;
+            }
             try
             {
                 result = Queue.Drain(usedTicks, BudgetTicks, RunBlock, Clock, parallel);
             }
             finally
             {
+                ScriptStandIns.InPhase = false;
                 draining = false;
                 usedTicks = 0;
                 ApplyFinished();
@@ -213,11 +219,41 @@ namespace Shared.Patches
                 return null;
 
             var program = InstanceOf(pb);
-            if (program == null || !ScriptRoots.IsProxied(program))
+            if (program == null)
+                return null;
+            var state = ScriptRoots.State(program);
+            if (Config.ScriptLogThreadDecisions)
+                LogDecision(pb, program, state);
+            if (state != 0)
                 return null;
 
             ScriptRoots.Prepare(program, pb);
             return MyCubeGridGroups.Static.Logical.GetGroup(pb.CubeGrid);
+        }
+
+        // The state last logged per PB, see ScriptRoots.State
+        private sealed class Logged
+        {
+            public int State = int.MinValue;
+        }
+
+        private static readonly ConditionalWeakTable<MyProgrammableBlock, Logged> LoggedOf =
+            new ConditionalWeakTable<MyProgrammableBlock, Logged>();
+
+        // Logs where a script runs and why, when the PB is seen first and when that changes
+        private static void LogDecision(
+            MyProgrammableBlock pb,
+            Sandbox.ModAPI.IMyGridProgram program,
+            int state
+        )
+        {
+            var logged = LoggedOf.GetOrCreateValue(pb);
+            if (logged.State == state)
+                return;
+            logged.State = state;
+            Common.Logger.Info(
+                $"PB thread decision: \"{pb.CustomName}\" ({pb.EntityId}) on \"{pb.CubeGrid?.DisplayName}\": {ScriptRoots.Explain(program)}"
+            );
         }
 
         // On any thread of the parallel phase
@@ -229,12 +265,14 @@ namespace Shared.Patches
 
             string response;
             writes.Begin();
+            ScriptStandIns.CurrentGroup = MyCubeGridGroups.Static.Logical.GetGroup(pb.CubeGrid);
             try
             {
                 ScriptRunner.Execute(pb, string.Empty, (UpdateType)updateType, out response);
             }
             finally
             {
+                ScriptStandIns.CurrentGroup = null;
                 ScriptWrites.End();
             }
 

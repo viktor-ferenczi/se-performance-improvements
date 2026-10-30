@@ -252,7 +252,7 @@ public static class Probe
             pbs.Append(
                 $"{pb.EntityId}\t{Clean(pb.CubeGrid.DisplayName)}\t{Clean(pb.CustomName.ToString())}\t{hash}\t{program.Length}\t"
                     + $"{pb.Enabled}\t{pb.IsWorking}\t{Instance?.GetValue(pb) != null}\t{Termination?.GetValue(pb)}\t{Seen.Contains(pb)}\t"
-                    + $"{(info.Length > 200 ? info.Substring(0, 200) : info)}\t{Clean(pb.CustomData)}\n"
+                    + $"{(info.Length > 2000 ? info.Substring(0, 2000) : info)}\t{Clean(pb.CustomData)}\n"
             );
             if (program.Length > 0)
                 File.WriteAllText(Path.Combine(Dir, "programs", hash + ".cs"), program);

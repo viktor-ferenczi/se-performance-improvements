@@ -15,6 +15,8 @@ namespace Policy.Ingame
         bool TryRepair();
         int Reset();
         ILamp Neighbor { get; set; }
+        string Describe(int detail);
+        int Color { get; }
     }
 
     public class Lamp : ILamp
@@ -32,6 +34,10 @@ namespace Policy.Ingame
         public bool TryRepair() => ++Repairs > 0;
 
         public int Reset() => 0;
+
+        public string Describe(int detail) => "game";
+
+        public int Color => 1;
     }
 }
 
@@ -48,7 +54,13 @@ namespace Tests.Shared.Patches
             + "Policy.Ingame.ILamp.Blink\tqueue\t-\n"
             + "Policy.Ingame.ILamp.TryRepair\tqueue\t-\treturns true until replayed\n"
             + "Policy.Ingame.ILamp.Reset\tqueue\t-\treturns a value, so main\n"
-            + "Policy.Ingame.ILamp.Neighbor\tpass\tqueue\n";
+            + "Policy.Ingame.ILamp.Neighbor\tpass\tqueue\n"
+            + "Policy.Ingame.ILamp.Describe\tstandin@Sprites\t-\n"
+            + "Policy.Ingame.ILamp.Color\tpass@Terminal\t-\n";
+
+        // Off the main thread the proxy calls this instead of Lamp.Describe
+        [StandInFor("Policy.Ingame.ILamp.Describe")]
+        public static string Describe(ILamp lamp, int detail) => $"stand-in {detail} {lamp.Name}";
 
         static ScriptPolicyTest()
         {
@@ -76,6 +88,37 @@ namespace Tests.Shared.Patches
                 MemberPolicy.Main,
                 ScriptPolicy.Of(typeof(IDisposable).GetMethod("Dispose"))
             );
+        }
+
+        [Fact]
+        public void PoliciesNameTheMechanismTheyNeed()
+        {
+            var type = typeof(ILamp);
+            Assert.Equal(MemberPolicy.Pass, ScriptPolicy.Of(type.GetProperty("Color").GetMethod));
+            Assert.Equal(
+                StandIn.Terminal,
+                ScriptPolicy.NeedsOf(type.GetProperty("Color").GetMethod)
+            );
+            Assert.Equal(MemberPolicy.StandIn, ScriptProxies.PolicyOf(type.GetMethod("Describe")));
+            Assert.Equal(StandIn.Sprites, ScriptPolicy.NeedsOf(type.GetMethod("Describe")));
+            Assert.Equal(StandIn.None, ScriptPolicy.NeedsOf(type.GetMethod("Blink")));
+        }
+
+        [Fact]
+        public void StandInsReplaceTheMemberOffMain()
+        {
+            var (_, proxy) = Make();
+            Assert.Equal("game", proxy.Describe(2));
+            var log = new ScriptWrites();
+            log.Begin();
+            try
+            {
+                Assert.Equal("stand-in 2 lamp", proxy.Describe(2));
+            }
+            finally
+            {
+                ScriptWrites.End();
+            }
         }
 
         [Fact]
@@ -129,6 +172,30 @@ namespace Tests.Shared.Patches
         }
 
         [Fact]
+        public void LaterCallsReplayInOrderWithTheWrites()
+        {
+            var (lamp, proxy) = Make();
+            var blinksSeen = -1;
+            var log = new ScriptWrites();
+            log.Begin();
+            try
+            {
+                proxy.Blink(1);
+                ScriptWrites.Later(() => blinksSeen = lamp.Blinks);
+                proxy.Blink(1);
+            }
+            finally
+            {
+                ScriptWrites.End();
+            }
+
+            Assert.Equal(-1, blinksSeen);
+            log.Replay(e => throw e);
+            Assert.Equal(1, blinksSeen);
+            Assert.Equal(2, lamp.Blinks);
+        }
+
+        [Fact]
         public void QueuedBoolMethodsReturnTrue()
         {
             var (lamp, proxy) = Make();
@@ -153,13 +220,20 @@ namespace Tests.Shared.Patches
         {
             var lines = ScriptPolicyTable.Text.Split('\n').Where(l => l.Length != 0).ToList();
             Assert.True(lines.Count > 400);
-            var policies = new[] { "pass", "queue", "main", "-" };
+            var policies = new[] { "pass", "queue", "standin", "main", "-" };
+            var standIns = Enum.GetNames(typeof(StandIn));
             foreach (var line in lines)
             {
                 var columns = line.Split('\t');
                 Assert.True(columns.Length == 4, line);
-                Assert.Contains(columns[1], policies);
-                Assert.Contains(columns[2], policies);
+                foreach (var column in columns.Skip(1).Take(2))
+                {
+                    var parts = column.Split('@');
+                    Assert.Contains(parts[0], policies);
+                    if (parts.Length > 1)
+                        Assert.Contains(parts[1], standIns);
+                    Assert.True(parts[0] != "standin" || parts.Length > 1, line);
+                }
             }
             Assert.Single(
                 lines

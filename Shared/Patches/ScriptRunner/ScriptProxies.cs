@@ -134,13 +134,22 @@ public static class ScriptProxies
             && (
                 method.DeclaringType?.IsInterface != true
                 || (method.ReturnType != typeof(void) && method.ReturnType != typeof(bool))
-                || method.IsGenericMethodDefinition
+                || method.IsGenericMethod
                 || method
                     .GetParameters()
                     .Any(p =>
                         p.ParameterType.IsByRef
                         || typeof(Delegate).IsAssignableFrom(p.ParameterType)
                     )
+            )
+        )
+            return MemberPolicy.Main;
+        if (
+            policy == MemberPolicy.StandIn
+            && (
+                method.DeclaringType?.IsInterface != true
+                || method.IsGenericMethod
+                || StandInMethods.Of(method) == null
             )
         )
             return MemberPolicy.Main;
@@ -302,7 +311,25 @@ public static class ScriptProxies
             il.Emit(OpCodes.Ldarg, i + 1);
             ConvertIn(il, parameterTypes[i]);
         }
-        il.Emit(OpCodes.Callvirt, target);
+        // Off the main thread a stand-in takes the same arguments, the game object first
+        if (PolicyOf(method) == MemberPolicy.StandIn && !writers.ContainsKey(method))
+        {
+            var standIn = StandInMethods.Of(method);
+            var virtualCall = il.DefineLabel();
+            var called = il.DefineLabel();
+            il.Emit(
+                OpCodes.Call,
+                typeof(ScriptWrites).GetProperty(nameof(ScriptWrites.Active)).GetMethod
+            );
+            il.Emit(OpCodes.Brfalse, virtualCall);
+            il.Emit(OpCodes.Call, standIn);
+            il.Emit(OpCodes.Br, called);
+            il.MarkLabel(virtualCall);
+            il.Emit(OpCodes.Callvirt, target);
+            il.MarkLabel(called);
+        }
+        else
+            il.Emit(OpCodes.Callvirt, target);
 
         var result = returnType == typeof(void) ? null : il.DeclareLocal(returnType);
         if (result != null)
@@ -346,7 +373,7 @@ public static class ScriptProxies
     {
         var policy = writers.ContainsKey(method) ? MemberPolicy.Queue : PolicyOf(method);
         var readBack = policy == MemberPolicy.Pass ? ReadBackSetter(iface, method, writers) : -1;
-        if (policy == MemberPolicy.Pass && readBack < 0)
+        if (policy == MemberPolicy.Pass && readBack < 0 || policy == MemberPolicy.StandIn)
             return;
 
         var forward = il.DefineLabel();
@@ -456,14 +483,23 @@ public static class ScriptProxies
                 il.Emit(OpCodes.Call, Helper(nameof(WrapAction), action));
         }
         else if (Converts(type))
+        {
+            // The helpers take an object; a type parameter may stand for a value type
+            if (type.IsGenericParameter)
+                il.Emit(OpCodes.Box, type);
             il.Emit(OpCodes.Call, Helper(nameof(UnwrapAs), type));
+        }
     }
 
     // Converts the value on the stack from the game's side to the script's side
     private static void ConvertOut(ILGenerator il, Type type)
     {
         if (Converts(type))
+        {
+            if (type.IsGenericParameter)
+                il.Emit(OpCodes.Box, type);
             il.Emit(OpCodes.Call, Helper(nameof(WrapAs), type));
+        }
     }
 
     // Reference types other than strings, delegates and the lists handled after the call

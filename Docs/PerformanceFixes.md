@@ -338,22 +338,27 @@ those roots instead of the game objects. Everything the script gets from a proxy
 too, so every game call it makes goes through one.
 
 Whether a script may run off the main thread is decided once per script instance, when the
-PB creates it, by scanning the IL of the script assembly. Each game member it calls is looked
+PB creates it, by scanning the IL of the script assembly. Every PB loads its own copy of that
+assembly, so the result is kept in memory by a hash of the script's source: the scan runs once
+per distinct script while the game runs, not once per PB or recompile. Each game member it calls is looked
 up in `ScriptPolicyTable.cs`, which says for every member of the game's script whitelist (about
 900, apart from plain data types) what calling it on a worker thread would do:
 
 - **pass**: it only reads, or writes only caches of objects of the script's own grid group,
   like a block's world matrix, which no other thread touches while the script runs. The
   proxy calls the game.
-- **queue**: a write without a result, like a setter, `SendBroadcastMessage`
-  or `WriteText`. Off the main thread the proxy records the call, with copies of its text and
+- **queue**: a write without a result, like a setter or `WriteText`. Generic methods can't
+  be queued. Off the main thread the proxy records the call, with copies of its text and
   list arguments, and returns; the call is made on the main thread later. A script that sets
   a property and reads it back in the same run gets the value it set. Other effects of its
   writes show up a frame later. `WriteText` returns true while queued: the game returns false
   only while a player edits the text.
-- **main**: anything else, for example a read that fills a cache shared by all grids
-  (`GetProperty`, `DetailedInfo`), sprites (`DrawFrame`), raycasts, IGC unicast and
-  listener registration, inventory transfers and `TryRun`.
+- **main**: anything else, for example creating store offers or starting a warhead
+  countdown.
+
+A policy can name the mechanism it relies on, like `pass@Terminal`, and there is a fourth
+policy, **standin**, where the proxy calls a replacement written for worker threads; see the
+next section.
 
 A script that calls any main member, or a game member missing from the table, stays on the
 main thread and keeps the game objects. So does a script whose IL can't be read. Every member
@@ -361,9 +366,7 @@ was classified from the decompiled game code. A static member is pass only if it
 block argument through the block's interfaces, since a proxy fails a type test or cast to a
 game class. A unit test checks the table against a snapshot of the whitelist,
 `Tests/Shared/Patches/ScriptWhitelist.txt`, so after a game update a refreshed snapshot shows
-the new members (`Tools/PbProfile/whitelist.py` says how). Members that need a worker-safe
-stand-in of their own are main for now; adding stand-ins for the most used ones (`DrawFrame`, `GetProperty`,
-`DetailedInfo`, `AcceptMessage`) would let more scripts leave the main thread.
+the new members (`Tools/PbProfile/whitelist.py` says how).
 
 On the main thread the proxies only forward calls, so with the option on and the scripts
 still on the main thread they behave as before, at the cost of one extra call per game call.
@@ -372,6 +375,50 @@ The option applies to scripts created after it changes: after a recompile or a w
 With the option on, `MyCubeBlockDefinition.DisplayNameText` takes a lock on the definition,
 because it builds the name in a buffer shared by all blocks of that type, and scripts read it
 through `CustomName` and `DefinitionDisplayNameText`.
+
+## Mechanisms that let more PB scripts off the main thread
+
+About 60 members of the script whitelist are not safe to call on a worker thread as they are,
+mostly because the game keeps scratch state for them in shared fields. Ten mechanisms make
+them safe, each with its own option. A script runs off the main thread only if every
+mechanism its calls rely on is on; otherwise it runs on the main thread, with its proxies.
+Turning an option off moves the scripts needing it back to the main thread from the next
+frame. The options take effect only with the per-thread counter, the frame budget, the proxies
+and more than one PB thread.
+
+The patches behind them are applied at startup whenever the per-thread counter is on, whatever
+the options say, and act only during the parallel phase, so outside it the game runs as
+before. Applied later, a patched game method could still run unpatched where a caller compiled
+earlier inlined it.
+
+| Option | Default | Members | How |
+| --- | --- | --- | --- |
+| `ScriptOffMainSprites` | on | `DrawFrame`, `MySpriteDrawFrame.Dispose` | Nothing to do: submitting a frame only writes fields of that surface, which the main thread sends and renders later. |
+| `ScriptOffMainAccess` | on | `CanAccess` | Reads. For a grid, the stand-in adds the owner fallback the game uses only on the main thread. |
+| `ScriptOffMainTerminal` | on | `GetProperty`, `GetActionWithName`, `GetValue`, `SetValue`, `ApplyAction` and the rest of the terminal property and action API | The lookup scratch lists are per thread, and the control lists of a block type are made under a lock. Combobox limits are serialized. Values set and actions applied stay queued. `WriteValue` takes the formatter lock. |
+| `ScriptOffMainDetailedInfo` | on | `DetailedInfo`, the farm plot's detailed info | A dirty text is refreshed under one lock, because the game's number formatting shares one `NumberFormatInfo`. Pistons, flight movement blocks, path recorders, jump drives and projectors write shared state while refreshing, so off the main thread they return their last text and are refreshed on the main thread after the phase. |
+| `ScriptOffMainIgc` | on | `RegisterBroadcastListener`, `AcceptMessage`, `SendBroadcastMessage`, `SendUnicastMessage`, `IsEndpointReachable` | The IGC session component's collections are locked in the phase. The antenna walk behind reachability is serialized; its result is cached per PB and frame. |
+| `ScriptOffMainGravity` | on | Artificial and total gravity of ship controllers and parachutes | Before the phase the main thread brings the world matrix and box of every gravity generator up to date. With a gravity provider from a mod in the world, these scripts stay on the main thread. |
+| `ScriptOffMainSensing` | off | Turret, turret controller and sensor targets, camera `Raycast`, `GetNearestPlayer`, `IsBeingHacked`, `CanControl` | Reads of entities the main thread updated, ray casts under the Havok world's own lock as the game's parallel ray casts do, and locks around the antenna walk and the planet voxel test. Off by default because it puts physics queries on worker threads. |
+| `ScriptOffMainTransfers` | off | `TransferItemTo`, `TransferItemFrom`, `CanTransferItemTo`, `IsConnectedTo` | Reachability is checked on the worker, as the game does in its own background tasks, so the script gets the game's result. The move is made on the main thread after the phase, by item id. Off by default because the script sees the old inventory contents until its next run: a loop moving items until an inventory is empty would not end. |
+| `ScriptOffMainTryRun` | on | `TryRun` | The other PB runs right away on the same thread if it is in the same grid group and its script may run off the main thread too. Otherwise `TryRun` returns false, as it does for a busy PB. |
+| `ScriptOffMainInventory` | on | `HasInventory`, `GetInventory`, `GetInventoryCount`, `Get/SetUseConveyorSystem`, `NextItemId` | While the proxies are on, these static helpers unwrap the proxy they get. `SetUseConveyorSystem` is made on the main thread after the phase. |
+
+Store offers and orders, warhead countdowns, path recorder beacons and autopilot waypoint
+matrices stay on the main thread.
+
+`ScriptLogThreadDecisions`, off by default, logs for each PB where its script runs and why:
+the members that keep it on the main thread, or the options it needs that are off. It logs a
+PB when it is first seen and when the decision changes, so it can stay on on a live server.
+
+Over a corpus of 219 compiling scripts (76 popular Workshop scripts and 143 from popular
+blueprints), 29% could leave the main thread without these mechanisms, 75% can with the
+defaults and 99% with all of them on.
+
+With the per-thread counter on, the `AppendDecimal` and `AppendFormatedDecimal` helpers the
+game gives scripts get a `NumberFormatInfo` per thread. They set the decimal digits in one
+shared instance right before formatting with it, so two scripts formatting at the same time on
+two threads could get each other's digits.
 
 ## Less frequent update of block access rights
 

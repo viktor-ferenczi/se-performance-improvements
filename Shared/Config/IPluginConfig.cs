@@ -342,6 +342,54 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Number of programmable block worker threads in the Manual mode
     int ScriptThreadCount { get; set; }
 
+    // Scripts drawing sprites on LCDs (DrawFrame) may run off the main thread. The sprites are
+    // collected on the worker and sent to the LCD on the main thread after the scripts ran. See
+    // StandIn.
+    bool ScriptOffMainSprites { get; set; }
+
+    // Scripts checking access to blocks and grids (CanAccess) may run off the main thread. The checks
+    // read ownership the main thread prepares before the scripts run. See StandIn.
+    bool ScriptOffMainAccess { get; set; }
+
+    // Scripts reading terminal properties and actions (GetProperty, GetActionWithName, GetValue,
+    // SetValue, ApplyAction) may run off the main thread. Lookups use per-thread lists, and values set
+    // and actions applied are made on the main thread after the scripts ran. See StandIn.
+    bool ScriptOffMainTerminal { get; set; }
+
+    // Scripts reading DetailedInfo of blocks may run off the main thread. The game's shared number
+    // formatting buffer becomes per thread. See StandIn.
+    bool ScriptOffMainDetailedInfo { get; set; }
+
+    // Scripts using IGC (broadcast and unicast listeners and messages) may run off the main thread.
+    // Listener registration and sends are serialized, messages are delivered as before. See StandIn.
+    bool ScriptOffMainIgc { get; set; }
+
+    // Scripts reading the artificial or total gravity of ship controllers and parachutes may run off
+    // the main thread. The gravity generators are brought up to date on the main thread before the
+    // scripts run. See StandIn.
+    bool ScriptOffMainGravity { get; set; }
+
+    // Scripts reading turret, turret controller and sensor targets, camera raycasts, the nearest
+    // player of a remote control or the hacking state of blocks may run off the main thread. Raycasts
+    // query the physics world from worker threads. Off by default. See StandIn.
+    bool ScriptOffMainSensing { get; set; }
+
+    // Scripts moving items between inventories or checking conveyor connections (TransferItemTo,
+    // CanTransferItemTo, IsConnectedTo) may run off the main thread. Off by default. See StandIn.
+    bool ScriptOffMainTransfers { get; set; }
+
+    // Scripts running other programmable blocks (TryRun) may run off the main thread. The other PB
+    // runs on the same thread if its script may run off the main thread too and it is in the same grid
+    // group; otherwise TryRun returns false, as for a busy PB. See StandIn.
+    bool ScriptOffMainTryRun { get; set; }
+
+    // Scripts using the inventory helper methods of terminal blocks (HasInventory, GetInventory,
+    // GetInventoryCount, Get/SetUseConveyorSystem) may run off the main thread. See StandIn.
+    bool ScriptOffMainInventory { get; set; }
+
+    // Logs where each programmable block script runs, on the main thread or off it, and why
+    bool ScriptLogThreadDecisions { get; set; }
+
     // Disables UpdateVisibility of LCD surfaces on multiplayer servers
     bool FixTextPanel { get; set; }
 

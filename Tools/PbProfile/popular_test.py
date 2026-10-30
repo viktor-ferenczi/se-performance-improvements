@@ -10,6 +10,9 @@ at the end with the vanilla run:
     counter  the plugin with the per-thread PB counter on (the hard and soft run limits)
     scheduler    the counter and the PB frame budget on
     pb       every PB option on: counter, frame budget, proxies, Auto threads
+    standins pb with the soft limit at 100 ms and the thread decisions logged; the default
+             mechanisms (StandIn) let scripts off the main thread
+    all      standins with every mechanism on, Sensing and Transfers too
 
 The world comes from build_world.py: the SE-633 one from the most-subscribed ship and station
 blueprints, or one from Workshop blueprints whose PBs carry popular Workshop scripts.
@@ -50,6 +53,19 @@ CASES = {
         *("--option", "FixScriptProxies=true"),
     ],
 }
+# Off the main thread with the default mechanisms, and with all of them; the soft limit is raised,
+# so it does not stop scripts the comparison is about
+CASES["standins"] = [
+    *CASES["pb"],
+    *("--option", "ScriptSoftLimitMs=100"),
+    *("--option", "ScriptLogThreadDecisions=true"),
+]
+CASES["all"] = [
+    *CASES["standins"],
+    *("--option", "ScriptOffMainSensing=true"),
+    *("--option", "ScriptOffMainTransfers=true"),
+]
+DECISION = re.compile(r'PB thread decision: "(.*)" \((\d+)\) on "(.*)": (.*)$')
 
 PROBLEM = re.compile(r"exception|terminated|too complex|took too long|stopped|error", re.I)
 
@@ -118,7 +134,7 @@ def main() -> int:
             continue
 
         gate = results if case == "default" else []
-        if case == "default":
+        if CASES[case] is not None:
             errors = [ln for ln in text.splitlines() if "Performance" in ln and ("Critical:" in ln or "Error:" in ln)]
             check(gate, not errors, f"{name} {case}: no Performance errors {errors[:2]}")
         if "vanilla" not in states:
@@ -162,9 +178,20 @@ def main() -> int:
             print(
                 f"     {label(pbs[p])}\n       vanilla: {base_pbs[p]['info'][:150]!r}\n       {case}: {pbs[p]['info'][:150]!r}"
             )
-        if case == "pb":
+        if case in ("pb", "standins", "all"):
             share = [ln.strip() for ln in text.splitlines() if "of the runs in parallel" in ln]
             print(f"   {share[-1] if share else 'no parallel scheduler line'}")
+        decisions = {}
+        for ln in text.splitlines():
+            m = DECISION.search(ln)
+            if m:
+                decisions[m.group(2)] = m.group(4)
+        if decisions:
+            off = sum(1 for d in decisions.values() if d.startswith("off"))
+            print(f"   thread decisions: {off} of {len(decisions)} PBs off the main thread")
+            reasons = Counter(re.sub(r" \(.*", "", d) for d in decisions.values() if not d.startswith("off"))
+            for reason, count in reasons.most_common(12):
+                print(f"     {count:3} {reason[:150]}")
 
     failed = not all(results)
     print(f"== RESULT {name}", "FAIL" if failed else "PASS", flush=True)

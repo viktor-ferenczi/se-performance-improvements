@@ -33,6 +33,9 @@ namespace Fake.Ingame
 
         IBlock Find(string name);
         IProperty<int> CountProperty { get; }
+
+        // Like IGC.SendBroadcastMessage<TData>: any type, value types included
+        string Describe<TData>(TData data);
     }
 }
 
@@ -83,6 +86,8 @@ namespace Fake.Game
         public IBlock Find(string name) => Blocks.Find(b => b.Name == name);
 
         public IProperty<int> CountProperty { get; } = new CountProperty();
+
+        public string Describe<TData>(TData data) => $"{typeof(TData).Name} {data}";
     }
 }
 
@@ -169,6 +174,17 @@ namespace Tests.Shared.Patches
             var counts = new Dictionary<IBlock, int> { [blocks[0]] = 5 };
             Assert.Equal(5, counts[g.Find("a")]);
             Assert.True(blocks[0] == g.Find("a"));
+        }
+
+        [Fact]
+        public void GenericValueTypeArguments()
+        {
+            var g = (IGrid)ScriptProxies.Wrap(grid);
+            Assert.Equal("Int64 5", g.Describe(5L));
+            Assert.Equal("ValueTuple`2 (1, x)", g.Describe((1, "x")));
+            Assert.Equal("String y", g.Describe("y"));
+            // A game object as a type argument still reaches the game unwrapped
+            Assert.Equal("IBlock Block a", g.Describe(g.Find("a")));
         }
     }
 }
