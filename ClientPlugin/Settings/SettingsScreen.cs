@@ -10,12 +10,14 @@ internal class SettingsScreen : MyGuiScreenBase
 {
     public readonly string FriendlyName;
     public Func<List<MyGuiControlBase>> GetControls;
+    public Action UpdateControls;
 
     public override string GetFriendlyName() => FriendlyName;
 
     public SettingsScreen(
         string friendlyName,
         Func<List<MyGuiControlBase>> getControls,
+        Action updateControls,
         Vector2? position = null,
         Vector2? size = null
 
@@ -30,6 +32,7 @@ internal class SettingsScreen : MyGuiScreenBase
     {
         FriendlyName = friendlyName;
         GetControls = getControls;
+        UpdateControls = updateControls;
 
         EnabledBackgroundFade = true;
         m_closeOnEsc = true;
@@ -49,6 +52,12 @@ internal class SettingsScreen : MyGuiScreenBase
     {
         base.LoadContent();
         RecreateControls(true);
+    }
+
+    public override bool Update(bool hasFocus)
+    {
+        UpdateControls();
+        return base.Update(hasFocus);
     }
 
     public override void OnRemoved()

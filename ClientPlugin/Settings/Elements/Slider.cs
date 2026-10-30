@@ -21,11 +21,12 @@ internal class SliderAttribute : Attribute, IElement
     public readonly SliderType Type;
     public readonly string Label;
     public readonly string Description;
+    public string EnabledBy { get; }
 
-    // Name of a bool property of Config; the slider is disabled while it is false
-    public readonly string EnabledBy;
+    // Shown after the value, for example "ms"
+    public readonly string Unit;
 
-    public SliderAttribute(float min, float max, float step = 1f, SliderType type = SliderType.Float, string label = null, string description = null, string enabledBy = null)
+    public SliderAttribute(float min, float max, float step = 1f, SliderType type = SliderType.Float, string label = null, string description = null, string enabledBy = null, string unit = null)
     {
         Min = min;
         Max = max;
@@ -34,14 +35,14 @@ internal class SliderAttribute : Attribute, IElement
         Label = label;
         Description = description;
         EnabledBy = enabledBy;
+        Unit = unit;
     }
 
-    // Follows the config on every update, so a value the config changes on its own (or an
-    // option which disables the slider) shows up while the dialog is open
+    // Follows the config on every update, so a value the config changes on its own shows up
+    // while the dialog is open
     private class ConfigSlider : MyGuiControlSlider
     {
         public Func<object> Getter;
-        public Func<bool> IsEnabled;
 
         public ConfigSlider(string toolTip, float defaultValue, float minValue, float maxValue, bool intValue)
             : base(toolTip: toolTip, defaultValue: defaultValue, minValue: minValue, maxValue: maxValue, intValue: intValue)
@@ -50,9 +51,6 @@ internal class SliderAttribute : Attribute, IElement
 
         public override void Update()
         {
-            if (IsEnabled != null)
-                Enabled = IsEnabled();
-
             var value = Convert.ToSingle(Getter());
             if (Value != value)
                 Value = value;
@@ -80,6 +78,9 @@ internal class SliderAttribute : Attribute, IElement
                     valueLabel.Text = MyValueFormatter.GetFormatedFloat(element.Value, element.LabelDecimalPlaces);
                     break;
             }
+
+            if (Unit != null)
+                valueLabel.Text += " " + Unit;
         }
 
         bool SpecifyValue(MyGuiControlSlider element)
@@ -107,7 +108,6 @@ internal class SliderAttribute : Attribute, IElement
             return true;
         }
 
-        var enabledBy = EnabledBy == null ? null : typeof(Config).GetProperty(EnabledBy);
         var slider = new ConfigSlider(
             toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth),
             defaultValue: Convert.ToSingle(propertyGetter()),
@@ -117,7 +117,6 @@ internal class SliderAttribute : Attribute, IElement
         {
             MinimumStepOverride = Step,
             Getter = propertyGetter,
-            IsEnabled = enabledBy == null ? null : () => (bool)enabledBy.GetValue(Config.Current),
         };
 
         if (Type == SliderType.Float)
@@ -135,7 +134,7 @@ internal class SliderAttribute : Attribute, IElement
         {
             new Control(new MyGuiControlLabel(text: label), minWidth: Control.LabelMinWidth),
             new Control(slider, fillFactor: 1f, rightMargin: 0.005f),
-            new Control(valueLabel, minWidth: 0.06f),
+            new Control(valueLabel, minWidth: Unit == null ? 0.06f : 0.09f),
         };
     }
 

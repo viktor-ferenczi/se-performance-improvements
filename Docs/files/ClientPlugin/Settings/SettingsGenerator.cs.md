@@ -15,6 +15,8 @@
 
 The generator also creates the [`SettingsScreen.cs`](SettingsScreen.cs.md) (an `MyGuiScreenBase` subclass) and the initial [`None.cs`](Layouts/None.cs.md) layout. When the screen needs to populate its controls (triggered by `LoadContent`/`RecreateControls`), it calls the `OnRecreateControls` callback injected at construction. That callback calls `CreateConfigControls`, which asks each `AttributeInfo`'s `IElement` for its `List<Control>`, then delegates positioning to the active [`Layout.cs`](Layouts/Layout.cs.md).
 
+An element whose attribute has `enabledBy` set gets an `IsEnabled` delegate reading that `bool` property of `Config`; a name that is not a `bool` property throws when the settings are generated. `UpdateEnabled` runs on every update of the dialog and enables or disables each such row, label included, so a row follows its option while the dialog is open.
+
 The active layout is swapped by `SetLayout<T>`. [`Plugin.cs`](../Plugin.cs.md) calls `SetLayout<Simple>()` just before pushing the screen onto the GUI stack, so the scrollable layout is only active when the dialog is actually visible.
 
 ## Key members
@@ -27,6 +29,7 @@ The active layout is swapped by `SetLayout<T>`. [`Plugin.cs`](../Plugin.cs.md) c
 | `controls` | `List<List<Control>>` field | Flat list of control groups, rebuilt by `CreateConfigControls` on each `RecreateControls` call. |
 | `ExtractAttributes()` | `static method` | Reflects properties and methods of `Config`; validates element/type compatibility; returns `AttributeInfo` list. |
 | `CreateConfigControls()` | `private method` | Asks each `AttributeInfo.ElementType.GetControls(...)` for its `Control` rows and collects them. |
+| `UpdateEnabled()` | `private method` | Enables each row with an `enabledBy` from its option; called on every dialog update. |
 | `SetLayout<T>()` | method | Instantiates a new layout of type `T` and updates the dialog's size. |
 | `OnRecreateControls()` | `private method` | Callback passed to [`SettingsScreen.cs`](SettingsScreen.cs.md); rebuilds controls then asks the layout to position them. |
 
