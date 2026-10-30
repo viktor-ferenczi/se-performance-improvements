@@ -169,6 +169,28 @@ namespace Tests.Shared.Patches
             Assert.Equal(lines.Count, lines.Select(l => l.Split('\t')[0]).Distinct().Count());
         }
 
+        // Every member of the game's PB whitelist that the eligibility scan looks up has a row,
+        // so the table decides it instead of the missing-means-main default
+        [Fact]
+        public void EveryWhitelistedMemberHasARow()
+        {
+            var rows = ScriptPolicyTable.Text.Split('\n').Select(l => l.Split('\t')[0]).ToHashSet();
+            var missing = File.ReadAllLines(
+                    Path.Combine(
+                        AppContext.BaseDirectory,
+                        "Shared",
+                        "Patches",
+                        "ScriptWhitelist.txt"
+                    )
+                )
+                .Where(m => m.Length != 0 && !rows.Contains(m))
+                .ToList();
+            Assert.True(
+                missing.Count == 0,
+                $"{missing.Count} members without a row: {string.Join(", ", missing.Take(20))}"
+            );
+        }
+
         [Fact]
         public void MainThreadMembersAreRefusedOffMain()
         {

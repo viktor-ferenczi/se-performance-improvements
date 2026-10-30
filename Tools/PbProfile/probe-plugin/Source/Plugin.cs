@@ -111,7 +111,11 @@ public static class Probe
         frameRuns = 0;
         frameTicks = 0;
         if (frame == 0)
+        {
             Log($"world ready, warmup {Warmup} frames, measuring {Frames}");
+            if (WhitelistDump.Target != null)
+                WhitelistDump.Run();
+        }
         if (RunnerTest.Expect != null)
         {
             // Test mode measures nothing: it runs the ScriptRunner checks once and ends
@@ -210,7 +214,8 @@ public static class Probe
         Directory.CreateDirectory(Path.Combine(Dir, "programs"));
         File.WriteAllText(
             Path.Combine(Dir, "runs.tsv"),
-            "frame\tpb\tupdate_type\tdepth\ttotal_us\tscript_us\tinstructions\tresult\tmain\n" + RunLines
+            "frame\tpb\tupdate_type\tdepth\ttotal_us\tscript_us\tinstructions\tresult\tmain\n"
+                + RunLines
         );
         File.WriteAllText(
             Path.Combine(Dir, "frames.tsv"),
