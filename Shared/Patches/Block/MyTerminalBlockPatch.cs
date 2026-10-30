@@ -51,7 +51,13 @@ namespace Shared.Patches
         [HarmonyPatch(nameof(MyTerminalBlock.HasPlayerAccessReason))]
         [EnsureCode("1f8f024a")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool HasPlayerAccessReasonPrefix(MyCubeBlock __instance, long identityId, MyRelationsBetweenPlayerAndBlock defaultNoUser, ref MyTerminalBlock.AccessRightsResult __result, ref long __state)
+        private static bool HasPlayerAccessReasonPrefix(
+            MyCubeBlock __instance,
+            long identityId,
+            MyRelationsBetweenPlayerAndBlock defaultNoUser,
+            ref MyTerminalBlock.AccessRightsResult __result,
+            ref long __state
+        )
         {
             if (!enabled)
                 return true;
@@ -76,12 +82,20 @@ namespace Shared.Patches
         [HarmonyPatch(nameof(MyTerminalBlock.HasPlayerAccessReason))]
         [EnsureCode("1f8f024a")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void HasPlayerAccessReasonPostfix(long identityId, MyTerminalBlock.AccessRightsResult __result, long __state)
+        private static void HasPlayerAccessReasonPostfix(
+            long identityId,
+            MyTerminalBlock.AccessRightsResult __result,
+            long __state
+        )
         {
             if (__state == 0)
                 return;
 
-            Cache.Store(__state, (uint)__result ^ (uint)identityId, 12 * 60 + ((uint)__state & 511));
+            Cache.Store(
+                __state,
+                (uint)__result ^ (uint)identityId,
+                12 * 60 + ((uint)__state & 511)
+            );
         }
     }
 }

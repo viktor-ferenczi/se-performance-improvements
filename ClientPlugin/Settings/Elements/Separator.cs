@@ -1,6 +1,6 @@
-using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
+using Sandbox.Graphics.GUI;
 using VRageMath;
 
 namespace ClientPlugin.Settings.Elements;
@@ -15,16 +15,17 @@ internal class SeparatorAttribute : Attribute, IElement
         Caption = caption;
     }
 
-    public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
+    public List<Control> GetControls(
+        string name,
+        Func<object> propertyGetter,
+        Action<object> propertySetter
+    )
     {
-        var label = new MyGuiControlLabel(text: Caption ?? "")
-        {
-            ColorMask = Color.Orange,
-        };
+        var label = new MyGuiControlLabel(text: Caption ?? "") { ColorMask = Color.Orange };
 
         var lineColor = Color.LightCyan;
         lineColor.A = 0x22;
-            
+
         var line = new MyGuiControlLabel
         {
             Size = new Vector2(0.5f, 0f),
@@ -40,8 +41,5 @@ internal class SeparatorAttribute : Attribute, IElement
         };
     }
 
-    public List<Type> SupportedTypes { get; } = new List<Type>()
-    {
-        typeof(object)
-    };
+    public List<Type> SupportedTypes { get; } = new List<Type>() { typeof(object) };
 }

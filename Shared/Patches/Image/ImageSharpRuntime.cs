@@ -45,14 +45,20 @@ public static class ImageSharpRuntime
     private static Assembly assembly;
     private static MethodInfo identify; // Image.Identify(Stream)
     private static MethodInfo loadGeneric; // Image.Load<TPixel>(Stream)
-    private static MethodInfo loadL8, loadL16, loadRgba32;
-    private static PropertyInfo infoWidth, infoHeight, infoPixelType, infoMetadata;
+    private static MethodInfo loadL8,
+        loadL16,
+        loadRgba32;
+    private static PropertyInfo infoWidth,
+        infoHeight,
+        infoPixelType,
+        infoMetadata;
     private static PropertyInfo pixelTypeBitsPerPixel;
     private static MethodInfo getPngMetadata; // ImageMetadata.GetFormatMetadata<PngMetadata>(PngFormat)
     private static object pngFormatInstance;
     private static PropertyInfo pngColorType;
     private static object pngColorTypeGrayscale;
-    private static PropertyInfo imageWidth, imageHeight;
+    private static PropertyInfo imageWidth,
+        imageHeight;
     private static MethodInfo copyPixelDataTo; // Image<TPixel>.CopyPixelDataTo(Span<byte>), per pixel type
 
     public static Version Version { get; private set; }
@@ -71,7 +77,9 @@ public static class ImageSharpRuntime
             var source = FindSource();
             if (source == null)
             {
-                Log.Warning($"ImageSharp: {SourceFileName} not found next to the plugin, keeping the game's decoder");
+                Log.Warning(
+                    $"ImageSharp: {SourceFileName} not found next to the plugin, keeping the game's decoder"
+                );
                 return false;
             }
 
@@ -81,12 +89,17 @@ public static class ImageSharpRuntime
 
             assembly = loaded;
             Version = loaded.GetName().Version;
-            Log.Info($"ImageSharp: loaded {Version} from {renamed}, stream buffer {StreamBufferSize} bytes");
+            Log.Info(
+                $"ImageSharp: loaded {Version} from {renamed}, stream buffer {StreamBufferSize} bytes"
+            );
             return true;
         }
         catch (Exception ex)
         {
-            Log.Error(ex, "ImageSharp: failed to load the bundled ImageSharp, keeping the game's decoder");
+            Log.Error(
+                ex,
+                "ImageSharp: failed to load the bundled ImageSharp, keeping the game's decoder"
+            );
             return false;
         }
     }
@@ -107,7 +120,9 @@ public static class ImageSharpRuntime
         if (File.Exists(direct))
             return direct;
 
-        return Directory.EnumerateFiles(dir, SourceFileName, SearchOption.AllDirectories).FirstOrDefault();
+        return Directory
+            .EnumerateFiles(dir, SourceFileName, SearchOption.AllDirectories)
+            .FirstOrDefault();
     }
 
     // The renamed copy is cached per library version; the rename runs only once per version.
@@ -145,7 +160,10 @@ public static class ImageSharpRuntime
         foreach (var dependency in Directory.EnumerateFiles(sourceDir, "System.*.dll"))
         {
             var copy = Path.Combine(cacheDir, Path.GetFileName(dependency));
-            if (!File.Exists(copy) || File.GetLastWriteTimeUtc(copy) < File.GetLastWriteTimeUtc(dependency))
+            if (
+                !File.Exists(copy)
+                || File.GetLastWriteTimeUtc(copy) < File.GetLastWriteTimeUtc(dependency)
+            )
                 File.Copy(dependency, copy, true);
         }
 
@@ -156,12 +174,24 @@ public static class ImageSharpRuntime
     {
         var image = Type(loaded, "SixLabors.ImageSharp.Image");
         identify = Method(image, "Identify", typeof(Stream));
-        loadGeneric = image.GetMethods(BindingFlags.Public | BindingFlags.Static)
-            .Single(m => m.Name == "Load" && m.IsGenericMethodDefinition && m.GetGenericArguments().Length == 1 &&
-                         m.GetParameters().Length == 1 && m.GetParameters()[0].ParameterType == typeof(Stream));
-        loadL8 = loadGeneric.MakeGenericMethod(Type(loaded, "SixLabors.ImageSharp.PixelFormats.L8"));
-        loadL16 = loadGeneric.MakeGenericMethod(Type(loaded, "SixLabors.ImageSharp.PixelFormats.L16"));
-        loadRgba32 = loadGeneric.MakeGenericMethod(Type(loaded, "SixLabors.ImageSharp.PixelFormats.Rgba32"));
+        loadGeneric = image
+            .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            .Single(m =>
+                m.Name == "Load"
+                && m.IsGenericMethodDefinition
+                && m.GetGenericArguments().Length == 1
+                && m.GetParameters().Length == 1
+                && m.GetParameters()[0].ParameterType == typeof(Stream)
+            );
+        loadL8 = loadGeneric.MakeGenericMethod(
+            Type(loaded, "SixLabors.ImageSharp.PixelFormats.L8")
+        );
+        loadL16 = loadGeneric.MakeGenericMethod(
+            Type(loaded, "SixLabors.ImageSharp.PixelFormats.L16")
+        );
+        loadRgba32 = loadGeneric.MakeGenericMethod(
+            Type(loaded, "SixLabors.ImageSharp.PixelFormats.Rgba32")
+        );
         imageWidth = Property(image, "Width");
         imageHeight = Property(image, "Height");
 
@@ -170,29 +200,41 @@ public static class ImageSharpRuntime
         infoHeight = Property(imageInfo, "Height");
         infoPixelType = Property(imageInfo, "PixelType");
         infoMetadata = Property(imageInfo, "Metadata");
-        pixelTypeBitsPerPixel = Property(Type(loaded, "SixLabors.ImageSharp.Formats.PixelTypeInfo"), "BitsPerPixel");
+        pixelTypeBitsPerPixel = Property(
+            Type(loaded, "SixLabors.ImageSharp.Formats.PixelTypeInfo"),
+            "BitsPerPixel"
+        );
 
         var pngFormat = Type(loaded, "SixLabors.ImageSharp.Formats.Png.PngFormat");
         pngFormatInstance = Property(pngFormat, "Instance").GetValue(null);
         var pngMetadata = Type(loaded, "SixLabors.ImageSharp.Formats.Png.PngMetadata");
         var imageMetadata = Type(loaded, "SixLabors.ImageSharp.Metadata.ImageMetadata");
-        getPngMetadata = imageMetadata.GetMethods(BindingFlags.Public | BindingFlags.Instance)
+        getPngMetadata = imageMetadata
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
             .Single(m => m.Name == "GetFormatMetadata" && m.IsGenericMethodDefinition)
             .MakeGenericMethod(pngMetadata);
         pngColorType = Property(pngMetadata, "ColorType");
-        pngColorTypeGrayscale = Enum.Parse(Type(loaded, "SixLabors.ImageSharp.Formats.Png.PngColorType"), "Grayscale");
+        pngColorTypeGrayscale = Enum.Parse(
+            Type(loaded, "SixLabors.ImageSharp.Formats.Png.PngColorType"),
+            "Grayscale"
+        );
 
         // The default 8096 bytes is just below the usual 8 KiB PNG IDAT chunk, so every chunk
         // is read from the file twice. Configuration.Default belongs to the renamed copy, only
         // the plugin uses it.
         var configuration = Type(loaded, "SixLabors.ImageSharp.Configuration");
-        Property(configuration, "StreamProcessingBufferSize").SetValue(Property(configuration, "Default").GetValue(null), StreamBufferSize);
+        Property(configuration, "StreamProcessingBufferSize")
+            .SetValue(Property(configuration, "Default").GetValue(null), StreamBufferSize);
 
         // Image<TPixel>.CopyPixelDataTo(Span<byte>) is bound per decoded image (see Decode),
         // the open generic type is enough here to fail early if it went missing
         var genericImage = Type(loaded, "SixLabors.ImageSharp.Image`1");
-        copyPixelDataTo = genericImage.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-            .Single(m => m.Name == "CopyPixelDataTo" && m.GetParameters()[0].ParameterType == typeof(Span<byte>));
+        copyPixelDataTo = genericImage
+            .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+            .Single(m =>
+                m.Name == "CopyPixelDataTo"
+                && m.GetParameters()[0].ParameterType == typeof(Span<byte>)
+            );
     }
 
     private static Type Type(Assembly loaded, string name)
@@ -202,8 +244,13 @@ public static class ImageSharpRuntime
 
     private static MethodInfo Method(Type type, string name, params Type[] parameters)
     {
-        return type.GetMethod(name, BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance, null, parameters, null)
-               ?? throw new MissingMethodException(type.FullName, name);
+        return type.GetMethod(
+                name,
+                BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance,
+                null,
+                parameters,
+                null
+            ) ?? throw new MissingMethodException(type.FullName, name);
     }
 
     private static PropertyInfo Property(Type type, string name)
@@ -260,7 +307,8 @@ public static class ImageSharpRuntime
         return null;
     }
 
-    private static MyImage<TData> Header<TData>(int width, int height) where TData : unmanaged
+    private static MyImage<TData> Header<TData>(int width, int height)
+        where TData : unmanaged
     {
         return new MyImage<TData>
         {
@@ -270,7 +318,8 @@ public static class ImageSharpRuntime
         };
     }
 
-    private static MyImage<TData> Decode<TData>(MethodInfo load, Stream stream) where TData : unmanaged
+    private static MyImage<TData> Decode<TData>(MethodInfo load, Stream stream)
+        where TData : unmanaged
     {
         var image = load.Invoke(null, new object[] { stream });
         try
@@ -279,7 +328,12 @@ public static class ImageSharpRuntime
             var height = (int)imageHeight.GetValue(image);
 
             var data = new TData[width * height];
-            var copy = (CopyPixelDataTo)Delegate.CreateDelegate(typeof(CopyPixelDataTo), image, CopyMethodFor(image.GetType()));
+            var copy = (CopyPixelDataTo)
+                Delegate.CreateDelegate(
+                    typeof(CopyPixelDataTo),
+                    image,
+                    CopyMethodFor(image.GetType())
+                );
             copy(MemoryMarshal.AsBytes(data.AsSpan()));
 
             return new MyImage<TData>
@@ -295,7 +349,8 @@ public static class ImageSharpRuntime
         }
     }
 
-    private static readonly Dictionary<Type, MethodInfo> CopyMethods = new Dictionary<Type, MethodInfo>();
+    private static readonly Dictionary<Type, MethodInfo> CopyMethods =
+        new Dictionary<Type, MethodInfo>();
 
     private static MethodInfo CopyMethodFor(Type imageType)
     {
@@ -303,8 +358,12 @@ public static class ImageSharpRuntime
         {
             if (!CopyMethods.TryGetValue(imageType, out var method))
             {
-                method = imageType.GetMethods(BindingFlags.Public | BindingFlags.Instance)
-                    .Single(m => m.Name == copyPixelDataTo.Name && m.GetParameters()[0].ParameterType == typeof(Span<byte>));
+                method = imageType
+                    .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .Single(m =>
+                        m.Name == copyPixelDataTo.Name
+                        && m.GetParameters()[0].ParameterType == typeof(Span<byte>)
+                    );
                 CopyMethods[imageType] = method;
             }
 

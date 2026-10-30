@@ -40,8 +40,11 @@ public static class Common
         CacheDir = Path.Combine(DataDir, "Cache");
         DebugDir = Path.Combine(DataDir, "Debug");
 
-        var hasGameVersionChanged = !File.Exists(CacheGameVersionPath) || File.ReadAllText(CacheGameVersionPath) != GameVersion;
-        var hasPluginVersionChanged = !File.Exists(PluginVersionPath) || File.ReadAllText(PluginVersionPath) != PluginVersion;
+        var hasGameVersionChanged =
+            !File.Exists(CacheGameVersionPath)
+            || File.ReadAllText(CacheGameVersionPath) != GameVersion;
+        var hasPluginVersionChanged =
+            !File.Exists(PluginVersionPath) || File.ReadAllText(PluginVersionPath) != PluginVersion;
 
         CleanupCache(hasGameVersionChanged);
         CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
@@ -72,14 +75,22 @@ public static class Common
         Directory.CreateDirectory(CacheDir);
 
         var now = DateTime.UtcNow;
-        foreach (var path in Directory.EnumerateFiles(CacheDir, "*.cache", SearchOption.AllDirectories))
+        foreach (
+            var path in Directory.EnumerateFiles(CacheDir, "*.cache", SearchOption.AllDirectories)
+        )
         {
             if (clear || (now - File.GetCreationTimeUtc(path)).TotalDays >= CacheExpirationDays)
                 File.Delete(path);
         }
 
         // Temp files left behind by a crash while storing a compiled script, see MyScriptCompilerPatch.StoreIntoCache
-        foreach (var path in Directory.EnumerateFiles(CacheDir, "*.cache.*.tmp", SearchOption.AllDirectories))
+        foreach (
+            var path in Directory.EnumerateFiles(
+                CacheDir,
+                "*.cache.*.tmp",
+                SearchOption.AllDirectories
+            )
+        )
         {
             if ((now - File.GetCreationTimeUtc(path)).TotalHours >= 1)
                 File.Delete(path);
@@ -96,7 +107,9 @@ public static class Common
         if (!clear)
             return;
 
-        foreach (var path in Directory.EnumerateFiles(DebugDir, "*.il", SearchOption.AllDirectories))
+        foreach (
+            var path in Directory.EnumerateFiles(DebugDir, "*.il", SearchOption.AllDirectories)
+        )
         {
             File.Delete(path);
         }

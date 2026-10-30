@@ -6,7 +6,11 @@ namespace Shared.Tools
 {
     public static class ObjectPools
     {
-        public static readonly MyConcurrentBucketPool<StringBuilder> StringBuilder = new MyConcurrentBucketPool<StringBuilder>(typeof(ObjectPools).FullName, new StringBuilderAllocator());
+        public static readonly MyConcurrentBucketPool<StringBuilder> StringBuilder =
+            new MyConcurrentBucketPool<StringBuilder>(
+                typeof(ObjectPools).FullName,
+                new StringBuilderAllocator()
+            );
 
         private class StringBuilderAllocator : IMyElementAllocator<StringBuilder>
         {

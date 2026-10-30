@@ -44,7 +44,10 @@ namespace Shared.Patches
         [HarmonyPatch(nameof(MyDefinitionManager.GetBlueprintDefinition))]
         [EnsureCode("c4168dc7")]
         // ReSharper disable once UnusedMember.Local
-        private static IEnumerable<CodeInstruction> GetBlueprintDefinitionTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
+        private static IEnumerable<CodeInstruction> GetBlueprintDefinitionTranspiler(
+            IEnumerable<CodeInstruction> instructions,
+            MethodBase patchedMethod
+        )
         {
             if (!Config.Enabled || !Config.FixMemory)
                 return instructions;
@@ -58,10 +61,14 @@ namespace Shared.Patches
             // See #81: Fallback on Linux (Mono)
             var getValueOrDefault =
                 // Windows
-                AccessTools.Method(typeof(Dictionary<MyDefinitionId, MyDefinitionBase>), "GetValueOrDefault") ??
+                AccessTools.Method(
+                    typeof(Dictionary<MyDefinitionId, MyDefinitionBase>),
+                    "GetValueOrDefault"
+                )
+                ??
                 // Linux (Mono)
                 AccessTools.Method(typeof(Workarounds), "GetValueOrDefault");
-            
+
             il.Add(new CodeInstruction(OpCodes.Call, getValueOrDefault));
             il.Add(new CodeInstruction(OpCodes.Ret));
 

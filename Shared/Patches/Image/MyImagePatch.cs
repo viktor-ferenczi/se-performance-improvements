@@ -44,9 +44,22 @@ namespace Shared.Patches
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(MyImage.Load), typeof(Stream), typeof(bool), typeof(bool), typeof(string))]
+        [HarmonyPatch(
+            nameof(MyImage.Load),
+            typeof(Stream),
+            typeof(bool),
+            typeof(bool),
+            typeof(string)
+        )]
         [EnsureCode("90f27ad1")]
-        private static bool LoadPrefix(Stream stream, bool oneChannel, bool headerOnly, string debugName, ref IMyImage __result, ref long __state)
+        private static bool LoadPrefix(
+            Stream stream,
+            bool oneChannel,
+            bool headerOnly,
+            string debugName,
+            ref IMyImage __result,
+            ref long __state
+        )
         {
             if (!enabled)
             {
@@ -62,7 +75,10 @@ namespace Shared.Patches
             }
             catch (Exception ex)
             {
-                Log.Error(ex, $"ImageSharp: failed to decode {debugName ?? "<unnamed>"}, falling back to the game's decoder");
+                Log.Error(
+                    ex,
+                    $"ImageSharp: failed to decode {debugName ?? "<unnamed>"}, falling back to the game's decoder"
+                );
                 stream.Position = 0;
                 return true;
             }
@@ -72,12 +88,28 @@ namespace Shared.Patches
         // one, so two runs (fix off, fix on) can be compared line by line
 #if DEBUG
         [HarmonyPostfix]
-        [HarmonyPatch(nameof(MyImage.Load), typeof(Stream), typeof(bool), typeof(bool), typeof(string))]
+        [HarmonyPatch(
+            nameof(MyImage.Load),
+            typeof(Stream),
+            typeof(bool),
+            typeof(bool),
+            typeof(string)
+        )]
         [EnsureCode("90f27ad1")]
-        private static void LoadPostfix(bool headerOnly, string debugName, IMyImage __result, long __state)
+        private static void LoadPostfix(
+            bool headerOnly,
+            string debugName,
+            IMyImage __result,
+            long __state
+        )
         {
             if (__state != 0 && Log.IsDebugEnabled)
-                ImageLoader.LogGameDecoder(__result, headerOnly, debugName, (Stopwatch.GetTimestamp() - __state) * 1000.0 / Stopwatch.Frequency);
+                ImageLoader.LogGameDecoder(
+                    __result,
+                    headerOnly,
+                    debugName,
+                    (Stopwatch.GetTimestamp() - __state) * 1000.0 / Stopwatch.Frequency
+                );
         }
 #endif
     }

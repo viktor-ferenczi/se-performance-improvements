@@ -23,13 +23,23 @@ namespace Shared.Patches
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     public static class MyScriptCompilerPatch
     {
-        private static readonly MethodInfo RecallFromCacheInfo = AccessTools.DeclaredMethod(typeof(MyScriptCompilerPatch), nameof(RecallFromCache));
-        private static readonly MethodInfo StoreIntoCacheInfo = AccessTools.DeclaredMethod(typeof(MyScriptCompilerPatch), nameof(StoreIntoCache));
+        private static readonly MethodInfo RecallFromCacheInfo = AccessTools.DeclaredMethod(
+            typeof(MyScriptCompilerPatch),
+            nameof(RecallFromCache)
+        );
+        private static readonly MethodInfo StoreIntoCacheInfo = AccessTools.DeclaredMethod(
+            typeof(MyScriptCompilerPatch),
+            nameof(StoreIntoCache)
+        );
 
-        private static string InGameScriptCacheDir => inGameScriptCacheDir ?? (inGameScriptCacheDir = Path.Combine(Common.CacheDir, "CompiledInGameScripts"));
+        private static string InGameScriptCacheDir =>
+            inGameScriptCacheDir
+            ?? (inGameScriptCacheDir = Path.Combine(Common.CacheDir, "CompiledInGameScripts"));
         private static string inGameScriptCacheDir;
 
-        private static string ModScriptCacheDir => modScriptCacheDir ?? (modScriptCacheDir = Path.Combine(Common.CacheDir, "CompiledMods"));
+        private static string ModScriptCacheDir =>
+            modScriptCacheDir
+            ?? (modScriptCacheDir = Path.Combine(Common.CacheDir, "CompiledMods"));
         private static string modScriptCacheDir;
 
         private static IPluginConfig Config => Common.Config;
@@ -37,12 +47,11 @@ namespace Shared.Patches
 
         public static void Configure()
         {
-            if (RecallFromCacheInfo == null ||
-                StoreIntoCacheInfo == null)
+            if (RecallFromCacheInfo == null || StoreIntoCacheInfo == null)
             {
                 throw new Exception("MyScriptCompilerPatch: Reflection error");
             }
-                
+
             Directory.CreateDirectory(InGameScriptCacheDir);
             Directory.CreateDirectory(ModScriptCacheDir);
         }
@@ -50,11 +59,15 @@ namespace Shared.Patches
         // ReSharper disable once UnusedMember.Local
         private static MethodInfo TargetMethod()
         {
-            var ntl = typeof(MyScriptCompiler).GetNestedTypes(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var ntl = typeof(MyScriptCompiler).GetNestedTypes(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic
+            );
             var nt = ntl.First(st => st.Name.Contains("<Compile>"));
             var m = AccessTools.DeclaredMethod(nt, "MoveNext");
-            if(m == null)
-                throw new Exception("Could not find MoveNext method used in an iteration inside MyScriptCompiler.Compile");
+            if (m == null)
+                throw new Exception(
+                    "Could not find MoveNext method used in an iteration inside MyScriptCompiler.Compile"
+                );
             return m;
         }
 
@@ -64,7 +77,9 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         // FIXME: Make EnsureCode to work with patches using TargetMethod(s)
         // [EnsureCode("")]
-        private static IEnumerable<CodeInstruction> CompileTranspiler(IEnumerable<CodeInstruction> instructions)
+        private static IEnumerable<CodeInstruction> CompileTranspiler(
+            IEnumerable<CodeInstruction> instructions
+        )
         {
             // See MyScriptCompiler.Compile.il
             var il = instructions.ToList();
@@ -76,9 +91,16 @@ namespace Shared.Patches
             var assemblyStream = il.GetField(fi => fi.Name.Contains("assemblyStream"));
             var scripts = il.GetField(fi => fi.Name.Contains("scripts"));
 
-            var exit = il.FindLast(i => i.opcode == OpCodes.Ldarg_0 && i.labels.Count > 0).labels[0];
+            var exit = il.FindLast(i => i.opcode == OpCodes.Ldarg_0 && i.labels.Count > 0).labels[
+                0
+            ];
 
-            var j = il.FindIndex(i => i.opcode == OpCodes.Ldfld && i.operand is FieldInfo fi && fi.Name.Contains("loadPDBs")) - 1;
+            var j =
+                il.FindIndex(i =>
+                    i.opcode == OpCodes.Ldfld
+                    && i.operand is FieldInfo fi
+                    && fi.Name.Contains("loadPDBs")
+                ) - 1;
             Debug.Assert(il[j].opcode == OpCodes.Ldarg_0);
             il.Insert(j++, new CodeInstruction(OpCodes.Ldloc_1));
             il.Insert(j++, new CodeInstruction(OpCodes.Ldarg_0));
@@ -117,10 +139,16 @@ namespace Shared.Patches
             }
 
             public IEnumerator<Script> GetEnumerator() => Scripts.GetEnumerator();
+
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }
 
-        private static Assembly RecallFromCache(MyScriptCompiler myScriptCompiler, MyApiTarget target, ref IEnumerable<Script> scripts, string friendlyName)
+        private static Assembly RecallFromCache(
+            MyScriptCompiler myScriptCompiler,
+            MyApiTarget target,
+            ref IEnumerable<Script> scripts,
+            string friendlyName
+        )
         {
             var scriptList = new ScriptList(scripts);
             scripts = scriptList;
@@ -171,14 +199,22 @@ namespace Shared.Patches
                 }
                 catch (Exception e1)
                 {
-                    Log.Error(e1, "Error loading compiled script assembly from cache file: {0}", cachePath);
+                    Log.Error(
+                        e1,
+                        "Error loading compiled script assembly from cache file: {0}",
+                        cachePath
+                    );
                     try
                     {
                         File.Move(cachePath, cachePath + ".broken");
                     }
                     catch (Exception e2)
                     {
-                        Log.Error(e2, "Error renaming broken compiled script assembly cache file: {0}", cachePath);
+                        Log.Error(
+                            e2,
+                            "Error renaming broken compiled script assembly cache file: {0}",
+                            cachePath
+                        );
                     }
 
                     break;
@@ -191,7 +227,12 @@ namespace Shared.Patches
             return null;
         }
 
-        private static void StoreIntoCache(MyScriptCompiler myScriptCompiler, MyApiTarget target, IEnumerable<Script> scripts, MemoryStream assemblyStream)
+        private static void StoreIntoCache(
+            MyScriptCompiler myScriptCompiler,
+            MyApiTarget target,
+            IEnumerable<Script> scripts,
+            MemoryStream assemblyStream
+        )
         {
             var scriptList = (ScriptList)scripts;
             if (!GetCachePath(myScriptCompiler, target, scriptList.Scripts, out var cachePath))
@@ -228,7 +269,11 @@ namespace Shared.Patches
             }
             catch (IOException e)
             {
-                Log.Warning("Failed to write compiled script assembly cache file: {0}; Error: {1}", cachePath, e.ToString());
+                Log.Warning(
+                    "Failed to write compiled script assembly cache file: {0}; Error: {1}",
+                    cachePath,
+                    e.ToString()
+                );
             }
             catch (Exception e)
             {
@@ -240,12 +285,19 @@ namespace Shared.Patches
             }
         }
 
-        private static bool GetCachePath(MyScriptCompiler myScriptCompiler, MyApiTarget target, IEnumerable<Script> scripts, out string cachePath)
+        private static bool GetCachePath(
+            MyScriptCompiler myScriptCompiler,
+            MyApiTarget target,
+            IEnumerable<Script> scripts,
+            out string cachePath
+        )
         {
-            if (!Config.Enabled ||
-                target == MyApiTarget.None ||
-                target == MyApiTarget.Mod && !Config.CacheMods ||
-                target == MyApiTarget.Ingame && !Config.CacheScripts)
+            if (
+                !Config.Enabled
+                || target == MyApiTarget.None
+                || target == MyApiTarget.Mod && !Config.CacheMods
+                || target == MyApiTarget.Ingame && !Config.CacheScripts
+            )
             {
                 cachePath = null;
                 return false;
@@ -259,17 +311,25 @@ namespace Shared.Patches
             return true;
         }
 
-        private static string GetScriptsHash(MyScriptCompiler myScriptCompiler, IEnumerable<Script> scripts)
+        private static string GetScriptsHash(
+            MyScriptCompiler myScriptCompiler,
+            IEnumerable<Script> scripts
+        )
         {
             return ScriptCacheKey.Compute(GetCacheKeyParts(myScriptCompiler, scripts));
         }
 
-        private static IEnumerable<string> GetCacheKeyParts(MyScriptCompiler myScriptCompiler, IEnumerable<Script> scripts)
+        private static IEnumerable<string> GetCacheKeyParts(
+            MyScriptCompiler myScriptCompiler,
+            IEnumerable<Script> scripts
+        )
         {
             // Include the versions of the loaded mod rewriting plugins (currently the implicitly
             // loaded compat ones), so upgrading any of them invalidates the cached assemblies
             var modRewriterVersionsHash = ModRewriterVersions.Hash;
-            yield return modRewriterVersionsHash == null ? "" : BitConverter.ToString(modRewriterVersionsHash);
+            yield return modRewriterVersionsHash == null
+                ? ""
+                : BitConverter.ToString(modRewriterVersionsHash);
 
             // Include .NET version in the hash to prevent loading assemblies compiled on different .NET versions
             yield return RuntimeInformation.FrameworkDescription;
@@ -280,7 +340,14 @@ namespace Shared.Patches
             yield return Common.GameVersion;
 
             // The symbols are a set, sort them for a stable order
-            var symbols = myScriptCompiler.m_conditionalCompilationSymbols?.OrderBy(symbol => symbol, StringComparer.Ordinal).ToList() ?? new List<string>();
+            var symbols =
+                myScriptCompiler
+                    .m_conditionalCompilationSymbols?.OrderBy(
+                        symbol => symbol,
+                        StringComparer.Ordinal
+                    )
+                    .ToList()
+                ?? new List<string>();
             yield return symbols.Count.ToString();
             foreach (var symbol in symbols)
                 yield return symbol;

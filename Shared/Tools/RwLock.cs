@@ -10,7 +10,10 @@ namespace Shared.Tools
         {
             var spinWait = new SpinWait();
             var previous = counter;
-            while (previous < 0 || previous != Interlocked.CompareExchange(ref counter, previous + 1, previous))
+            while (
+                previous < 0
+                || previous != Interlocked.CompareExchange(ref counter, previous + 1, previous)
+            )
             {
                 spinWait.SpinOnce();
                 previous = counter;
@@ -49,7 +52,10 @@ namespace Shared.Tools
         {
             var spinWait = new SpinWait();
             var previous = counter;
-            while (previous < 0 || previous != Interlocked.CompareExchange(ref counter, previous + 1, previous))
+            while (
+                previous < 0
+                || previous != Interlocked.CompareExchange(ref counter, previous + 1, previous)
+            )
             {
                 spinWait.SpinOnce();
                 previous = counter;

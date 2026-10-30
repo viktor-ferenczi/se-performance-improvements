@@ -3,12 +3,11 @@ using System.Runtime.CompilerServices;
 using VRage.Utils;
 
 namespace Shared.Logging;
-    
+
 public class PluginLogger : LogFormatter, IPluginLogger
 {
-    public PluginLogger(string pluginName) : base($"{pluginName}: ")
-    {
-    }
+    public PluginLogger(string pluginName)
+        : base($"{pluginName}: ") { }
 
     public bool IsTraceEnabled => MyLog.Default.LogEnabled;
     public bool IsDebugEnabled => MyLog.Default.LogEnabled;

@@ -36,18 +36,39 @@ namespace Shared.Patches
         // These methods freeze for seconds due to forcing a full GC
         static IEnumerable<MethodBase> TargetMethods()
         {
-            yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetHeightmap));
-            yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetDetailMap));
-            yield return AccessTools.DeclaredMethod(typeof(MyPlanetTextureMapProvider), nameof(MyPlanetTextureMapProvider.GetMaps));
+            yield return AccessTools.DeclaredMethod(
+                typeof(MyPlanetTextureMapProvider),
+                nameof(MyPlanetTextureMapProvider.GetHeightmap)
+            );
+            yield return AccessTools.DeclaredMethod(
+                typeof(MyPlanetTextureMapProvider),
+                nameof(MyPlanetTextureMapProvider.GetDetailMap)
+            );
+            yield return AccessTools.DeclaredMethod(
+                typeof(MyPlanetTextureMapProvider),
+                nameof(MyPlanetTextureMapProvider.GetMaps)
+            );
             yield return AccessTools.DeclaredMethod(typeof(MySession), nameof(MySession.Unload));
-            yield return AccessTools.DeclaredMethod(typeof(HkBaseSystem), nameof(HkBaseSystem.Quit));
-            yield return AccessTools.DeclaredMethod(typeof(MySimpleProfiler), nameof(MySimpleProfiler.LogPerformanceTestResults));
-            yield return AccessTools.Constructor(typeof(MySession), new[] { typeof(MySyncLayer), typeof(bool) });
+            yield return AccessTools.DeclaredMethod(
+                typeof(HkBaseSystem),
+                nameof(HkBaseSystem.Quit)
+            );
+            yield return AccessTools.DeclaredMethod(
+                typeof(MySimpleProfiler),
+                nameof(MySimpleProfiler.LogPerformanceTestResults)
+            );
+            yield return AccessTools.Constructor(
+                typeof(MySession),
+                new[] { typeof(MySyncLayer), typeof(bool) }
+            );
         }
 
         // Remove all GC calls from the bytecode of the above methods
         [HarmonyTranspiler]
-        private static IEnumerable<CodeInstruction> CollectRemovalTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase originalMethod)
+        private static IEnumerable<CodeInstruction> CollectRemovalTranspiler(
+            IEnumerable<CodeInstruction> instructions,
+            MethodBase originalMethod
+        )
         {
             var original = instructions.ToList();
             var patched = new List<CodeInstruction>(original.Count + 16);
@@ -55,22 +76,24 @@ namespace Shared.Patches
             var replaced = 0;
             foreach (var instruction in original)
             {
-                var isGcCollect = instruction.opcode == OpCodes.Call &&
-                        instruction.operand is MethodInfo o1 &&
-                        o1.DeclaringType == typeof(GC) && 
-                        o1.Name == "Collect";
-                
-                var isCollectGc = instruction.opcode == OpCodes.Callvirt &&
-                        instruction.operand is MethodInfo o2 &&
-                        o2.DeclaringType == typeof(IVRageSystem) && 
-                        o2.Name == "CollectGC";
-                
+                var isGcCollect =
+                    instruction.opcode == OpCodes.Call
+                    && instruction.operand is MethodInfo o1
+                    && o1.DeclaringType == typeof(GC)
+                    && o1.Name == "Collect";
+
+                var isCollectGc =
+                    instruction.opcode == OpCodes.Callvirt
+                    && instruction.operand is MethodInfo o2
+                    && o2.DeclaringType == typeof(IVRageSystem)
+                    && o2.Name == "CollectGC";
+
                 if (isGcCollect || isCollectGc)
                 {
                     var nop = new CodeInstruction(OpCodes.Nop);
                     nop.labels.AddRange(instruction.labels);
                     patched.Add(nop);
-                    
+
                     var methodInfo = (MethodInfo)instruction.operand;
                     var parameterCount = methodInfo.GetParameters().Length;
                     for (var i = methodInfo.IsStatic ? 1 : 0; i <= parameterCount; i++)
@@ -78,7 +101,7 @@ namespace Shared.Patches
                         var pop = new CodeInstruction(OpCodes.Pop);
                         patched.Add(pop);
                     }
-                    
+
                     replaced += 1;
                     continue;
                 }
@@ -92,16 +115,18 @@ namespace Shared.Patches
             {
                 methodName = typeName;
             }
-            
+
             original.RecordCustomCode($"{typeName}.{methodName}.original");
             patched.RecordCustomCode($"{typeName}.{methodName}.patched");
 
             if (replaced == 0)
             {
-                Log.Warning($"GcCollectPatch(): No GC Collect calls found in method: {originalMethod.FullDescription()}");
+                Log.Warning(
+                    $"GcCollectPatch(): No GC Collect calls found in method: {originalMethod.FullDescription()}"
+                );
             }
-            
-            foreach(var instruction in patched)
+
+            foreach (var instruction in patched)
             {
                 yield return instruction;
             }

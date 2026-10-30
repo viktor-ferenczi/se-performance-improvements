@@ -30,7 +30,7 @@ namespace Shared.Patches
             enabled = Config.Enabled && Config.FixTargeting;
         }
 
-        #region Reusing arrays in SortTargetRoots
+#region Reusing arrays in SortTargetRoots
 
         // Array cache for each turret targeting system instance keyed by the m_targetReceiver.Entity.EntityId
         private static readonly Cache<long, MyEntity[]> ArrayCache = new Cache<long, MyEntity[]>(177 * 60);
@@ -127,10 +127,10 @@ namespace Shared.Patches
             return array;
         }
 
-        #endregion
+#endregion
 
 #if false
-        #region Visibility cache replacement
+#region Visibility cache replacement
 
         // Visibility cache for each turret targeting system instance keyed by the m_targetReceiver.Entity.EntityId
         private static readonly Cache<long, UintCache<long>> VisibilityCache = new Cache<long, UintCache<long>>(197 * 60);
@@ -311,7 +311,7 @@ namespace Shared.Patches
             return cache.TryGetValue(target.EntityId, out var value) && value == 0;
         }
 
-        #endregion
+#endregion
 #endif
     }
 }

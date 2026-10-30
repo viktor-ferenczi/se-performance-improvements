@@ -51,7 +51,12 @@ internal static class LegacyModRewriters
 
                 var mvid = assembly.ManifestModule.ModuleVersionId;
                 var name = assembly.GetName();
-                rewriters.Add((mvid, $"legacy {pluginName} {name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {typeName} {mvid:D}"));
+                rewriters.Add(
+                    (
+                        mvid,
+                        $"legacy {pluginName} {name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {typeName} {mvid:D}"
+                    )
+                );
 
                 // One entry per assembly
                 break;

@@ -9,7 +9,8 @@ namespace ClientPlugin.Settings;
 public static class ConfigStorage
 {
     private static readonly string ConfigFileName = string.Concat(Plugin.Name, ".cfg");
-    private static string ConfigFilePath => Path.Combine(MyFileSystem.UserDataPath, "Storage", ConfigFileName);
+    private static string ConfigFilePath =>
+        Path.Combine(MyFileSystem.UserDataPath, "Storage", ConfigFileName);
 
     public static void Save(Config config)
     {
@@ -35,10 +36,11 @@ public static class ConfigStorage
         }
         catch (Exception)
         {
-            MyLog.Default.Warning($"{ConfigFileName}: Failed to read config file: {ConfigFilePath}");
+            MyLog.Default.Warning(
+                $"{ConfigFileName}: Failed to read config file: {ConfigFilePath}"
+            );
         }
-            
+
         return Config.Default;
     }
-        
 }

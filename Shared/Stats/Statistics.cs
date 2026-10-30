@@ -52,7 +52,8 @@ namespace Shared.Stats
             RefreshEnabled();
         }
 
-        private static void OnConfigChanged(object sender, PropertyChangedEventArgs e) => RefreshEnabled();
+        private static void OnConfigChanged(object sender, PropertyChangedEventArgs e) =>
+            RefreshEnabled();
 
         private static void RefreshEnabled()
         {

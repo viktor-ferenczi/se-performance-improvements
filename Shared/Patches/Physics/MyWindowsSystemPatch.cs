@@ -82,9 +82,13 @@ namespace Shared.Patches
                 return;
             }
 
-            threadCount = config.HavokThreadCountMode == HavokThreadCountMode.Auto
-                ? HavokThreads.Auto
-                : Math.Max(HavokThreads.Min, Math.Min(HavokThreads.Max, config.HavokThreadCount));
+            threadCount =
+                config.HavokThreadCountMode == HavokThreadCountMode.Auto
+                    ? HavokThreads.Auto
+                    : Math.Max(
+                        HavokThreads.Min,
+                        Math.Min(HavokThreads.Max, config.HavokThreadCount)
+                    );
 
             // Keep the configured number showing the effective one, so the in-game dialog and
             // the server's web UI display the count the game is going to get. In Auto that is
@@ -111,7 +115,9 @@ namespace Shared.Patches
             __result = threadCount;
 
             // The property is read once per world load, so this is not a hot path.
-            Common.Logger.Debug($"Havok physics thread count: {threadCount} ({Config.HavokThreadCountMode}); the pool may end up smaller, the shipped Havok build caps it");
+            Common.Logger.Debug(
+                $"Havok physics thread count: {threadCount} ({Config.HavokThreadCountMode}); the pool may end up smaller, the shipped Havok build caps it"
+            );
         }
     }
 }

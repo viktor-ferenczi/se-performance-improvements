@@ -1,14 +1,14 @@
-﻿using Sandbox.Game.Gui;
-using Sandbox.Graphics.GUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using ClientPlugin.Settings.Tools;
+using Sandbox.Game.Gui;
+using Sandbox.Graphics.GUI;
+using VRage;
 using VRage.Game;
 using VRage.Input;
 using VRage.Utils;
-using VRage;
 using VRageMath;
 
 namespace ClientPlugin.Settings.Elements;
@@ -29,7 +29,11 @@ internal class KeybindAttribute : Attribute, IElement
         EnabledBy = enabledBy;
     }
 
-    public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
+    public List<Control> GetControls(
+        string name,
+        Func<object> propertyGetter,
+        Action<object> propertySetter
+    )
     {
         this.propertyGetter = () => (Binding)propertyGetter();
         this.propertySetter = b => propertySetter(b);
@@ -41,20 +45,23 @@ internal class KeybindAttribute : Attribute, IElement
         var ctrl = new MyGuiControlCheckbox(isChecked: binding.Ctrl, toolTip: "Ctrl");
         var alt = new MyGuiControlCheckbox(isChecked: binding.Alt, toolTip: "Alt");
         var shift = new MyGuiControlCheckbox(isChecked: binding.Shift, toolTip: "Shift");
-            
-        ctrl.IsCheckedChanged += (cb) => {
+
+        ctrl.IsCheckedChanged += (cb) =>
+        {
             var b = this.propertyGetter();
             b.Ctrl = cb.IsChecked;
             this.propertySetter(b);
         };
 
-        alt.IsCheckedChanged += (cb) => {
+        alt.IsCheckedChanged += (cb) =>
+        {
             var b = this.propertyGetter();
             b.Alt = cb.IsChecked;
             this.propertySetter(b);
         };
 
-        shift.IsCheckedChanged += (cb) => {
+        shift.IsCheckedChanged += (cb) =>
+        {
             var b = this.propertyGetter();
             b.Shift = cb.IsChecked;
             this.propertySetter(b);
@@ -65,17 +72,22 @@ internal class KeybindAttribute : Attribute, IElement
             MyStringId.GetOrCompute(name),
             MyGuiControlTypeEnum.General,
             null,
-            binding.Key);
+            binding.Key
+        );
 
         StringBuilder output = null;
         control.AppendBoundButtonNames(ref output, MyGuiInputDeviceEnum.Keyboard);
-        MyControl.AppendUnknownTextIfNeeded(ref output, MyTexts.GetString(MyCommonTexts.UnknownControl_None));
+        MyControl.AppendUnknownTextIfNeeded(
+            ref output,
+            MyTexts.GetString(MyCommonTexts.UnknownControl_None)
+        );
 
         var button = new MyGuiControlButton(
             text: output,
             onButtonClick: OnRebindClick,
             onSecondaryButtonClick: OnUnbindClick,
-            toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth))
+            toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth)
+        )
         {
             VisualStyle = MyGuiControlButtonStyleEnum.ControlSetting,
             UserData = new ControlButtonData(control, MyGuiInputDeviceEnum.Keyboard),
@@ -91,10 +103,7 @@ internal class KeybindAttribute : Attribute, IElement
         };
     }
 
-    public List<Type> SupportedTypes { get; } = new List<Type>()
-    {
-        typeof(Binding)
-    };
+    public List<Type> SupportedTypes { get; } = new List<Type>() { typeof(Binding) };
 
     private class ControlButtonData
     {
@@ -118,19 +127,17 @@ internal class KeybindAttribute : Attribute, IElement
         // KEEN!!! MyGuiScreenOptionsMouseKeyboard.MyGuiControlAssignKeyMessageBox is PRIVATE!
         var screenClass = typeof(MyGuiScreenOptionsMouseKeyboard).GetNestedType(
             "MyGuiControlAssignKeyMessageBox",
-            BindingFlags.NonPublic);
+            BindingFlags.NonPublic
+        );
 
-        var editBindingDialog = (MyGuiScreenBase)Activator.CreateInstance(
-            screenClass,
-            BindingFlags.CreateInstance,
-            null,
-            new object[]
-            {
-                userData.Device,
-                userData.Control,
-                messageText
-            },
-            null);
+        var editBindingDialog = (MyGuiScreenBase)
+            Activator.CreateInstance(
+                screenClass,
+                BindingFlags.CreateInstance,
+                null,
+                new object[] { userData.Device, userData.Control, messageText },
+                null
+            );
 
         editBindingDialog.Closed += (s, isUnloading) => StoreControl(button);
         MyGuiSandbox.AddScreen(editBindingDialog);
@@ -172,7 +179,10 @@ internal class KeybindAttribute : Attribute, IElement
         binding.Key = userData.Control.GetKeyboardControl();
         propertySetter(binding);
 
-        MyControl.AppendUnknownTextIfNeeded(ref output, MyTexts.GetString(MyCommonTexts.UnknownControl_None));
+        MyControl.AppendUnknownTextIfNeeded(
+            ref output,
+            MyTexts.GetString(MyCommonTexts.UnknownControl_None)
+        );
         button.Text = output.ToString();
         output.Clear();
     }
