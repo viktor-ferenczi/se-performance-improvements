@@ -469,9 +469,10 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = ScriptThreads.Auto;
 
+    [Separator("PB on worker thread")]
     [Checkbox(
-        label: "PB off main: LCD sprites",
-        description: "Scripts drawing sprites on LCDs (DrawFrame) may run off the main thread. The sprites are collected on the worker and sent to the LCD on the main thread after the scripts ran. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "LCD sprites",
+        description: "Scripts drawing sprites on LCDs (DrawFrame) may run on a worker thread. The sprites are collected on the worker and sent to the LCD on the main thread after the scripts ran. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainSprites
@@ -481,8 +482,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "PB off main: block access checks",
-        description: "Scripts checking access to blocks and grids (CanAccess) may run off the main thread. The checks read ownership the main thread prepares before the scripts run. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Block access checks",
+        description: "Scripts checking access to blocks and grids (CanAccess) may run on a worker thread. The checks read ownership the main thread prepares before the scripts run. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainAccess
@@ -492,8 +493,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "PB off main: terminal properties and actions",
-        description: "Scripts reading terminal properties and actions (GetProperty, GetActionWithName, GetValue, SetValue, ApplyAction) may run off the main thread. Lookups use per-thread lists, and values set and actions applied are made on the main thread after the scripts ran. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Terminal properties and actions",
+        description: "Scripts reading terminal properties and actions (GetProperty, GetActionWithName, GetValue, SetValue, ApplyAction) may run on a worker thread. Lookups use per-thread lists, and values set and actions applied are made on the main thread after the scripts ran. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainTerminal
@@ -503,8 +504,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "PB off main: block detailed info",
-        description: "Scripts reading DetailedInfo of blocks may run off the main thread. The game's shared number formatting buffer becomes per thread. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Block detailed info",
+        description: "Scripts reading DetailedInfo of blocks may run on a worker thread. The game's shared number formatting buffer becomes per thread. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainDetailedInfo
@@ -514,8 +515,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "PB off main: intergrid communication",
-        description: "Scripts using IGC (broadcast and unicast listeners and messages) may run off the main thread. Listener registration and sends are serialized, messages are delivered as before. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Intergrid communication",
+        description: "Scripts using IGC (broadcast and unicast listeners and messages) may run on a worker thread. Listener registration and sends are serialized, messages are delivered as before. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainIgc
@@ -525,8 +526,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "PB off main: gravity of ship controllers",
-        description: "Scripts reading the artificial or total gravity of ship controllers and parachutes may run off the main thread. The gravity generators are brought up to date on the main thread before the scripts run. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Gravity of ship controllers",
+        description: "Scripts reading the artificial or total gravity of ship controllers and parachutes may run on a worker thread. The gravity generators are brought up to date on the main thread before the scripts run. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainGravity
@@ -536,8 +537,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "PB off main: sensors, turrets and cameras",
-        description: "Scripts reading turret, turret controller and sensor targets, camera raycasts, the nearest player of a remote control or the hacking state of blocks may run off the main thread. Raycasts query the physics world from worker threads. Off by default. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Sensors, turrets and cameras",
+        description: "Scripts reading turret, turret controller and sensor targets, camera raycasts, the nearest player of a remote control or the hacking state of blocks may run on a worker thread. Raycasts query the physics world from worker threads. Higher risk: off by default because it puts physics queries on worker threads. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainSensing
@@ -547,8 +548,8 @@ public class Config : IPluginConfig
     } = false;
 
     [Checkbox(
-        label: "PB off main: inventory transfers",
-        description: "Scripts moving items between inventories or checking conveyor connections (TransferItemTo, CanTransferItemTo, IsConnectedTo) may run off the main thread. Off by default. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Inventory transfers",
+        description: "Scripts moving items between inventories or checking conveyor connections (TransferItemTo, CanTransferItemTo, IsConnectedTo) may run on a worker thread. The moves are made on the main thread after the scripts ran. Higher risk: off by default because a script sees the old inventory contents until its next run, so a loop moving items until an inventory is empty would not end. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainTransfers
@@ -558,8 +559,8 @@ public class Config : IPluginConfig
     } = false;
 
     [Checkbox(
-        label: "PB off main: running other PBs",
-        description: "Scripts running other programmable blocks (TryRun) may run off the main thread. The other PB runs on the same thread if its script may run off the main thread too and it is in the same grid group; otherwise TryRun returns false, as for a busy PB. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Running other PBs",
+        description: "Scripts running other programmable blocks (TryRun) may run on a worker thread. The other PB runs on the same thread if its script may run on a worker thread too and it is in the same grid group; otherwise TryRun returns false, as for a busy PB. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainTryRun
@@ -569,8 +570,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "PB off main: inventory helpers",
-        description: "Scripts using the inventory helper methods of terminal blocks (HasInventory, GetInventory, GetInventoryCount, Get/SetUseConveyorSystem) may run off the main thread. Needs the PB frame budget and proxies with more than one PB thread.",
+        label: "Inventory helpers",
+        description: "Scripts using the inventory helper methods of terminal blocks (HasInventory, GetInventory, GetInventoryCount, Get/SetUseConveyorSystem) may run on a worker thread. Needs the PB frame budget and proxies with more than one PB thread.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptOffMainInventory
@@ -580,8 +581,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
-        label: "Log PB thread decisions",
-        description: "Logs for each programmable block whether its script runs on the main thread or off it, and why: the game members that keep it on the main thread, or the PB off main options it needs. Logged when a PB is first seen and when the decision changes.",
+        label: "Log thread decisions",
+        description: "Logs for each programmable block whether its script runs on the main thread or on a worker thread, and why: the game members that keep it on the main thread, or the PB on worker thread options it needs. Logged when a PB is first seen and when the decision changes. Off by default because it is only for diagnosing why a script stays on the main thread; it logs only on changes, so it can stay on.",
         enabledBy: nameof(ScriptThreadsUsed)
     )]
     public bool ScriptLogThreadDecisions
