@@ -213,6 +213,42 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Separator("Optional")]
+    [Checkbox(label: "Less frequent update of block access rights", description: "Caches the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason")]
+    public bool FixAccess
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    // Server only
+    public bool FixTextPanel
+    {
+        get => false;
+        set { }
+    }
+
+    [Checkbox(label: "Conveyor network performance fixes", description: "Caches conveyor network lookups")]
+    public bool FixConveyor
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Fix toolbar group updates", description: "Caches the terminal actions of block groups on the toolbar for a second (MyToolbarItemTerminalGroup.GetActionsWithGenericDuplicates)")]
+    public bool FixToolbar
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(label: "Disable functional blocks in projected grids", description: "Disable functional blocks in projected grids without affecting the blocks built from the projection")]
+    public bool FixProjection
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Separator("Programmable blocks")]
     [Checkbox(label: "Cache compiled scripts", description: "Caches compiled in-game scripts (PB programs) to reduce lag")]
     public bool CacheScripts
@@ -280,42 +316,6 @@ public class Config : IPluginConfig
     public bool ScriptFrameBudgetEditable => FixScriptCounter && FixScriptScheduler;
 
     public bool ScriptThreadCountEditable => ScriptThreadCountMode == ScriptThreadCountMode.Manual;
-
-    [Separator("Optional")]
-    [Checkbox(label: "Less frequent update of block access rights", description: "Caches the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason")]
-    public bool FixAccess
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
-    // Server only
-    public bool FixTextPanel
-    {
-        get => false;
-        set { }
-    }
-
-    [Checkbox(label: "Conveyor network performance fixes", description: "Caches conveyor network lookups")]
-    public bool FixConveyor
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
-    [Checkbox(label: "Fix toolbar group updates", description: "Caches the terminal actions of block groups on the toolbar for a second (MyToolbarItemTerminalGroup.GetActionsWithGenericDuplicates)")]
-    public bool FixToolbar
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
-    [Checkbox(label: "Disable functional blocks in projected grids", description: "Disable functional blocks in projected grids without affecting the blocks built from the projection")]
-    public bool FixProjection
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
 
     #region Property change notification boilerplate
 

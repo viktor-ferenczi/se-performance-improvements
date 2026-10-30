@@ -21,8 +21,8 @@ namespace ServerPlugin.Config;
 [Tab("worldload", caption: "World load & networking")]
 [Tab("simulation", caption: "Simulation")]
 [Tab("restart", caption: "Requires server restart")]
-[Tab("scripts", caption: "Programmable blocks")]
 [Tab("optional", caption: "Optional (off by default)")]
+[Tab("scripts", caption: "Programmable blocks")]
 [Section("core", parent: "general", caption: "Core")]
 public class PerformanceConfig : PluginConfig, IPluginConfig
 {
@@ -112,6 +112,27 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [BoolOption("Disable character footprint logic on the server side (needs restart)", Parent = "restart")]
     public bool FixCharacter { get; set => SetField(ref field, value); } = true;
 
+    // ---- Optional (off by default) -------------------------------------
+
+    [BoolOption("Cache the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason", Parent = "optional")]
+    public bool FixAccess { get; set => SetField(ref field, value); } = false;
+
+    [BoolOption("Disable UpdateVisibility of LCD surfaces on multiplayer servers (disable if LCDs flicker on clients)", Parent = "optional")]
+    public bool FixTextPanel { get; set => SetField(ref field, value); } = false;
+
+    [BoolOption("Cache conveyor network lookups", Parent = "optional")]
+    public bool FixConveyor { get; set => SetField(ref field, value); } = false;
+
+    // Client only: the dedicated server has no toolbar updates
+    public bool FixToolbar
+    {
+        get => false;
+        set { }
+    }
+
+    [BoolOption("Disable functional blocks in projected grids without affecting the blocks built from the projection", Parent = "optional")]
+    public bool FixProjection { get; set => SetField(ref field, value); } = false;
+
     // ---- Programmable blocks -------------------------------------------
 
     [BoolOption("Cache compiled in-game scripts (PB programs) to reduce lag", Parent = "scripts")]
@@ -140,25 +161,4 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [IntOption(ScriptThreads.Min, ScriptThreads.Max, "Number of programmable block worker threads in the Manual mode. Not used yet", Parent = "scripts")]
     public int ScriptThreadCount { get; set => SetField(ref field, value); } = ScriptThreads.Auto;
-
-    // ---- Optional (off by default) -------------------------------------
-
-    [BoolOption("Cache the result of MyCubeBlock.GetUserRelationToOwner and MyTerminalBlock.HasPlayerAccessReason", Parent = "optional")]
-    public bool FixAccess { get; set => SetField(ref field, value); } = false;
-
-    [BoolOption("Disable UpdateVisibility of LCD surfaces on multiplayer servers (disable if LCDs flicker on clients)", Parent = "optional")]
-    public bool FixTextPanel { get; set => SetField(ref field, value); } = false;
-
-    [BoolOption("Cache conveyor network lookups", Parent = "optional")]
-    public bool FixConveyor { get; set => SetField(ref field, value); } = false;
-
-    // Client only: the dedicated server has no toolbar updates
-    public bool FixToolbar
-    {
-        get => false;
-        set { }
-    }
-
-    [BoolOption("Disable functional blocks in projected grids without affecting the blocks built from the projection", Parent = "optional")]
-    public bool FixProjection { get; set => SetField(ref field, value); } = false;
 }
