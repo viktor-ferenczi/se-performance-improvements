@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using HarmonyLib;
@@ -161,6 +162,10 @@ namespace Shared.Patches
                     ScriptProxies.Prepare(type);
         }
 
+        // The source of the script the PB on this thread is creating, see CreatePrefix
+        [ThreadStatic]
+        private static string creating;
+
         private static bool Decide(MyGridProgram program) => DecisionOf(program).Proxied;
 
         private static Decision DecisionOf(MyGridProgram program) =>
@@ -170,7 +175,12 @@ namespace Shared.Patches
                 {
                     if (!Enabled)
                         return new Decision();
-                    var result = ScriptEligibility.Of(p.GetType().Assembly);
+                    var scans = ScriptEligibility.Scans;
+                    var result = ScriptEligibility.Of(p.GetType().Assembly, creating);
+                    if (ScriptEligibility.Scans != scans)
+                        Common.Logger.Debug(
+                            $"PB script eligibility scan: {result.Milliseconds:F1} ms, {ScriptEligibility.Scans} scans so far"
+                        );
                     if (!result.OffMain)
                         Common.Logger.Debug(
                             $"PB script stays on the main thread: {string.Join(", ", result.Blocking)}"
@@ -211,6 +221,29 @@ namespace Shared.Patches
         private static class RootsPatch
         {
             private const string Prefix = "Sandbox.ModAPI.IMyGridProgram.set_";
+
+            // The PB compiles its scripts from m_programData only, which changes only together with
+            // a recompile, so it is the source of the assembly the PB creates the script from
+            [HarmonyPrefix]
+            [HarmonyPatch(
+                typeof(MyProgrammableBlock),
+                "CreateInstance",
+                typeof(Assembly),
+                typeof(IEnumerable<string>),
+                typeof(string)
+            )]
+            private static void CreatePrefix(MyProgrammableBlock __instance) =>
+                creating = __instance.m_programData;
+
+            [HarmonyFinalizer]
+            [HarmonyPatch(
+                typeof(MyProgrammableBlock),
+                "CreateInstance",
+                typeof(Assembly),
+                typeof(IEnumerable<string>),
+                typeof(string)
+            )]
+            private static void CreateFinalizer() => creating = null;
 
             [HarmonyPrefix]
             [HarmonyPatch(typeof(MyGridProgram), Prefix + "Runtime")]

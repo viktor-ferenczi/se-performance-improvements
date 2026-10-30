@@ -338,7 +338,9 @@ those roots instead of the game objects. Everything the script gets from a proxy
 too, so every game call it makes goes through one.
 
 Whether a script may run off the main thread is decided once per script instance, when the
-PB creates it, by scanning the IL of the script assembly. Each game member it calls is looked
+PB creates it, by scanning the IL of the script assembly. Every PB loads its own copy of that
+assembly, so the result is kept in memory by a hash of the script's source: the scan runs once
+per distinct script while the game runs, not once per PB or recompile. Each game member it calls is looked
 up in `ScriptPolicyTable.cs`, which says for every member of the game's script whitelist (about
 900, apart from plain data types) what calling it on a worker thread would do:
 
