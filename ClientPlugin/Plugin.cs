@@ -16,8 +16,8 @@ using VRage.Plugins;
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.16.5")]
-[assembly: AssemblyFileVersion("1.16.5")]
+[assembly: AssemblyVersion("1.16.6")]
+[assembly: AssemblyFileVersion("1.16.6")]
 
 #endif
 
@@ -205,6 +205,7 @@ public class Plugin : IPlugin, ICommonPlugin
         PatchHelpers.PatchUpdates();
         StuckGridsPatch.Update();
         StuckInVoxelPatch.Update();
+        BuriedGridSweeper.Update();
     }
 
     // ReSharper disable once UnusedMember.Global

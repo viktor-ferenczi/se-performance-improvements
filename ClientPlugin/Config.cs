@@ -228,6 +228,31 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
+        label: "Remove buried grids",
+        description: "Removes the dynamic grids that lie entirely inside a planet and keep moving, like debris that fell through the surface and jitters near the planet's center. Sleeping grids and grids with a pilot stay. Only in offline games and multiplayer games hosted by this client."
+    )]
+    public bool RemoveBuriedGrids
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Slider(
+        1f,
+        60f,
+        1f,
+        SliderAttribute.SliderType.Integer,
+        label: "Buried grid sweep (min)",
+        description: "Minutes between two sweeps for buried grids",
+        enabledBy: nameof(RemoveBuriedGrids)
+    )]
+    public int BuriedGridSweepMinutes
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 5;
+
+    [Checkbox(
         label: "Fix turret target groups",
         description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)"
     )]
