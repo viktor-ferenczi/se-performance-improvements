@@ -1,6 +1,6 @@
-using Sandbox.Graphics.GUI;
 using System;
 using System.Collections.Generic;
+using Sandbox.Graphics.GUI;
 
 namespace ClientPlugin.Settings.Elements;
 
@@ -10,16 +10,26 @@ class CheckboxAttribute : Attribute, IElement
     public readonly string Description;
     public string EnabledBy { get; }
 
-    public CheckboxAttribute(string label = null, string description = null, string enabledBy = null)
+    public CheckboxAttribute(
+        string label = null,
+        string description = null,
+        string enabledBy = null
+    )
     {
         Label = label;
         Description = description;
         EnabledBy = enabledBy;
     }
 
-    public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
-    {               
-        var checkbox = new MyGuiControlCheckbox(toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth))
+    public List<Control> GetControls(
+        string name,
+        Func<object> propertyGetter,
+        Action<object> propertySetter
+    )
+    {
+        var checkbox = new MyGuiControlCheckbox(
+            toolTip: Tools.Tools.Wrap(Description, Control.ToolTipWidth)
+        )
         {
             IsChecked = (bool)propertyGetter(),
             IsCheckedChanged = x => propertySetter(x.IsChecked),
@@ -35,7 +45,9 @@ class CheckboxAttribute : Attribute, IElement
         // height to fit, since the layout takes the height of its tallest control.
         var labelWidth = Math.Max(Control.LabelMinWidth, nameLabel.Size.X) + Control.LabelGap;
         var descriptionWidth = Control.RowRight - Control.RowLeft - checkbox.Size.X - labelWidth;
-        var description = new MyGuiControlLabel(text: Tools.Tools.Wrap(Description ?? "", descriptionWidth));
+        var description = new MyGuiControlLabel(
+            text: Tools.Tools.Wrap(Description ?? "", descriptionWidth)
+        );
 
         return new List<Control>
         {
@@ -44,8 +56,6 @@ class CheckboxAttribute : Attribute, IElement
             new Control(description, minWidth: descriptionWidth),
         };
     }
-    public List<Type> SupportedTypes { get; } = new List<Type>()
-    {
-        typeof(bool)
-    };
+
+    public List<Type> SupportedTypes { get; } = new List<Type>() { typeof(bool) };
 }

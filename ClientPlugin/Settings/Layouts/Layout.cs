@@ -1,7 +1,7 @@
-﻿using Sandbox.Graphics.GUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ClientPlugin.Settings.Elements;
+using Sandbox.Graphics.GUI;
 using VRageMath;
 
 namespace ClientPlugin.Settings.Layouts;

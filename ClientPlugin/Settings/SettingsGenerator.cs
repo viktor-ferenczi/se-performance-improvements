@@ -1,12 +1,11 @@
-﻿using ClientPlugin.Settings.Elements;
-using ClientPlugin.Settings.Layouts;
-using Sandbox.Graphics.GUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-
+using ClientPlugin.Settings.Elements;
+using ClientPlugin.Settings.Layouts;
+using Sandbox.Graphics.GUI;
 
 namespace ClientPlugin.Settings;
 
@@ -38,7 +37,9 @@ internal class SettingsGenerator
     {
         // Reconstruct the type
         Type[] methodArgs = methodInfo.GetParameters().Select(p => p.ParameterType).ToArray();
-        Type type = Expression.GetDelegateType(methodArgs.Concat(new[] { methodInfo.ReturnType }).ToArray());
+        Type type = Expression.GetDelegateType(
+            methodArgs.Concat(new[] { methodInfo.ReturnType }).ToArray()
+        );
 
         // Create a delegate
         return Delegate.CreateDelegate(type, null, methodInfo);
@@ -48,8 +49,13 @@ internal class SettingsGenerator
     {
         attributes = ExtractAttributes();
         Name = Config.Current.Title;
-        ActiveLayout = new None(()=>controls);
-        Dialog = new SettingsScreen(Name, OnRecreateControls, UpdateEnabled, size: ActiveLayout.SettingsPanelSize);
+        ActiveLayout = new None(() => controls);
+        Dialog = new SettingsScreen(
+            Name,
+            OnRecreateControls,
+            UpdateEnabled,
+            size: ActiveLayout.SettingsPanelSize
+        );
     }
 
     private List<MyGuiControlBase> OnRecreateControls()
@@ -60,9 +66,11 @@ internal class SettingsGenerator
         return controlsToRecreate;
     }
 
-    public void SetLayout<T>() where T : Layout
+    public void SetLayout<T>()
+        where T : Layout
     {
-        ActiveLayout = (T)Activator.CreateInstance(typeof(T), (Func<List<List<Control>>>)(() => controls));
+        ActiveLayout = (T)
+            Activator.CreateInstance(typeof(T), (Func<List<List<Control>>>)(() => controls));
         Dialog.UpdateSize(ActiveLayout.SettingsPanelSize);
     }
 
@@ -109,7 +117,8 @@ internal class SettingsGenerator
         {
             throw new Exception(
                 $"Element {element.GetType().Name} for {name} is enabled by "
-                + $"{element.EnabledBy}, which is not a bool property of Config");
+                    + $"{element.EnabledBy}, which is not a bool property of Config"
+            );
         }
 
         return () => (bool)propertyInfo.GetValue(Config.Current);
@@ -130,8 +139,9 @@ internal class SettingsGenerator
                     {
                         throw new Exception(
                             $"Element {element.GetType().Name} for {name} expects "
-                            + $"{string.Join("/", element.SupportedTypes)} but "
-                            + $"recieved {propertyInfo.PropertyType.FullName}");
+                                + $"{string.Join("/", element.SupportedTypes)} but "
+                                + $"recieved {propertyInfo.PropertyType.FullName}"
+                        );
                     }
 
                     var info = new AttributeInfo()
@@ -165,8 +175,9 @@ internal class SettingsGenerator
                     {
                         throw new Exception(
                             $"Element {element.GetType().Name} for {name} expects "
-                            + $"{string.Join("/", element.SupportedTypes)} but "
-                            + $"recieved {typeof(Delegate).FullName}");
+                                + $"{string.Join("/", element.SupportedTypes)} but "
+                                + $"recieved {typeof(Delegate).FullName}"
+                        );
                     }
 
                     var info = new AttributeInfo()

@@ -10,7 +10,6 @@
 
  */
 
-
 #if UNTESTED
 
 using System;
@@ -29,8 +28,12 @@ namespace Shared.Patches
         {
             [HarmonyPatch(typeof(MyShipConnector), "UpdateConnectionState")]
             [HarmonyPrefix]
-            private static bool UpdatePrefix(MyShipConnector __instance, ref bool ___m_isInitOnceBeforeFrameUpdate,
-                bool ___m_isMaster, Sync<MyShipConnector.State, SyncDirection.FromServer> ___m_connectionState)
+            private static bool UpdatePrefix(
+                MyShipConnector __instance,
+                ref bool ___m_isInitOnceBeforeFrameUpdate,
+                bool ___m_isMaster,
+                Sync<MyShipConnector.State, SyncDirection.FromServer> ___m_connectionState
+            )
             {
                 if (___m_isInitOnceBeforeFrameUpdate)
                 {
@@ -38,18 +41,28 @@ namespace Shared.Patches
                     ___m_connectionState.ValueChanged += _ =>
                     {
                         // if we do that immediately or before update, state will reset and calling method be unable to continue
-                        __instance.CubeGrid.Schedule(MyCubeGrid.UpdateQueue.OnceAfterSimulation, () => UpdateConnectionState(__instance));
+                        __instance.CubeGrid.Schedule(
+                            MyCubeGrid.UpdateQueue.OnceAfterSimulation,
+                            () => UpdateConnectionState(__instance)
+                        );
                     };
-
                 }
-                else if (__instance.Other == null && ___m_connectionState.Value.OtherEntityId != 0 && Sync.IsServer)
+                else if (
+                    __instance.Other == null
+                    && ___m_connectionState.Value.OtherEntityId != 0
+                    && Sync.IsServer
+                )
                 {
                     ___m_connectionState.Value = default;
                 }
 
-                return ___m_isMaster &&
-                       (___m_connectionState.Value is { OtherEntityId: 0 } or { MasterToSlave: null } ||
-                        ___m_connectionState.Value.OtherEntityId != __instance.Other?.EntityId);
+                return ___m_isMaster
+                    && (
+                        ___m_connectionState.Value
+                            is { OtherEntityId: 0 }
+                                or { MasterToSlave: null }
+                        || ___m_connectionState.Value.OtherEntityId != __instance.Other?.EntityId
+                    );
             }
 
             [HarmonyReversePatch]

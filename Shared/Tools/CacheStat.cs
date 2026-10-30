@@ -102,6 +102,7 @@ namespace Shared.Tools
 
         public double HitRatePercent => Lookups > 0 ? 100.0 * Hits / Lookups : 100.0;
 
-        public override string ToString() => $"HitRate = {HitRatePercent:0.000}% = {Hits}/{Lookups}; ItemCount = {Size}";
+        public override string ToString() =>
+            $"HitRate = {HitRatePercent:0.000}% = {Hits}/{Lookups}; ItemCount = {Size}";
     }
 }

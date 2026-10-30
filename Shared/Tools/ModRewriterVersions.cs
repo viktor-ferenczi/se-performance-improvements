@@ -22,9 +22,12 @@ public static class ModRewriterVersions
     // The mod rewriting hook, see FindModRewriters
     private const string RewriteMethodName = "Rewrite";
 
-    private const BindingFlags DeclaredMembers = BindingFlags.Public | BindingFlags.NonPublic |
-                                                 BindingFlags.Instance | BindingFlags.Static |
-                                                 BindingFlags.DeclaredOnly;
+    private const BindingFlags DeclaredMembers =
+        BindingFlags.Public
+        | BindingFlags.NonPublic
+        | BindingFlags.Instance
+        | BindingFlags.Static
+        | BindingFlags.DeclaredOnly;
 
     // SHA1 over the sorted module version IDs of the loaded mod rewriting plugin assemblies.
     // Null if none of them are loaded, keeping the cache keys unchanged in that case.
@@ -69,9 +72,14 @@ public static class ModRewriterVersions
     public static void LogVersions(IPluginLogger log)
     {
         if (rewriterDescriptions != null)
-            log.Info("Mod rewriting plugins included in the compilation cache keys: {0}", rewriterDescriptions);
+            log.Info(
+                "Mod rewriting plugins included in the compilation cache keys: {0}",
+                rewriterDescriptions
+            );
         else
-            log.Info("No mod rewriting plugins are loaded, compilation cache keys are not affected");
+            log.Info(
+                "No mod rewriting plugins are loaded, compilation cache keys are not affected"
+            );
     }
 
     // Pulsar and Magnetar wire up mod rewriting by looking for a method named Rewrite declared
@@ -111,7 +119,12 @@ public static class ModRewriterVersions
 
                 var mvid = assembly.ManifestModule.ModuleVersionId;
                 var name = assembly.GetName();
-                rewriters.Add((mvid, $"{name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {type.FullName} {mvid:D}"));
+                rewriters.Add(
+                    (
+                        mvid,
+                        $"{name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {type.FullName} {mvid:D}"
+                    )
+                );
 
                 // One entry per assembly, no matter how many plugin types it declares
                 break;
@@ -121,7 +134,9 @@ public static class ModRewriterVersions
         // This plugin itself implements IPlugin, so not finding a single implementation means
         // the detection ran before the plugin assemblies were loaded, or the interface moved.
         if (pluginTypeCount == 0)
-            throw new Exception($"ModRewriterVersions: no {PluginInterfaceName} implementations are loaded; has the loader or the game changed?");
+            throw new Exception(
+                $"ModRewriterVersions: no {PluginInterfaceName} implementations are loaded; has the loader or the game changed?"
+            );
 
         // LEGACY FALLBACK, remove together with LegacyModRewriters: the old Pulsar and Magnetar
         // releases have no Rewrite hook, the compat plugin builds they load rewrite mod scripts

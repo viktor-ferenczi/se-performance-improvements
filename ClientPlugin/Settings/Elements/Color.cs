@@ -1,7 +1,7 @@
-﻿using Sandbox.Graphics.GUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using ClientPlugin.Settings.Tools;
+using Sandbox.Graphics.GUI;
 using VRage.Game;
 using VRageMath;
 
@@ -16,7 +16,12 @@ internal class ColorAttribute : Attribute, IElement
 
     private Color originalBorderColor;
 
-    public ColorAttribute(bool hasAlpha = false, string label = null, string description = null, string enabledBy = null)
+    public ColorAttribute(
+        bool hasAlpha = false,
+        string label = null,
+        string description = null,
+        string enabledBy = null
+    )
     {
         HasAlpha = hasAlpha;
         Label = label;
@@ -24,38 +29,51 @@ internal class ColorAttribute : Attribute, IElement
         EnabledBy = enabledBy;
     }
 
-    public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
+    public List<Control> GetControls(
+        string name,
+        Func<object> propertyGetter,
+        Action<object> propertySetter
+    )
     {
         var defaultColor = (Color)propertyGetter();
-        var defaultColorHex = HasAlpha ? defaultColor.ToHexStringRgba() : defaultColor.ToHexStringRgb();
+        var defaultColorHex = HasAlpha
+            ? defaultColor.ToHexStringRgba()
+            : defaultColor.ToHexStringRgb();
 
         var sample = new MyGuiControlButton(visualStyle: MyGuiControlButtonStyleEnum.SquareSmall)
         {
             CanHaveFocus = false,
             BorderColor = defaultColor,
             BorderEnabled = true,
-            BorderSize = 20
+            BorderSize = 20,
         };
 
-        var textBox = new MyGuiControlTextbox(defaultText: defaultColorHex, maxLength: HasAlpha ? 8 : 6)
+        var textBox = new MyGuiControlTextbox(
+            defaultText: defaultColorHex,
+            maxLength: HasAlpha ? 8 : 6
+        )
         {
-            Size = new Vector2(0.1f, 0.04f)
+            Size = new Vector2(0.1f, 0.04f),
         };
 
         originalBorderColor = textBox.BorderColor;
 
         textBox.TextChanged += box =>
         {
-            if (HasAlpha ? box.Text.TryParseColorFromHexRgba(out var color) : box.Text.TryParseColorFromHexRgb(out color))
+            if (
+                HasAlpha
+                    ? box.Text.TryParseColorFromHexRgba(out var color)
+                    : box.Text.TryParseColorFromHexRgb(out color)
+            )
             {
                 box.BorderColor = originalBorderColor;
                 box.BorderEnabled = false;
 
                 sample.BorderColor = color;
-                    
+
                 if (color != PropertyGetter())
                     PropertySetter(color);
-                    
+
                 var text = HasAlpha ? color.ToHexStringRgba() : color.ToHexStringRgb();
                 if (text != box.Text)
                     box.Text = text;
@@ -81,8 +99,5 @@ internal class ColorAttribute : Attribute, IElement
         Color PropertyGetter() => (Color)propertyGetter();
     }
 
-    public List<Type> SupportedTypes { get; } = new List<Type>()
-    {
-        typeof(Color)
-    };
+    public List<Type> SupportedTypes { get; } = new List<Type>() { typeof(Color) };
 }

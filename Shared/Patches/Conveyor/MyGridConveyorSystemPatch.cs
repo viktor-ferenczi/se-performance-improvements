@@ -16,7 +16,10 @@ using Shared.Stats;
 using Shared.Tools;
 using VRage;
 using VRage.Game;
-using TLogicalGroup = VRage.Groups.MyGroups<Sandbox.Game.Entities.MyCubeGrid, Sandbox.Game.Entities.MyGridLogicalGroupData>.Group;
+using TLogicalGroup = VRage.Groups.MyGroups<
+    Sandbox.Game.Entities.MyCubeGrid,
+    Sandbox.Game.Entities.MyGridLogicalGroupData
+>.Group;
 
 namespace Shared.Patches
 {
@@ -38,7 +41,8 @@ namespace Shared.Patches
 
         private static bool Prepare() => Optional.Prepare();
 
-        private static readonly RwLockDictionary<TLogicalGroup, UintCache<ulong>> ReachableCaches = new RwLockDictionary<TLogicalGroup, UintCache<ulong>>();
+        private static readonly RwLockDictionary<TLogicalGroup, UintCache<ulong>> ReachableCaches =
+            new RwLockDictionary<TLogicalGroup, UintCache<ulong>>();
 
         // Bumped whenever a conveyor network may have changed (the same events which invalidate
         // the reachability caches above). Other caches derived from conveyor network walks, like
@@ -56,7 +60,9 @@ namespace Shared.Patches
         // reachability caches are aggregated into a single hit-rate entry.
         public static void CaptureStatistics(StatisticsSnapshot snapshot)
         {
-            long lookups = 0, hits = 0, size = 0;
+            long lookups = 0,
+                hits = 0,
+                size = 0;
 
             ReachableCaches.BeginReading();
             foreach (var cache in ReachableCaches.Values)
@@ -189,7 +195,8 @@ namespace Shared.Patches
             IMyConveyorEndpoint from,
             IMyConveyorEndpoint to,
             ref bool __result,
-            ref (UintCache<ulong>, ulong) __state)
+            ref (UintCache<ulong>, ulong) __state
+        )
         {
             if (!Config.FixConveyor)
             {
@@ -206,7 +213,8 @@ namespace Shared.Patches
                     return false;
                 }
 
-                var key = (ulong)(from?.CubeBlock.EntityId ?? 0) ^ (ulong)(to?.CubeBlock.EntityId ?? 0);
+                var key =
+                    (ulong)(from?.CubeBlock.EntityId ?? 0) ^ (ulong)(to?.CubeBlock.EntityId ?? 0);
 
                 if (cache.TryGetValue(key, out var value))
                 {
@@ -215,9 +223,14 @@ namespace Shared.Patches
                 }
 
                 __state = (cache, key);
-            } catch (ArgumentNullException)
+            }
+            catch (ArgumentNullException)
             {
-                Log.Warning("Safely suppressed a crash in MyGridConveyorSystemPatch.ReachablePrefix (from={0}, to={1})", from?.CubeBlock.EntityId ?? 0, to?.CubeBlock.EntityId ?? 0);
+                Log.Warning(
+                    "Safely suppressed a crash in MyGridConveyorSystemPatch.ReachablePrefix (from={0}, to={1})",
+                    from?.CubeBlock.EntityId ?? 0,
+                    to?.CubeBlock.EntityId ?? 0
+                );
                 __state = (null, 0);
             }
 
@@ -227,24 +240,30 @@ namespace Shared.Patches
         [HarmonyPostfix]
         [HarmonyPatch("Reachable", typeof(IMyConveyorEndpoint), typeof(IMyConveyorEndpoint))]
         [EnsureCode("73bf029a")]
-        private static void ReachablePostfix(
-            bool __result,
-            ref (UintCache<ulong>, ulong) __state)
+        private static void ReachablePostfix(bool __result, ref (UintCache<ulong>, ulong) __state)
         {
             __state.Item1?.Store(__state.Item2, __result ? 1u : 0u, 999999999);
         }
 
         [HarmonyPrefix]
-        [HarmonyPatch("Reachable", typeof(IMyConveyorEndpointBlock), typeof(IMyConveyorEndpointBlock), typeof(long), typeof(MyDefinitionId), typeof(Predicate<IMyConveyorEndpoint>))]
+        [HarmonyPatch(
+            "Reachable",
+            typeof(IMyConveyorEndpointBlock),
+            typeof(IMyConveyorEndpointBlock),
+            typeof(long),
+            typeof(MyDefinitionId),
+            typeof(Predicate<IMyConveyorEndpoint>)
+        )]
         [EnsureCode("6b927222")]
         private static bool ReachableByPlayerPrefix(
             IMyConveyorEndpointBlock source,
             IMyConveyorEndpointBlock endPoint,
-            ref bool __result)
+            ref bool __result
+        )
         {
             var sourceEndpoint = source.ConveyorEndpoint;
             var endPointEndpoint = endPoint.ConveyorEndpoint;
-            
+
             if (!Config.FixConveyor)
                 return true;
 
@@ -257,7 +276,9 @@ namespace Shared.Patches
                     return false;
                 }
 
-                var key = (ulong)(sourceEndpoint?.CubeBlock.EntityId ?? 0) ^ (ulong)(endPointEndpoint?.CubeBlock.EntityId ?? 0);
+                var key =
+                    (ulong)(sourceEndpoint?.CubeBlock.EntityId ?? 0)
+                    ^ (ulong)(endPointEndpoint?.CubeBlock.EntityId ?? 0);
 
                 if (cache.TryGetValue(key, out var value) && value == 0)
                 {
@@ -267,9 +288,14 @@ namespace Shared.Patches
                     __result = false;
                     return false;
                 }
-            } catch (ArgumentNullException)
+            }
+            catch (ArgumentNullException)
             {
-                Log.Warning("Safely suppressed a crash in MyGridConveyorSystemPatch.ReachableByPlayerPrefix (source={0}, endPoint={1})", sourceEndpoint?.CubeBlock.EntityId ?? 0, endPointEndpoint?.CubeBlock.EntityId ?? 0);
+                Log.Warning(
+                    "Safely suppressed a crash in MyGridConveyorSystemPatch.ReachableByPlayerPrefix (source={0}, endPoint={1})",
+                    sourceEndpoint?.CubeBlock.EntityId ?? 0,
+                    endPointEndpoint?.CubeBlock.EntityId ?? 0
+                );
             }
 
             return true;
@@ -293,7 +319,15 @@ namespace Shared.Patches
         {
             private static bool Prepare() => PullStats.Prepare();
 
-            [HarmonyPatch("PullItem", typeof(MyDefinitionId), typeof(MyFixedPoint?), typeof(IMyConveyorEndpointBlock), typeof(MyInventory), typeof(bool), typeof(bool))]
+            [HarmonyPatch(
+                "PullItem",
+                typeof(MyDefinitionId),
+                typeof(MyFixedPoint?),
+                typeof(IMyConveyorEndpointBlock),
+                typeof(MyInventory),
+                typeof(bool),
+                typeof(bool)
+            )]
             [HarmonyPrefix]
             [EnsureCode("178d38e5")]
             private static bool PullItemPrefix()

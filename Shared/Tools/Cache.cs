@@ -19,6 +19,7 @@ namespace Shared.Tools
 #if DEBUG
         public readonly CacheStat Stat = new CacheStat();
         public string Report => Stat.Report;
+
         public IEnumerable<TR> Map<TR>(Func<TV, TR> fn)
         {
             cache.BeginReading();

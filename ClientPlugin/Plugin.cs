@@ -12,13 +12,13 @@ using Shared.Plugin;
 using VRage.FileSystem;
 using VRage.Game;
 using VRage.Plugins;
-
 // Define assembly version when compiled by Pulsar
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.16.3")]
-[assembly: AssemblyFileVersion("1.16.3")]
+[assembly: AssemblyVersion("1.16.4")]
+[assembly: AssemblyFileVersion("1.16.4")]
+
 #endif
 
 namespace ClientPlugin;
@@ -40,7 +40,9 @@ public class Plugin : IPlugin, ICommonPlugin
     // configuration. It implements the shared IPluginConfig the patches use.
     public IPluginConfig Config => ClientPlugin.Config.Current;
 
-    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    [System.Runtime.CompilerServices.MethodImpl(
+        System.Runtime.CompilerServices.MethodImplOptions.NoInlining
+    )]
     public void Init(object gameInstance)
     {
 #if DEBUG
@@ -59,7 +61,8 @@ public class Plugin : IPlugin, ICommonPlugin
         // still verified and applied. Idempotent.
         OnGameInitialized();
 
-        var clientBuildNumber = Sandbox.Game.MyPerGameSettings.BasicGameInfo.ClientBuildNumber.GetValueOrDefault();
+        var clientBuildNumber =
+            Sandbox.Game.MyPerGameSettings.BasicGameInfo.ClientBuildNumber.GetValueOrDefault();
         var gameVersion = $"{MyFinalBuildConstants.APP_VERSION_STRING_DOTS} b{clientBuildNumber}";
         Common.SetPlugin(this, gameVersion, MyFileSystem.UserDataPath);
 
@@ -67,8 +70,10 @@ public class Plugin : IPlugin, ICommonPlugin
         // hook (see InstallEarlyBootstrap), so only the rest is applied here. Together the three
         // phases cover every patch in the assembly.
         var harmony = new Harmony(Name);
-        if (!PatchHelpers.HarmonyPatchUncategorized(Log, harmony) ||
-            !PatchHelpers.HarmonyPatchCategory(Log, harmony, PatchHelpers.LateCategory))
+        if (
+            !PatchHelpers.HarmonyPatchUncategorized(Log, harmony)
+            || !PatchHelpers.HarmonyPatchCategory(Log, harmony, PatchHelpers.LateCategory)
+        )
         {
             failed = true;
             return;
@@ -87,19 +92,29 @@ public class Plugin : IPlugin, ICommonPlugin
     {
         try
         {
-            var target = AccessTools.Method(typeof(MyInitializer), nameof(MyInitializer.InvokeBeforeRun));
+            var target = AccessTools.Method(
+                typeof(MyInitializer),
+                nameof(MyInitializer.InvokeBeforeRun)
+            );
             if (target == null)
             {
-                Logger.Critical("Early bootstrap: MyInitializer.InvokeBeforeRun not found; the early patches will not be applied");
+                Logger.Critical(
+                    "Early bootstrap: MyInitializer.InvokeBeforeRun not found; the early patches will not be applied"
+                );
                 return;
             }
 
-            var postfix = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(OnGameInitialized)));
+            var postfix = new HarmonyMethod(
+                AccessTools.Method(typeof(Plugin), nameof(OnGameInitialized))
+            );
             new Harmony($"{Name}.Bootstrap").Patch(target, postfix: postfix);
         }
         catch (Exception ex)
         {
-            Logger.Critical(ex, "Early bootstrap: failed to install the MyInitializer.InvokeBeforeRun hook");
+            Logger.Critical(
+                ex,
+                "Early bootstrap: failed to install the MyInitializer.InvokeBeforeRun hook"
+            );
         }
     }
 
@@ -125,7 +140,11 @@ public class Plugin : IPlugin, ICommonPlugin
 
             // A failure here disables only the early patches, which is why it does not set the
             // failed flag: Init still applies everything else.
-            PatchHelpers.HarmonyPatchCategory(Logger, new Harmony(Name), PatchHelpers.EarlyCategory);
+            PatchHelpers.HarmonyPatchCategory(
+                Logger,
+                new Harmony(Name),
+                PatchHelpers.EarlyCategory
+            );
         }
         catch (Exception ex)
         {

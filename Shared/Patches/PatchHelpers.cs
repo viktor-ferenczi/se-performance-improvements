@@ -23,39 +23,75 @@ namespace Shared.Patches
         // category from the MyInitializer.InvokeBeforeRun hook installed by the Preloader.
         public const string EarlyCategory = "Early";
 
-        public static bool HarmonyPatchAll(IPluginLogger log, Harmony harmony, bool handleExceptions = true)
+        public static bool HarmonyPatchAll(
+            IPluginLogger log,
+            Harmony harmony,
+            bool handleExceptions = true
+        )
         {
-            return VerifyAndApply(log, harmony, handleExceptions,
+            return VerifyAndApply(
+                log,
+                harmony,
+                handleExceptions,
                 EnsureCode.Verify,
                 () => harmony.PatchAll(Assembly.GetExecutingAssembly()),
-                "all patches");
+                "all patches"
+            );
         }
 
         // Applies the uncategorized patches: everything except the deferred "Late" category. Used
         // by the dedicated server's early bootstrap, before world-load compilation. Patches whose
         // target assembly is not loaded yet carry a category and are applied later from Init.
-        public static bool HarmonyPatchUncategorized(IPluginLogger log, Harmony harmony, bool handleExceptions = true)
+        public static bool HarmonyPatchUncategorized(
+            IPluginLogger log,
+            Harmony harmony,
+            bool handleExceptions = true
+        )
         {
-            return VerifyAndApply(log, harmony, handleExceptions,
+            return VerifyAndApply(
+                log,
+                harmony,
+                handleExceptions,
                 EnsureCode.VerifyUncategorized,
                 () => harmony.PatchAllUncategorized(Assembly.GetExecutingAssembly()),
-                "uncategorized patches");
+                "uncategorized patches"
+            );
         }
 
         // Applies only the patches in the given category, verifying only those first.
-        public static bool HarmonyPatchCategory(IPluginLogger log, Harmony harmony, string category, bool handleExceptions = true)
+        public static bool HarmonyPatchCategory(
+            IPluginLogger log,
+            Harmony harmony,
+            string category,
+            bool handleExceptions = true
+        )
         {
-            return VerifyAndApply(log, harmony, handleExceptions,
+            return VerifyAndApply(
+                log,
+                harmony,
+                handleExceptions,
                 () => EnsureCode.VerifyCategory(category),
                 () => harmony.PatchCategory(Assembly.GetExecutingAssembly(), category),
-                $"category '{category}'");
+                $"category '{category}'"
+            );
         }
 
         // Shared scaffold: verify the targeted game methods still match, then apply the patches.
-        private static bool VerifyAndApply(IPluginLogger log, Harmony harmony, bool handleExceptions, Func<IEnumerable<CodeChange>> verify, Action apply, string what)
+        private static bool VerifyAndApply(
+            IPluginLogger log,
+            Harmony harmony,
+            bool handleExceptions,
+            Func<IEnumerable<CodeChange>> verify,
+            Action apply,
+            string what
+        )
         {
             log.Debug($"Scanning for conflicting code changes ({what})");
-            var throwOnFailedVerification = !handleExceptions || Environment.GetEnvironmentVariable("SE_PLUGIN_THROW_ON_FAILED_METHOD_VERIFICATION") != null;
+            var throwOnFailedVerification =
+                !handleExceptions
+                || Environment.GetEnvironmentVariable(
+                    "SE_PLUGIN_THROW_ON_FAILED_METHOD_VERIFICATION"
+                ) != null;
             try
             {
                 var codeChanges = verify().ToList();
@@ -107,7 +143,7 @@ namespace Shared.Patches
             {
                 LogAppliedPatches(log, harmony, before, what);
             }
-            
+
             return true;
         }
 
@@ -118,9 +154,15 @@ namespace Shared.Patches
         // are applied only while their option is on (OptionalPatch), and the transpilers only if
         // their option is on at startup. The other Fix* flags gate behavior inside the patch
         // bodies.
-        private static void LogAppliedPatches(IPluginLogger log, Harmony harmony, HashSet<MethodBase> before, string what)
+        private static void LogAppliedPatches(
+            IPluginLogger log,
+            Harmony harmony,
+            HashSet<MethodBase> before,
+            string what
+        )
         {
-            var applied = harmony.GetPatchedMethods()
+            var applied = harmony
+                .GetPatchedMethods()
                 .Where(method => !before.Contains(method))
                 .OrderBy(method => method.DeclaringType?.FullName, StringComparer.Ordinal)
                 .ThenBy(method => method.ToString(), StringComparer.Ordinal)
@@ -138,15 +180,18 @@ namespace Shared.Patches
         // transpiler/finalizer targets it.
         private static string DescribePatchedMethod(Harmony harmony, MethodBase method)
         {
-            var parameters = string.Join(", ", method.GetParameters().Select(parameter => parameter.ParameterType.Name));
+            var parameters = string.Join(
+                ", ",
+                method.GetParameters().Select(parameter => parameter.ParameterType.Name)
+            );
             var target = $"{method.DeclaringType?.FullName}.{method.Name}({parameters})";
 
             var info = Harmony.GetPatchInfo(method);
             if (info == null)
                 return target;
 
-            var patchClasses = info.Prefixes
-                .Concat(info.Postfixes)
+            var patchClasses = info
+                .Prefixes.Concat(info.Postfixes)
                 .Concat(info.Transpilers)
                 .Concat(info.Finalizers)
                 .Where(patch => patch.owner == harmony.Id)
@@ -154,7 +199,9 @@ namespace Shared.Patches
                 .Distinct()
                 .ToList();
 
-            return patchClasses.Count == 0 ? target : $"{target} <- {string.Join(", ", patchClasses)}";
+            return patchClasses.Count == 0
+                ? target
+                : $"{target} <- {string.Join(", ", patchClasses)}";
         }
 
         // Called from the early bootstrap on both sides, before the "Early" category is applied.
@@ -238,8 +285,12 @@ namespace Shared.Patches
             var log = Common.Plugin.Log;
             log.Info("Cache hit rates:");
             foreach (var cache in snapshot.Caches)
-                log.Info($"- {cache.Name}: HitRate = {cache.HitRatePercent:0.000}% = {cache.Hits}/{cache.Lookups}; ItemCount = {cache.Size}");
-            log.Info($"- Conveyor pull calls: PullItem {snapshot.PullItem}; PullItems {snapshot.PullItems}");
+                log.Info(
+                    $"- {cache.Name}: HitRate = {cache.HitRatePercent:0.000}% = {cache.Hits}/{cache.Lookups}; ItemCount = {cache.Size}"
+                );
+            log.Info(
+                $"- Conveyor pull calls: PullItem {snapshot.PullItem}; PullItems {snapshot.PullItems}"
+            );
         }
 #endif
     }

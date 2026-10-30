@@ -15,6 +15,7 @@ namespace Shared.Patches
     public static class MyPathFindingSystemEnumeratorPatch
     {
         private static readonly ConveyorStat Stat = new ConveyorStat();
+
         public static string Report(int period) => Stat.CountReport(period);
 
         // ReSharper disable once UnusedMember.Local
@@ -22,13 +23,13 @@ namespace Shared.Patches
         [HarmonyPrefix]
         [HarmonyPatch(nameof(MyPathFindingSystem<IMyConveyorEndpoint>.Enumerator.MoveNext))]
         private static bool MoveNextPrefix(
-            // object __instance,
-            // ref bool __result,
-            // ref object ___m_currentVertex,
-            // object ___m_parent,
-            // object ___m_vertexFilter,
-            // object ___m_vertexTraversable,
-            // object ___m_edgeTraversable
+        // object __instance,
+        // ref bool __result,
+        // ref object ___m_currentVertex,
+        // object ___m_parent,
+        // object ___m_vertexFilter,
+        // object ___m_vertexTraversable,
+        // object ___m_edgeTraversable
         )
         {
             Stat.CountCall();

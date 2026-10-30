@@ -29,7 +29,10 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MyPhysicsBody.RigidBody), MethodType.Getter)]
         [EnsureCode("fc347f5d")]
-        private static IEnumerable<CodeInstruction> RigidBodyGetterTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
+        private static IEnumerable<CodeInstruction> RigidBodyGetterTranspiler(
+            IEnumerable<CodeInstruction> instructions,
+            MethodBase patchedMethod
+        )
         {
             if (!enabled)
                 return instructions;

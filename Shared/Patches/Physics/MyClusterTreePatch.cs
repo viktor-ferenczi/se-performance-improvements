@@ -22,7 +22,8 @@ namespace Shared.Patches
         private static IPluginConfig Config => Common.Config;
         private static bool enabled;
 
-        private static readonly MethodInfo OptimizedImplementationMethodInfo = AccessTools.DeclaredMethod(typeof(MyClusterTreePatch), nameof(OptimizedImplementation));
+        private static readonly MethodInfo OptimizedImplementationMethodInfo =
+            AccessTools.DeclaredMethod(typeof(MyClusterTreePatch), nameof(OptimizedImplementation));
 
         public static void Configure()
         {
@@ -37,7 +38,10 @@ namespace Shared.Patches
         [HarmonyTranspiler]
         [HarmonyPatch(nameof(MyClusterTree.ReorderClusters))]
         [EnsureCode("a129d62a")]
-        private static IEnumerable<CodeInstruction> ReorderClustersTranspiler(IEnumerable<CodeInstruction> instructions, MethodBase patchedMethod)
+        private static IEnumerable<CodeInstruction> ReorderClustersTranspiler(
+            IEnumerable<CodeInstruction> instructions,
+            MethodBase patchedMethod
+        )
         {
             if (!enabled)
                 return instructions;
@@ -47,13 +51,18 @@ namespace Shared.Patches
 
             // Find the nested loop
             var i = il.FindAllIndex(ci => ci.opcode == OpCodes.Ldloc_2)[1];
-            while (i < il.Count && il[i].opcode != OpCodes.Pop) i++;
+            while (i < il.Count && il[i].opcode != OpCodes.Pop)
+                i++;
             i++;
 
             // Remove the nested loop
             var j = il.FindAllIndex(ci => ci.opcode == OpCodes.Endfinally)[1];
             var nop = new CodeInstruction(OpCodes.Nop);
-            nop.labels = il.Skip(i).Take(j + 1 - i).Select(ci => ci.labels).SelectMany(l => l).ToList();
+            nop.labels = il.Skip(i)
+                .Take(j + 1 - i)
+                .Select(ci => ci.labels)
+                .SelectMany(l => l)
+                .ToList();
             il.RemoveRange(i, j + 1 - i);
             il.Insert(i++, nop);
 
@@ -72,9 +81,15 @@ namespace Shared.Patches
         }
 
         // Reuse the hashsets used by the optimized implementation
-        private static readonly ThreadLocal<HashSet<ulong>> CollidedObjectKeysPool = new ThreadLocal<HashSet<ulong>>();
+        private static readonly ThreadLocal<HashSet<ulong>> CollidedObjectKeysPool =
+            new ThreadLocal<HashSet<ulong>>();
 
-        private static void OptimizedImplementation(List<MyClusterTree.MyCluster> resultList, Dictionary<ulong, MyClusterTree.MyObjectData> objectsData, HashSet<MyClusterTree.MyObjectData> source, ref BoundingBoxD inflated1)
+        private static void OptimizedImplementation(
+            List<MyClusterTree.MyCluster> resultList,
+            Dictionary<ulong, MyClusterTree.MyObjectData> objectsData,
+            HashSet<MyClusterTree.MyObjectData> source,
+            ref BoundingBoxD inflated1
+        )
         {
             // Original nested loop for reference:
             // foreach (MyClusterTree.MyCluster mResult in resultList)
@@ -89,11 +104,15 @@ namespace Shared.Patches
             //     }
             // }
 
-            var collidedObjectKeys = CollidedObjectKeysPool.IsValueCreated ? CollidedObjectKeysPool.Value : CollidedObjectKeysPool.Value = new HashSet<ulong>(4096);
+            var collidedObjectKeys = CollidedObjectKeysPool.IsValueCreated
+                ? CollidedObjectKeysPool.Value
+                : CollidedObjectKeysPool.Value = new HashSet<ulong>(4096);
 
 #if DEBUG
             if (Logger.IsDebugEnabled)
-                Logger.Debug($"{nameof(MyClusterTreePatch)}.{nameof(OptimizedImplementation)}: objectsData.Count={objectsData.Count}, collidedObjectKeys.Count={collidedObjectKeys.Count}");
+                Logger.Debug(
+                    $"{nameof(MyClusterTreePatch)}.{nameof(OptimizedImplementation)}: objectsData.Count={objectsData.Count}, collidedObjectKeys.Count={collidedObjectKeys.Count}"
+                );
 #endif
 
             foreach (MyClusterTree.MyCluster collidedCluster in resultList)
@@ -106,7 +125,9 @@ namespace Shared.Patches
                 if (objectsData.TryGetValue(objectKey, out var myObjectData))
                 {
                     source.Add(myObjectData);
-                    inflated1.Include(myObjectData.AABB.GetInflated(MyClusterTree.IdealClusterSize / 2f));
+                    inflated1.Include(
+                        myObjectData.AABB.GetInflated(MyClusterTree.IdealClusterSize / 2f)
+                    );
                 }
             }
 
@@ -121,7 +142,9 @@ namespace Shared.Patches
                 optimized += collidedCluster.Objects.Count;
             }
 
-            Logger.Info($"ReorderClusters: original {original}, optimized {optimized} ({100.0 * optimized / Math.Max(1, original):F2}%)");
+            Logger.Info(
+                $"ReorderClusters: original {original}, optimized {optimized} ({100.0 * optimized / Math.Max(1, original):F2}%)"
+            );
 #endif
         }
     }

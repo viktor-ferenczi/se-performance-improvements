@@ -25,7 +25,10 @@ namespace Shared.Patches
             if (!Config.Enabled || !Config.DisableModApiStatistics && !Config.CacheMods)
             {
 #if DEBUG
-                Log.Debug("Keeping the injection of Mod API call statistics code; modId={0}", modId);
+                Log.Debug(
+                    "Keeping the injection of Mod API call statistics code; modId={0}",
+                    modId
+                );
 #endif
                 return true;
             }

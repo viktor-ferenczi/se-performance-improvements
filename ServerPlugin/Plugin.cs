@@ -17,13 +17,13 @@ using VRage.FileSystem;
 using VRage.Game;
 using VRage.Plugins;
 using SdkLogger = PluginSdk.Logging.Logger;
-
 // Define assembly version when compiled by Magnetar
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.16.3")]
-[assembly: AssemblyFileVersion("1.16.3")]
+[assembly: AssemblyVersion("1.16.4")]
+[assembly: AssemblyFileVersion("1.16.4")]
+
 #endif
 
 namespace ServerPlugin;
@@ -56,7 +56,9 @@ public class Plugin : IPlugin, ICommonPlugin
 
     private static string configPath;
 
-    [System.Runtime.CompilerServices.MethodImpl(System.Runtime.CompilerServices.MethodImplOptions.NoInlining)]
+    [System.Runtime.CompilerServices.MethodImpl(
+        System.Runtime.CompilerServices.MethodImplOptions.NoInlining
+    )]
     public void Init(object gameInstance)
     {
 #if DEBUG
@@ -86,7 +88,9 @@ public class Plugin : IPlugin, ICommonPlugin
         // so their target assemblies (e.g. VRage.EOS) are available. On the dedicated server this
         // is the only point where these patches can be applied; the cache-relevant patches were
         // already applied early, before world-load compilation.
-        if (!PatchHelpers.HarmonyPatchCategory(Logger, new Harmony(Name), PatchHelpers.LateCategory))
+        if (
+            !PatchHelpers.HarmonyPatchCategory(Logger, new Harmony(Name), PatchHelpers.LateCategory)
+        )
         {
             failed = true;
             return;
@@ -117,7 +121,8 @@ public class Plugin : IPlugin, ICommonPlugin
     {
         try
         {
-            var serverBuildNumber = Sandbox.Game.MyPerGameSettings.BasicGameInfo.ServerBuildNumber.GetValueOrDefault();
+            var serverBuildNumber =
+                Sandbox.Game.MyPerGameSettings.BasicGameInfo.ServerBuildNumber.GetValueOrDefault();
             return $"{MyFinalBuildConstants.APP_VERSION_STRING_DOTS} b{serverBuildNumber}";
         }
         catch
@@ -142,19 +147,29 @@ public class Plugin : IPlugin, ICommonPlugin
     {
         try
         {
-            var target = AccessTools.Method(typeof(MyInitializer), nameof(MyInitializer.InvokeBeforeRun));
+            var target = AccessTools.Method(
+                typeof(MyInitializer),
+                nameof(MyInitializer.InvokeBeforeRun)
+            );
             if (target == null)
             {
-                SdkLog.Critical("Early bootstrap: MyInitializer.InvokeBeforeRun not found; the compilation cache will not be populated");
+                SdkLog.Critical(
+                    "Early bootstrap: MyInitializer.InvokeBeforeRun not found; the compilation cache will not be populated"
+                );
                 return;
             }
 
-            var postfix = new HarmonyMethod(AccessTools.Method(typeof(Plugin), nameof(OnGameInitialized)));
+            var postfix = new HarmonyMethod(
+                AccessTools.Method(typeof(Plugin), nameof(OnGameInitialized))
+            );
             new Harmony($"{Name}.Bootstrap").Patch(target, postfix: postfix);
         }
         catch (Exception ex)
         {
-            SdkLog.Critical("Early bootstrap: failed to install the MyInitializer.InvokeBeforeRun hook", ex);
+            SdkLog.Critical(
+                "Early bootstrap: failed to install the MyInitializer.InvokeBeforeRun hook",
+                ex
+            );
         }
     }
 

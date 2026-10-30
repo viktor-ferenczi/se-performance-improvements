@@ -50,7 +50,13 @@ namespace Shared.Patches
         [HarmonyPatch(nameof(MyCubeBlock.GetUserRelationToOwner))]
         [EnsureCode("6a33d947")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool GetUserRelationToOwnerPrefix(MyCubeBlock __instance, long identityId, MyRelationsBetweenPlayerAndBlock defaultNoUser, ref MyRelationsBetweenPlayerAndBlock __result, ref long __state)
+        private static bool GetUserRelationToOwnerPrefix(
+            MyCubeBlock __instance,
+            long identityId,
+            MyRelationsBetweenPlayerAndBlock defaultNoUser,
+            ref MyRelationsBetweenPlayerAndBlock __result,
+            ref long __state
+        )
         {
             if (!enabled)
                 return true;
@@ -75,12 +81,20 @@ namespace Shared.Patches
         [HarmonyPatch(nameof(MyCubeBlock.GetUserRelationToOwner))]
         [EnsureCode("6a33d947")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void GetUserRelationToOwnerPostfix(long identityId, MyRelationsBetweenPlayerAndBlock __result, long __state)
+        private static void GetUserRelationToOwnerPostfix(
+            long identityId,
+            MyRelationsBetweenPlayerAndBlock __result,
+            long __state
+        )
         {
             if (__state == 0)
                 return;
 
-            Cache.Store(__state, (uint)__result ^ (uint)identityId, 15 * 60 + ((uint)__state & 255));
+            Cache.Store(
+                __state,
+                (uint)__result ^ (uint)identityId,
+                15 * 60 + ((uint)__state & 255)
+            );
         }
     }
 }

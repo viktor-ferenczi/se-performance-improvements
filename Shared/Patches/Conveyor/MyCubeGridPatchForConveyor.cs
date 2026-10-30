@@ -66,7 +66,10 @@ namespace Shared.Patches
         [HarmonyPatch("MechanicalConnectionBlockAttachUpdateStatusChanged")]
         [HarmonyPostfix]
         [EnsureCode("bda9b059")]
-        private static void MechanicalConnectionBlockAttachUpdateStatusChangedPostfix(MyCubeGrid __instance, MyMechanicalConnectionBlockBase mechConBlock)
+        private static void MechanicalConnectionBlockAttachUpdateStatusChangedPostfix(
+            MyCubeGrid __instance,
+            MyMechanicalConnectionBlockBase mechConBlock
+        )
         {
             if (Config.FixConveyor)
             {

@@ -8,9 +8,12 @@ namespace ClientPlugin.Shared.Tools
     {
         // See #81
         [SuppressMessage("ReSharper", "UnusedMember.Global")]
-        public static MyDefinitionBase GetValueOrDefault(this Dictionary<MyDefinitionId, MyDefinitionBase> dict, MyDefinitionId key)
+        public static MyDefinitionBase GetValueOrDefault(
+            this Dictionary<MyDefinitionId, MyDefinitionBase> dict,
+            MyDefinitionId key
+        )
         {
             return dict.TryGetValue(key, out var value) ? value : null;
-        }        
+        }
     }
 }

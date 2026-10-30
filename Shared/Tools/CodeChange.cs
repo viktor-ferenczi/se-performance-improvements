@@ -10,7 +10,12 @@ public class CodeChange
     public readonly string Expected;
     public readonly string Actual;
 
-    public CodeChange(MethodInfo method, ConstructorInfo constructor, string expected, string actual)
+    public CodeChange(
+        MethodInfo method,
+        ConstructorInfo constructor,
+        string expected,
+        string actual
+    )
     {
         Method = method;
         Constructor = constructor;
@@ -18,5 +23,6 @@ public class CodeChange
         Actual = actual;
     }
 
-    public override string ToString() => $"Code change in {Method?.FullDescription() ?? Constructor.FullDescription()}; expected {Expected}, actual {Actual}";
+    public override string ToString() =>
+        $"Code change in {Method?.FullDescription() ?? Constructor.FullDescription()}; expected {Expected}, actual {Actual}";
 }

@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Runtime.InteropServices;
-using System.ComponentModel;
 
 namespace Shared.Config;
 
@@ -137,7 +137,7 @@ public static class HavokThreads
                 return 0;
 
             var cores = 0;
-            for (var offset = 0; offset + RecordHeaderSize <= length;)
+            for (var offset = 0; offset + RecordHeaderSize <= length; )
             {
                 // struct SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX { DWORD Relationship; DWORD Size; ... }
                 var size = Marshal.ReadInt32(buffer, offset + sizeof(int));
@@ -161,7 +161,11 @@ public static class HavokThreads
     private const int RecordHeaderSize = 2 * sizeof(int);
 
     [DllImport("kernel32.dll", SetLastError = true)]
-    private static extern bool GetLogicalProcessorInformationEx(int relationshipType, IntPtr buffer, ref int returnedLength);
+    private static extern bool GetLogicalProcessorInformationEx(
+        int relationshipType,
+        IntPtr buffer,
+        ref int returnedLength
+    );
 
     private static int CountPhysicalCoresFromCpuInfo()
     {

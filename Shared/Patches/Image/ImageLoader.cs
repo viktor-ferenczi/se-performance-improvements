@@ -35,24 +35,42 @@ public static class ImageLoader
     }
 
 #if DEBUG
-    private static void LogLoad(IMyImage image, bool headerOnly, string debugName, double milliseconds)
+    private static void LogLoad(
+        IMyImage image,
+        bool headerOnly,
+        string debugName,
+        double milliseconds
+    )
     {
         if (image == null)
         {
-            Log.Debug($"ImageSharp: unsupported image {debugName ?? "<unnamed>"} ({milliseconds:0.0} ms)");
+            Log.Debug(
+                $"ImageSharp: unsupported image {debugName ?? "<unnamed>"} ({milliseconds:0.0} ms)"
+            );
             return;
         }
 
-        Log.Debug($"ImageSharp: loaded {Describe(image, headerOnly, debugName)} in {milliseconds:0.0} ms");
+        Log.Debug(
+            $"ImageSharp: loaded {Describe(image, headerOnly, debugName)} in {milliseconds:0.0} ms"
+        );
     }
 
     // Same line for an image the game's own decoder produced (debug builds, fix off)
-    public static void LogGameDecoder(IMyImage image, bool headerOnly, string debugName, double milliseconds)
+    public static void LogGameDecoder(
+        IMyImage image,
+        bool headerOnly,
+        string debugName,
+        double milliseconds
+    )
     {
         if (image == null)
-            Log.Debug($"ImageSharp: game decoder returned nothing for {debugName ?? "<unnamed>"} ({milliseconds:0.0} ms)");
+            Log.Debug(
+                $"ImageSharp: game decoder returned nothing for {debugName ?? "<unnamed>"} ({milliseconds:0.0} ms)"
+            );
         else
-            Log.Debug($"ImageSharp: game decoder loaded {Describe(image, headerOnly, debugName)} in {milliseconds:0.0} ms");
+            Log.Debug(
+                $"ImageSharp: game decoder loaded {Describe(image, headerOnly, debugName)} in {milliseconds:0.0} ms"
+            );
     }
 
     private static string Describe(IMyImage image, bool headerOnly, string debugName)

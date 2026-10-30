@@ -1,8 +1,8 @@
-﻿using Sandbox.Graphics.GUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClientPlugin.Settings.Elements;
+using Sandbox.Graphics.GUI;
 using VRageMath;
 
 namespace ClientPlugin.Settings.Layouts;
@@ -11,7 +11,8 @@ internal class None : Layout
 {
     public override Vector2 SettingsPanelSize => new Vector2(0.5f, 0.5f);
 
-    public None(Func<List<List<Control>>> getControls) : base(getControls) { }
+    public None(Func<List<List<Control>>> getControls)
+        : base(getControls) { }
 
     public override List<MyGuiControlBase> RecreateControls()
     {

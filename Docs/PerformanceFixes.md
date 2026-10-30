@@ -376,7 +376,7 @@ With the option on, `MyCubeBlockDefinition.DisplayNameText` takes a lock on the 
 because it builds the name in a buffer shared by all blocks of that type, and scripts read it
 through `CustomName` and `DefinitionDisplayNameText`.
 
-## Mechanisms that let more PB scripts off the main thread
+## Mechanisms that let more PB scripts run on a worker thread
 
 About 60 members of the script whitelist are not safe to call on a worker thread as they are,
 mostly because the game keeps scratch state for them in shared fields. Ten mechanisms make
@@ -384,7 +384,9 @@ them safe, each with its own option. A script runs off the main thread only if e
 mechanism its calls rely on is on; otherwise it runs on the main thread, with its proxies.
 Turning an option off moves the scripts needing it back to the main thread from the next
 frame. The options take effect only with the per-thread counter, the frame budget, the proxies
-and more than one PB thread.
+and more than one PB thread. In the client settings and in Quasar they sit, with the
+decision log below, in the "PB on worker thread" group after the programmable block options.
+The two that are off by default carry a higher risk, and their descriptions say why.
 
 The patches behind them are applied at startup whenever the per-thread counter is on, whatever
 the options say, and act only during the parallel phase, so outside it the game runs as

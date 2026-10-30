@@ -11,7 +11,10 @@ namespace ClientPlugin.Settings.Tools;
 
 public static class Tools
 {
-    private static readonly Regex UpperCaseWordRegex = new Regex(@"[A-Z][a-z]*", RegexOptions.Compiled);
+    private static readonly Regex UpperCaseWordRegex = new Regex(
+        @"[A-Z][a-z]*",
+        RegexOptions.Compiled
+    );
 
     public static string GetLabelOrDefault(string name, string label = null)
     {
@@ -92,8 +95,14 @@ public static class Tools
         return wrapped.ToString();
     }
 
-    private static readonly Regex RxHexColorRgbRegex = new Regex("([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})", RegexOptions.IgnoreCase);
-    private static readonly Regex RxHexColorRgbaRegex = new Regex("([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})", RegexOptions.IgnoreCase);
+    private static readonly Regex RxHexColorRgbRegex = new Regex(
+        "([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})",
+        RegexOptions.IgnoreCase
+    );
+    private static readonly Regex RxHexColorRgbaRegex = new Regex(
+        "([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})",
+        RegexOptions.IgnoreCase
+    );
 
     public static string ToHexStringRgb(this Color color)
     {
@@ -118,7 +127,8 @@ public static class Tools
             Convert.ToInt16(match.Groups[1].Value, 16),
             Convert.ToInt16(match.Groups[2].Value, 16),
             Convert.ToInt16(match.Groups[3].Value, 16),
-            255);
+            255
+        );
         return true;
     }
 
@@ -135,7 +145,8 @@ public static class Tools
             Convert.ToInt16(match.Groups[1].Value, 16),
             Convert.ToInt16(match.Groups[2].Value, 16),
             Convert.ToInt16(match.Groups[3].Value, 16),
-            Convert.ToInt16(match.Groups[4].Value, 16));
+            Convert.ToInt16(match.Groups[4].Value, 16)
+        );
         return true;
     }
 }

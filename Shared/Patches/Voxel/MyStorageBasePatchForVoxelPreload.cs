@@ -23,7 +23,13 @@ namespace Shared.Patches
     public static class MyStorageBasePatchForVoxelPreload
     {
         [HarmonyPrefix]
-        [HarmonyPatch(nameof(MyStorageBase.LoadFromFile), typeof(string), typeof(Dictionary<byte, byte>), typeof(bool), typeof(bool))]
+        [HarmonyPatch(
+            nameof(MyStorageBase.LoadFromFile),
+            typeof(string),
+            typeof(Dictionary<byte, byte>),
+            typeof(bool),
+            typeof(bool)
+        )]
         [EnsureCode("425dfca1")]
         private static bool LoadFromFilePrefix(bool cache, bool logInfo, ref MyStorageBase __result)
         {
