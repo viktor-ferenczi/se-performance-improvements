@@ -20,10 +20,18 @@ internal class Control
     // Keeps a long label from touching the description next to it.
     public static readonly float LabelGap = 0.01f;
 
+    // Width of a checkbox. Rows without one start with an empty space this wide, so their
+    // labels and controls line up with those of the checkbox rows.
+    public static readonly float CheckboxWidth = 0.0356f;
+
+    public static Control Indent() =>
+        new Control(new MyGuiControlLabel(), fixedWidth: CheckboxWidth);
+
     // What is left of a checkbox row for the description once the checkbox and a label of the
     // minimum width have taken theirs. A row whose label is wider than the minimum has less
     // than this, which is why CheckboxAttribute works it out per row instead of using this.
-    public static readonly float DescriptionMinWidth = RowRight - RowLeft - 0.0356f - LabelMinWidth - LabelGap;
+    public static readonly float DescriptionMinWidth =
+        RowRight - RowLeft - CheckboxWidth - LabelMinWidth - LabelGap;
 
     // Tooltips are drawn next to the cursor, not inside the dialog, so they are wrapped to
     // a width of their own.
@@ -37,7 +45,15 @@ internal class Control
     public readonly Vector2 Offset;
     public readonly float RightMargin;
 
-    public Control(MyGuiControlBase guiControl, float? fixedWidth = null, float minWidth = 0f, float? fillFactor = null, MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER, Vector2? offset = null, float rightMargin = 0f)
+    public Control(
+        MyGuiControlBase guiControl,
+        float? fixedWidth = null,
+        float minWidth = 0f,
+        float? fillFactor = null,
+        MyGuiDrawAlignEnum originAlign = MyGuiDrawAlignEnum.HORISONTAL_LEFT_AND_VERTICAL_CENTER,
+        Vector2? offset = null,
+        float rightMargin = 0f
+    )
     {
         GuiControl = guiControl;
         FixedWidth = fixedWidth;

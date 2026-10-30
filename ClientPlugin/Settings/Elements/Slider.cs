@@ -1,8 +1,8 @@
-﻿using Sandbox;
-using Sandbox.Graphics.GUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Sandbox;
+using Sandbox.Graphics.GUI;
 using VRage.Utils;
 
 namespace ClientPlugin.Settings.Elements;
@@ -26,7 +26,16 @@ internal class SliderAttribute : Attribute, IElement
     // Shown after the value, for example "ms"
     public readonly string Unit;
 
-    public SliderAttribute(float min, float max, float step = 1f, SliderType type = SliderType.Float, string label = null, string description = null, string enabledBy = null, string unit = null)
+    public SliderAttribute(
+        float min,
+        float max,
+        float step = 1f,
+        SliderType type = SliderType.Float,
+        string label = null,
+        string description = null,
+        string enabledBy = null,
+        string unit = null
+    )
     {
         Min = min;
         Max = max;
@@ -44,10 +53,20 @@ internal class SliderAttribute : Attribute, IElement
     {
         public Func<object> Getter;
 
-        public ConfigSlider(string toolTip, float defaultValue, float minValue, float maxValue, bool intValue)
-            : base(toolTip: toolTip, defaultValue: defaultValue, minValue: minValue, maxValue: maxValue, intValue: intValue)
-        {
-        }
+        public ConfigSlider(
+            string toolTip,
+            float defaultValue,
+            float minValue,
+            float maxValue,
+            bool intValue
+        )
+            : base(
+                toolTip: toolTip,
+                defaultValue: defaultValue,
+                minValue: minValue,
+                maxValue: maxValue,
+                intValue: intValue
+            ) { }
 
         public override void Update()
         {
@@ -59,28 +78,31 @@ internal class SliderAttribute : Attribute, IElement
         }
     }
 
-    public List<Control> GetControls(string name, Func<object> propertyGetter, Action<object> propertySetter)
+    public List<Control> GetControls(
+        string name,
+        Func<object> propertyGetter,
+        Action<object> propertySetter
+    )
     {
         var valueLabel = new MyGuiControlLabel();
 
+        string FormatValue(float value, int decimalPlaces)
+        {
+            var text =
+                Type == SliderType.Integer
+                    ? Convert.ToInt32(value).ToString()
+                    : MyValueFormatter.GetFormatedFloat(value, decimalPlaces);
+            return Unit == null ? text : text + " " + Unit;
+        }
+
         void ValueUpdate(MyGuiControlSlider element)
         {
-            switch (Type)
-            {
-                case SliderType.Integer:
-                    int intValue = Convert.ToInt32(element.Value);
-                    propertySetter(intValue);
-                    valueLabel.Text = intValue.ToString();
-                    break;
+            if (Type == SliderType.Integer)
+                propertySetter(Convert.ToInt32(element.Value));
+            else
+                propertySetter(element.Value);
 
-                case SliderType.Float:
-                    propertySetter(element.Value);
-                    valueLabel.Text = MyValueFormatter.GetFormatedFloat(element.Value, element.LabelDecimalPlaces);
-                    break;
-            }
-
-            if (Unit != null)
-                valueLabel.Text += " " + Unit;
+            valueLabel.Text = FormatValue(element.Value, element.LabelDecimalPlaces);
         }
 
         bool SpecifyValue(MyGuiControlSlider element)
@@ -92,7 +114,8 @@ internal class SliderAttribute : Attribute, IElement
                 defaultAmount: Convert.ToSingle(propertyGetter()),
                 parseAsInteger: Type == SliderType.Integer,
                 backgroundTransition: MySandboxGame.Config.UIBkOpacity,
-                guiTransition: MySandboxGame.Config.UIOpacity);
+                guiTransition: MySandboxGame.Config.UIOpacity
+            );
 
             screen.OnConfirmed += (value) => element.Value = value;
 
@@ -113,7 +136,8 @@ internal class SliderAttribute : Attribute, IElement
             defaultValue: Convert.ToSingle(propertyGetter()),
             minValue: Min,
             maxValue: Max,
-            intValue: Type == SliderType.Integer)
+            intValue: Type == SliderType.Integer
+        )
         {
             MinimumStepOverride = Step,
             Getter = propertyGetter,
@@ -127,20 +151,30 @@ internal class SliderAttribute : Attribute, IElement
         slider.ValueChanged += ValueUpdate;
         slider.SliderSetValueManual = SpecifyValue;
 
+        // Reserve the width of the widest value text, so the slider leaves room for the value and
+        // its unit wherever it is dragged. The label measures its text when the text is set.
+        var valueWidth = 0f;
+        foreach (var value in new[] { Min, Max })
+        {
+            valueLabel.Text = FormatValue(value, slider.LabelDecimalPlaces);
+            valueWidth = Math.Max(valueWidth, valueLabel.Size.X);
+        }
+
         ValueUpdate(slider);
 
         var label = Tools.Tools.GetLabelOrDefault(name, Label);
         return new List<Control>()
         {
-            new Control(new MyGuiControlLabel(text: label), minWidth: Control.LabelMinWidth),
+            Control.Indent(),
+            new Control(
+                new MyGuiControlLabel(text: label),
+                minWidth: Control.LabelMinWidth,
+                rightMargin: Control.LabelGap
+            ),
             new Control(slider, fillFactor: 1f, rightMargin: 0.005f),
-            new Control(valueLabel, minWidth: Unit == null ? 0.06f : 0.09f),
+            new Control(valueLabel, minWidth: valueWidth),
         };
     }
 
-    public List<Type> SupportedTypes { get; } = new List<Type>()
-    {
-        typeof(float),
-        typeof(int),
-    };
+    public List<Type> SupportedTypes { get; } = new List<Type>() { typeof(float), typeof(int) };
 }
