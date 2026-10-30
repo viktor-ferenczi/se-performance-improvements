@@ -21,8 +21,8 @@ using SdkLogger = PluginSdk.Logging.Logger;
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.16.4")]
-[assembly: AssemblyFileVersion("1.16.4")]
+[assembly: AssemblyVersion("1.16.5")]
+[assembly: AssemblyFileVersion("1.16.5")]
 
 #endif
 
@@ -311,5 +311,6 @@ public class Plugin : IPlugin, ICommonPlugin
         MyLcdSurfaceComponentPatch.Update();
         MyWheelPatch.Update();
         StuckGridsPatch.Update();
+        StuckInVoxelPatch.Update();
     }
 }

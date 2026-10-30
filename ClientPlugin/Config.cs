@@ -218,6 +218,16 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
+        label: "Push grids out of voxels",
+        description: "Pushes a grid stuck inside a planet or an asteroid out of it, like a ship rammed into an asteroid in a no-damage safe zone. Only in offline games and multiplayer games hosted by this client."
+    )]
+    public bool PushGridsOutOfVoxels
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(
         label: "Fix turret target groups",
         description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)"
     )]

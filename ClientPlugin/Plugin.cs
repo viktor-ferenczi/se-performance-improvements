@@ -16,8 +16,8 @@ using VRage.Plugins;
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.16.4")]
-[assembly: AssemblyFileVersion("1.16.4")]
+[assembly: AssemblyVersion("1.16.5")]
+[assembly: AssemblyFileVersion("1.16.5")]
 
 #endif
 
@@ -204,6 +204,7 @@ public class Plugin : IPlugin, ICommonPlugin
         // TODO: Put your update code here. It is called on every simulation frame!
         PatchHelpers.PatchUpdates();
         StuckGridsPatch.Update();
+        StuckInVoxelPatch.Update();
     }
 
     // ReSharper disable once UnusedMember.Global

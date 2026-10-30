@@ -6,10 +6,15 @@ using System.Linq;
 using HarmonyLib;
 using Havok;
 using Sandbox;
+using Sandbox.Common.ObjectBuilders;
 using Sandbox.Engine.Physics;
 using Sandbox.Game.Entities;
 using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
+using Sandbox.ModAPI;
+using VRage;
+using VRage.Game.ObjectBuilders.Components;
+using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRageMath;
 
@@ -32,6 +37,12 @@ namespace StuckProbe;
 // that second (60 = full speed), the mean MySession.Update time, the ship's distance from the
 // station and its speed, and the contact points reported between ship and station that second,
 // with their deepest penetration.
+//
+// Voxel mode (SE-770): STUCK_VOXEL=planet or asteroid spawns a Moon (19 km) or an asteroid prefab
+// 60 km from the station when the world is ready. A shot then places the ship with its center
+// STUCK_DEPTH meters below the voxel's surface, on the side facing the station, inside a new
+// no-damage safe zone when STUCK_SAFEZONE=1. The distance column is the ship's distance from
+// where it was placed, the contact columns count ship-voxel contacts.
 public class Plugin : IPlugin
 {
     public void Init(object gameInstance)
@@ -61,6 +72,11 @@ public static class Probe
         Environment.GetEnvironmentVariable("STUCK_STATION") ?? "0"
     );
     private static readonly double Warmup = Number("STUCK_WARMUP", 20);
+    private static readonly string VoxelKind = Environment.GetEnvironmentVariable("STUCK_VOXEL");
+    private static readonly double Depth = Number("STUCK_DEPTH", 0);
+    private static readonly bool SafeZone = Environment.GetEnvironmentVariable("STUCK_SAFEZONE") == "1";
+    private static MyVoxelBase voxel;
+    private static Vector3D placedCenter;
     private static readonly double Seconds = Number("STUCK_SECONDS", 180);
     private static readonly double[][] Shots = (
         Environment.GetEnvironmentVariable("STUCK_SHOTS") ?? "0,14,0,0,-1,0,200"
@@ -119,6 +135,8 @@ public static class Probe
                 $"world ready, {Shots.Length} shots, the first in {Warmup} s, measuring {Seconds} s after the last launch"
             );
             table = new StreamWriter(Path.Combine(Dir, "seconds.tsv"));
+            if (VoxelKind != null)
+                SpawnVoxel();
             table.WriteLine(
                 "shot\tsecond\tframes\tupdate_ms\tphysics_ratio\tdistance_m\tspeed_mps\tcontacts\tdeep\tdeepest_m"
             );
@@ -156,7 +174,9 @@ public static class Probe
         MyEntities.TryGetEntityById(ShipId, out MyCubeGrid ship);
         MyEntities.TryGetEntityById(StationId, out MyCubeGrid station);
         var distance =
-            ship != null && station != null
+            VoxelKind != null && ship != null
+                ? Vector3D.Distance(ship.PositionComp.WorldAABB.Center, placedCenter)
+            : ship != null && station != null
                 ? Vector3D.Distance(
                     ship.PositionComp.WorldAABB.Center,
                     station.PositionComp.WorldAABB.Center
@@ -228,6 +248,12 @@ public static class Probe
         )
         {
             Log("ship or station not found");
+            return;
+        }
+
+        if (VoxelKind != null)
+        {
+            PlaceInVoxel(ship, station);
             return;
         }
 
@@ -307,8 +333,83 @@ public static class Probe
         }
     }
 
+    private static void SpawnVoxel()
+    {
+        var at = MyEntities.GetEntityById(StationId).PositionComp.GetPosition() + new Vector3D(0, 0, 60000);
+        voxel =
+            VoxelKind == "planet"
+                ? (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.SpawnPlanet("Moon", 19000, 770, at)
+                : (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.CreateVoxelMapFromStorageName("SE770Asteroid", "Asteroid256-001", at);
+        Log($"spawned {VoxelKind} {voxel?.EntityId} at {voxel?.PositionComp.WorldAABB.Center}");
+    }
+
+    private static void PlaceInVoxel(MyCubeGrid ship, MyCubeGrid station)
+    {
+        var center = voxel.PositionComp.WorldAABB.Center;
+        var up = Vector3D.Normalize(station.PositionComp.GetPosition() - center);
+        Vector3D surface;
+        if (voxel is MyPlanet planet)
+            surface = planet.GetClosestSurfacePointGlobal(center + up * 100000);
+        else
+        {
+            var line = new LineD(center + up * 1000, center);
+            if (!voxel.GetIntersectionWithLine(ref line, out Vector3D? hit) || !hit.HasValue)
+            {
+                Log("no asteroid surface found");
+                return;
+            }
+            surface = hit.Value;
+        }
+
+        placedCenter = surface - up * Depth;
+        Stop(ship);
+        var offset = ship.PositionComp.WorldAABB.Center - ship.PositionComp.GetPosition();
+        var world = ship.WorldMatrix;
+        world.Translation = placedCenter - offset;
+        ship.Teleport(world);
+        Stop(ship);
+
+        if (SafeZone)
+        {
+            var zone = new MyObjectBuilder_SafeZone
+            {
+                PositionAndOrientation = new MyPositionAndOrientation(MatrixD.CreateTranslation(surface)),
+                Radius = 500,
+                PersistentFlags = MyPersistentEntityFlags2.InScene,
+                Shape = MySafeZoneShape.Sphere,
+                AccessTypePlayers = MySafeZoneAccess.Blacklist,
+                AccessTypeFactions = MySafeZoneAccess.Blacklist,
+                AccessTypeGrids = MySafeZoneAccess.Blacklist,
+                AccessTypeFloatingObjects = MySafeZoneAccess.Blacklist,
+                AllowedActions = MySafeZoneAction.All & ~MySafeZoneAction.Damage,
+                Enabled = true,
+                IsVisible = true,
+            };
+            MyEntities.CreateFromObjectBuilderAndAdd(zone, false);
+        }
+
+        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}");
+    }
+
     public static void Contact(ref HkContactPointEvent value)
     {
+        if (VoxelKind != null)
+        {
+            var e0 = value.GetPhysicsBody(0)?.Entity;
+            var e1 = value.GetPhysicsBody(1)?.Entity;
+            if (!(e0 is MyVoxelBase && e1 is MyCubeGrid || e1 is MyVoxelBase && e0 is MyCubeGrid))
+                return;
+            lock (ContactLock)
+            {
+                contacts++;
+                if (value.ContactPoint.Distance < -0.1f)
+                    deep++;
+                if (value.ContactPoint.Distance < deepest)
+                    deepest = value.ContactPoint.Distance;
+            }
+            return;
+        }
+
         var a = value.GetPhysicsBody(0)?.Entity as MyCubeGrid;
         var b = value.GetPhysicsBody(1)?.Entity as MyCubeGrid;
         if (a == null || b == null || (a.EntityId == StationId) == (b.EntityId == StationId))

@@ -223,6 +223,48 @@ each, interleaved:
 With nothing stuck the update time was the same with and without the fix (5.2 - 5.5 ms
 with the Rhea and its subgrids touching each other).
 
+## Pushing grids out of planets and asteroids
+
+A grid that ends up partly inside a planet or an asteroid, teleported or rammed in, in a
+safe zone without damage or with damage, costs the same as two grids stuck inside each
+other: Havok solves the deep contact again on every step.
+
+`StuckInVoxelPatch` hooks the same contact point callback as the stuck grids fix and
+collects the contacts between a grid and a voxel body deeper than 5 cm. Havok reports
+those less than 1 m deep even for a ship half inside an asteroid, and the depth comes and
+goes, so it can't tell a stuck grid from a landed one. A grid touching a voxel body is
+checked every 10 updates instead: up to 64 of its block centers, spread over the grid, are
+looked up in the voxel's content. When at least one in 20 of them is inside on 3 checks in a
+row, the grid is stuck. A landed grid, a rover or a mining ship has no block center inside.
+Unless the grid is static or attached to a static grid, it is teleported with its physical
+group away from the voxel body's center, 0.5 m per update, until it has had no contact deeper than
+5 cm for 5 updates and none of the sampled block centers is inside, and its velocity is
+zeroed. A grid inside a voxel body costs as much as one crossing its surface, with no
+contact points reported. It gives up after 300 m.
+
+Option `PushGridsOutOfVoxels`, on by default in both plugins, only where the game is the
+server, like `SeparateStuckGrids`. The probe in `Tools/StuckGrids` has a voxel mode
+(`STUCK_VOXEL=planet|asteroid`, `STUCK_DEPTH`, `STUCK_SAFEZONE`) that spawns the voxel
+body and places the ship into its surface.
+
+Measured on a Linux Magnetar server (polaris, alone on the host) with an IMDC Rhea (40
+grids) placed with its center on the surface of a Moon (19 km) or an asteroid
+(Asteroid256-001), in a new no-damage safe zone or without one. 90 seconds from the
+placement, two runs each, interleaved, option off and on:
+
+| | without the fix | with the fix | with the fix, after 30 s |
+| --- | --- | --- | --- |
+| asteroid, safe zone | 303 - 395 ms, sim 0.08 - 0.09 | 58 - 75 ms, sim 0.88 | 5.3 - 5.5 ms, sim 1.00 |
+| asteroid, no safe zone | 21 - 121 ms, sim 0.67 - 0.83 | 13 ms, sim 0.94 - 0.95 | 3.2 - 3.3 ms, sim 1.00 |
+| planet, safe zone | 202 - 252 ms, sim 0.10 - 0.11 | 27 - 84 ms, sim 0.29 - 0.92 | 6.0 - 62.5 ms, sim 0.31 - 1.00 |
+| planet, no safe zone | 19 - 24 ms, sim 0.93 - 0.95 | 8.5 - 9.0 ms, sim 0.97 - 0.98 | 4.8 - 5.1 ms, sim 1.00 |
+
+The Rhea was out after 35 - 46 m, 10 - 15 s after the placement. Without a safe zone the
+damage breaks the ship apart, which frees most of it on its own. In one of the planet runs
+in the safe zone the Rhea, with pieces split off by then, kept bouncing on the ground in the
+gravity after it was out, at 20 - 100 m/s, which cost most of the simulation speed as well.
+The ship 300 m above the asteroid costs nothing (7 ms, sim 0.99).
+
 ## Skipping redundant updates of PB access to blocks
 
 Before every run of a programmable block the game calls

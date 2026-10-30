@@ -46,6 +46,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyWindowsSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\PhysicsFixes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\StuckGridsPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\StuckInVoxelPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Projection\MyEntityPatchForProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySafeZonePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
