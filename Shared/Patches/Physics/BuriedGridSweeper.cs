@@ -39,7 +39,10 @@ namespace Shared.Patches
         // get one long frame
         private const int GridsPerUpdate = 20;
 
+        private const int SampledBlocks = 64;
+
         private static double nextSweep;
+        private static readonly Vector3D[] Point = new Vector3D[1];
         private static readonly List<MyCubeGrid> Pending = new List<MyCubeGrid>();
 
         // Called on every update from the main thread, between simulation steps
@@ -138,8 +141,26 @@ namespace Shared.Patches
             if (depth + radius + MarginMeters >= 0.0)
                 return null;
 
-            var (sampled, inside) = StuckInVoxelPatch.CountInside(grid, planet);
-            return sampled > 0 && inside == sampled ? planet : null;
+            return AllInside(grid, planet) ? planet : null;
+        }
+
+        // Up to SampledBlocks block centers spread over the grid are all inside the voxel content
+        private static bool AllInside(MyCubeGrid grid, MyVoxelBase voxel)
+        {
+            var blocks = grid.GetBlocks();
+            var stride = blocks.Count / SampledBlocks + 1;
+            var index = 0;
+            foreach (var block in blocks)
+            {
+                if (index++ % stride != 0)
+                    continue;
+
+                block.ComputeWorldCenter(out Point[0]);
+                if (!voxel.IsAnyOfPointInside(Point))
+                    return false;
+            }
+
+            return index > 0;
         }
     }
 }
