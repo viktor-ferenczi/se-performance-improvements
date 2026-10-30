@@ -1,8 +1,8 @@
-﻿using Sandbox.Graphics.GUI;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using ClientPlugin.Settings.Elements;
+using Sandbox.Graphics.GUI;
 using VRage.Utils;
 using VRageMath;
 
@@ -16,15 +16,16 @@ internal class Simple : Layout
     public override Vector2 SettingsPanelSize => new Vector2(0.96f, 0.96f);
     private const float ElementPadding = 0.01f;
 
-    public Simple(Func<List<List<Control>>> getControls) : base(getControls) { }
+    public Simple(Func<List<List<Control>>> getControls)
+        : base(getControls) { }
 
     public override List<MyGuiControlBase> RecreateControls()
     {
         parent = new MyGuiControlParent()
         {
             OriginAlign = MyGuiDrawAlignEnum.HORISONTAL_CENTER_AND_VERTICAL_TOP,
-            Position = Vector2.Zero, 
-            Size = new Vector2(SettingsPanelSize.X-0.01f, SettingsPanelSize.Y-0.09f),
+            Position = Vector2.Zero,
+            Size = new Vector2(SettingsPanelSize.X - 0.01f, SettingsPanelSize.Y - 0.09f),
         };
 
         scrollPanel = new MyGuiControlScrollablePanel(parent)
@@ -55,26 +56,29 @@ internal class Simple : Layout
     public override void LayoutControls()
     {
         var totalWidth = scrollPanel.ScrolledAreaSize.X - 2 * ElementPadding;
-            
+
         var controls = GetControls();
-        var totalHeight = ElementPadding + controls.Select(row => row.Max(c => c.GuiControl.Size.Y) + ElementPadding).Sum();
+        var totalHeight =
+            ElementPadding
+            + controls.Select(row => row.Max(c => c.GuiControl.Size.Y) + ElementPadding).Sum();
         parent.Size = new Vector2(parent.Size.X, totalHeight);
-            
+
         var rowY = -0.5f * totalHeight + ElementPadding;
         foreach (var row in controls)
         {
             // Vertical
-                
+
             var rowHeight = row.Max(c => c.GuiControl.Size.Y);
             var controlY = rowY + 0.5f * rowHeight;
-                
+
             rowY += rowHeight + ElementPadding;
-                
+
             // Horizontal
-                
+
             var totalMinWidth = row.Select(c => (c.FixedWidth ?? c.MinWidth) + c.RightMargin).Sum();
             var remainingWidth = Math.Max(0f, totalWidth - totalMinWidth);
-            var sumFillFactors = row.Select(c => c.FixedWidth.HasValue ? 0f : c.FillFactor ?? 0f).Sum();
+            var sumFillFactors = row.Select(c => c.FixedWidth.HasValue ? 0f : c.FillFactor ?? 0f)
+                .Sum();
             var unitWidth = sumFillFactors > 0f ? remainingWidth / sumFillFactors : 0f;
 
             var controlX = -0.5f * parent.Size.X + ElementPadding;
@@ -92,17 +96,23 @@ internal class Simple : Layout
                 }
                 else if (control.FillFactor.HasValue)
                 {
-                    guiControl.Size = new Vector2(Math.Max(control.MinWidth, unitWidth * control.FillFactor.Value), sizeY);
-                } 
+                    guiControl.Size = new Vector2(
+                        Math.Max(control.MinWidth, unitWidth * control.FillFactor.Value),
+                        sizeY
+                    );
+                }
                 else
                 {
-                    guiControl.Size = new Vector2(Math.Max(guiControl.Size.X, control.MinWidth), sizeY);
+                    guiControl.Size = new Vector2(
+                        Math.Max(guiControl.Size.X, control.MinWidth),
+                        sizeY
+                    );
                 }
 
                 controlX += guiControl.Size.X + control.RightMargin;
             }
         }
-            
+
         scrollPanel.RefreshInternals();
     }
 }
