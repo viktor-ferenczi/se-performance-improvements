@@ -16,8 +16,8 @@ using VRage.Plugins;
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.16.7")]
-[assembly: AssemblyFileVersion("1.16.7")]
+[assembly: AssemblyVersion("1.16.8")]
+[assembly: AssemblyFileVersion("1.16.8")]
 
 #endif
 
