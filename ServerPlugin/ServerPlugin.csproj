@@ -54,6 +54,11 @@
     </Reference>
   </ItemGroup>
 
+  <!-- For the Preloader on net48; the loader has it at runtime, as PluginSdk needs it -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
+    <PackageReference Include="System.Text.Json" Version="8.0.5" ExcludeAssets="runtime" />
+  </ItemGroup>
+
   <!-- Dedicated Server assemblies. Only the assemblies actually shipped in
        DedicatedServer64 are referenced; the .NET facade assemblies (System.Runtime,
        System.Collections, System.Net.*, System.Xml.*, ...) are provided by the

@@ -17,13 +17,38 @@
 // ReSharper disable once UnusedType.Global
 public class Preloader
 {
-    // A server managed by Quasar has no config file: the loader was given the plugin's values
-    // before the preload hooks run
-    private static readonly bool FixScriptCounter = PluginSdk.Config.ManagedPluginConfiguration.Required
-        ? PluginSdk
-            .Config.ConfigStorage.LoadXml<ServerPlugin.Config.PerformanceConfig>("Performance.cfg")
-            .FixScriptCounter
+    private static readonly bool FixScriptCounter = PluginSdk
+        .Config
+        .ManagedPluginConfiguration
+        .Required
+        ? ManagedFixScriptCounter()
         : Shared.Tools.PreloadConfig.ReadBool(true, "FixScriptCounter");
+
+    // A server managed by Quasar has no config file: its values are in the file the loader was
+    // given and has checked. ConfigStorage can't read them yet, it needs the game's assemblies,
+    // which the loader can't resolve until after this hook.
+    private static bool ManagedFixScriptCounter()
+    {
+        using var document = System.Text.Json.JsonDocument.Parse(
+            System.IO.File.ReadAllBytes(
+                System.Environment.GetEnvironmentVariable("CLUSTER_PLUGIN_CONFIGURATION")
+            )
+        );
+        foreach (var plugin in document.RootElement.GetProperty("plugins").EnumerateArray())
+        {
+            if (
+                plugin.TryGetProperty("configType", out var type)
+                && type.GetString() == "ServerPlugin.Config.PerformanceConfig"
+            )
+                return plugin
+                    .GetProperty("configuration")
+                    .GetProperty("values")
+                    .GetProperty("fixScriptCounter")
+                    .GetBoolean();
+        }
+
+        return false;
+    }
 
     // ReSharper disable once UnusedMember.Global
     public static System.Collections.Generic.IEnumerable<string> TargetDLLs =>
