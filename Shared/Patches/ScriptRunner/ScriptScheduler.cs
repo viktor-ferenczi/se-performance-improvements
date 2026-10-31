@@ -180,7 +180,7 @@ namespace Shared.Patches
 
             if (failedWrites != 0)
                 Common.Logger.Warning(
-                    $"PB scheduler: {failedWrites} writes of scripts run off the main thread failed in the last {frames} frames"
+                    $"PB scheduler: {failedWrites} writes of scripts run on a worker thread failed in the last {frames} frames"
                 );
 
             if (overloadFrames != 0)
@@ -293,7 +293,7 @@ namespace Shared.Patches
                 {
                     failedWrites++;
                     Common.Logger.Debug(
-                        $"PB {pb.EntityId}: write of a script run off the main thread failed: {e}"
+                        $"PB {pb.EntityId}: write of a script run on a worker thread failed: {e}"
                     );
                 });
                 SpareWrites.Push(writes);

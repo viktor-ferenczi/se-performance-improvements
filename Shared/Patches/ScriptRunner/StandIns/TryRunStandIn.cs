@@ -5,10 +5,10 @@ using VRage.Library.Compiler;
 
 namespace Shared.Patches;
 
-// IMyProgrammableBlock.TryRun for scripts off the main thread (StandIn.TryRun).
+// IMyProgrammableBlock.TryRun for scripts on a worker thread (StandIn.TryRun).
 //
 // The other PB runs right away on the same thread, as in the game, when it is in the same grid
-// group and its script may run off the main thread too: its game calls go through its proxies
+// group and its script may run on a worker thread too: its game calls go through its proxies
 // and its writes into the running script's log. Its DetailedInfo is set on the main thread
 // after the phase, as it raises a network event. Otherwise TryRun returns false, as the game
 // does for a PB that is busy.

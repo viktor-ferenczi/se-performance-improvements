@@ -6,7 +6,7 @@ using VRage.Game.ModAPI.Ingame;
 
 namespace Shared.Patches;
 
-// Item transfers between inventories for scripts off the main thread (StandIn.Transfers).
+// Item transfers between inventories for scripts on a worker thread (StandIn.Transfers).
 //
 // Whether an item can go from one inventory to the other is worked out on the worker, as the
 // game does it: the conveyor reachability check has its own lock and its own per inventory

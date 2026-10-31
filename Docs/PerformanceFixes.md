@@ -322,7 +322,7 @@ profile, hit rate 99.97%.
 ## Per-thread PB instruction counter and run time limit
 
 `FixScriptCounter`, off by default, needs a restart. It is the groundwork for running
-programmable block scripts off the main thread, and on its own it changes nothing a player
+programmable block scripts on a worker thread, and on its own it changes nothing a player
 sees.
 
 The game counts the work of a running script in `VRage.Library.Compiler.IlInjector`: the
@@ -337,7 +337,7 @@ file itself, since the patch must be in place before the game loads; with the op
 leaves `VRage.Library` alone.
 
 `ScriptRunner.Execute` runs a script on the calling thread with the game's own checks and
-limits, so a runaway script on a worker thread is stopped by its own counter. Off the main
+limits, so a runaway script on a worker thread is stopped by its own counter. On a worker
 thread it keeps the game's "PB invoked from parallel thread" report from firing, which throws
 on a server where no mod script was ever compiled.
 
@@ -382,7 +382,7 @@ wait, and the PB time per frame.
 
 `ScriptThreadCountMode` (Auto or Manual) and `ScriptThreadCount` set how many threads run
 PB scripts, the main thread included; Auto takes the automatic physics thread count. Only
-scripts with proxies (`FixScriptProxies`, below) leave the main thread. With the proxies on
+scripts with proxies (`FixScriptProxies`, below) run on a worker thread. With the proxies on
 and more than one thread, the queue first runs the other scripts on the main thread, then
 the scripts with proxies in a parallel phase on all the threads, each thread with a budget
 of its own. The main thread does nothing else meanwhile. Two PBs of one logical grid group
@@ -396,13 +396,13 @@ and which share of the runs was parallel.
 
 ## Proxies for PB scripts
 
-`FixScriptProxies`, off by default, prepares scripts for running off the main thread. A script
+`FixScriptProxies`, off by default, prepares scripts for running on a worker thread. A script
 reaches the game only through the roots it is given: `GridTerminalSystem`, `Me`, `Runtime` and
-`IGC`. With the option on, a script that may run off the main thread gets proxy objects behind
+`IGC`. With the option on, a script that may run on a worker thread gets proxy objects behind
 those roots instead of the game objects. Everything the script gets from a proxy is a proxy
 too, so every game call it makes goes through one.
 
-Whether a script may run off the main thread is decided once per script instance, when the
+Whether a script may run on a worker thread is decided once per script instance, when the
 PB creates it, by scanning the IL of the script assembly. Every PB loads its own copy of that
 assembly, so the result is kept in memory by a hash of the script's source: the scan runs once
 per distinct script while the game runs, not once per PB or recompile. Each game member it calls is looked
@@ -413,7 +413,7 @@ up in `ScriptPolicyTable.cs`, which says for every member of the game's script w
   like a block's world matrix, which no other thread touches while the script runs. The
   proxy calls the game.
 - **queue**: a write without a result, like a setter or `WriteText`. Generic methods can't
-  be queued. Off the main thread the proxy records the call, with copies of its text and
+  be queued. On a worker thread the proxy records the call, with copies of its text and
   list arguments, and returns; the call is made on the main thread later. A script that sets
   a property and reads it back in the same run gets the value it set. Other effects of its
   writes show up a frame later. `WriteText` returns true while queued: the game returns false
@@ -445,7 +445,7 @@ through `CustomName` and `DefinitionDisplayNameText`.
 
 About 60 members of the script whitelist are not safe to call on a worker thread as they are,
 mostly because the game keeps scratch state for them in shared fields. Ten mechanisms make
-them safe, each with its own option. A script runs off the main thread only if every
+them safe, each with its own option. A script runs on a worker thread only if every
 mechanism its calls rely on is on; otherwise it runs on the main thread, with its proxies.
 Turning an option off moves the scripts needing it back to the main thread from the next
 frame. The options take effect only with the per-thread counter, the frame budget, the proxies
@@ -463,12 +463,12 @@ earlier inlined it.
 | `ScriptOffMainSprites` | on | `DrawFrame`, `MySpriteDrawFrame.Dispose` | Nothing to do: submitting a frame only writes fields of that surface, which the main thread sends and renders later. |
 | `ScriptOffMainAccess` | on | `CanAccess` | Reads. For a grid, the stand-in adds the owner fallback the game uses only on the main thread. |
 | `ScriptOffMainTerminal` | on | `GetProperty`, `GetActionWithName`, `GetValue`, `SetValue`, `ApplyAction` and the rest of the terminal property and action API | The lookup scratch lists are per thread, and the control lists of a block type are made under a lock. Combobox limits are serialized. Values set and actions applied stay queued. `WriteValue` takes the formatter lock. |
-| `ScriptOffMainDetailedInfo` | on | `DetailedInfo`, the farm plot's detailed info | A dirty text is refreshed under one lock, because the game's number formatting shares one `NumberFormatInfo`. Pistons, flight movement blocks, path recorders, jump drives and projectors write shared state while refreshing, so off the main thread they return their last text and are refreshed on the main thread after the phase. |
+| `ScriptOffMainDetailedInfo` | on | `DetailedInfo`, the farm plot's detailed info | A dirty text is refreshed under one lock, because the game's number formatting shares one `NumberFormatInfo`. Pistons, flight movement blocks, path recorders, jump drives and projectors write shared state while refreshing, so on a worker thread they return their last text and are refreshed on the main thread after the phase. |
 | `ScriptOffMainIgc` | on | `RegisterBroadcastListener`, `AcceptMessage`, `SendBroadcastMessage`, `SendUnicastMessage`, `IsEndpointReachable` | The IGC session component's collections are locked in the phase. The antenna walk behind reachability is serialized; its result is cached per PB and frame. |
 | `ScriptOffMainGravity` | on | Artificial and total gravity of ship controllers and parachutes | Before the phase the main thread brings the world matrix and box of every gravity generator up to date. With a gravity provider from a mod in the world, these scripts stay on the main thread. |
 | `ScriptOffMainSensing` | off | Turret, turret controller and sensor targets, camera `Raycast`, `GetNearestPlayer`, `IsBeingHacked`, `CanControl` | Reads of entities the main thread updated, ray casts under the Havok world's own lock as the game's parallel ray casts do, and locks around the antenna walk and the planet voxel test. Off by default because it puts physics queries on worker threads. |
 | `ScriptOffMainTransfers` | off | `TransferItemTo`, `TransferItemFrom`, `CanTransferItemTo`, `IsConnectedTo` | Reachability is checked on the worker, as the game does in its own background tasks, so the script gets the game's result. The move is made on the main thread after the phase, by item id. Off by default because the script sees the old inventory contents until its next run: a loop moving items until an inventory is empty would not end. |
-| `ScriptOffMainTryRun` | on | `TryRun` | The other PB runs right away on the same thread if it is in the same grid group and its script may run off the main thread too. Otherwise `TryRun` returns false, as it does for a busy PB. |
+| `ScriptOffMainTryRun` | on | `TryRun` | The other PB runs right away on the same thread if it is in the same grid group and its script may run on a worker thread too. Otherwise `TryRun` returns false, as it does for a busy PB. |
 | `ScriptOffMainInventory` | on | `HasInventory`, `GetInventory`, `GetInventoryCount`, `Get/SetUseConveyorSystem`, `NextItemId` | While the proxies are on, these static helpers unwrap the proxy they get. `SetUseConveyorSystem` is made on the main thread after the phase. |
 
 Store offers and orders, warhead countdowns, path recorder beacons and autopilot waypoint
@@ -479,7 +479,7 @@ the members that keep it on the main thread, or the options it needs that are of
 PB when it is first seen and when the decision changes, so it can stay on on a live server.
 
 Over a corpus of 219 compiling scripts (76 popular Workshop scripts and 143 from popular
-blueprints), 29% could leave the main thread without these mechanisms, 75% can with the
+blueprints), 29% could run on a worker thread without these mechanisms, 75% can with the
 defaults and 99% with all of them on.
 
 With the per-thread counter on, the `AppendDecimal` and `AppendFormatedDecimal` helpers the

@@ -55,7 +55,7 @@ Sandbox.ModAPI.Ingame.IMyAttackPatternComponent.IsSelected	pass	-	MyOffensiveCom
 Sandbox.ModAPI.Ingame.IMyAutopilotWaypoint.Matrix	pass	-	MyAutopilotWaypoint.cs:45 returns m_matrix
 Sandbox.ModAPI.Ingame.IMyAutopilotWaypoint.Name	pass	-	MyAutopilotWaypoint.cs:187 returns m_name
 Sandbox.ModAPI.Ingame.IMyAutopilotWaypoint.RelatedEntityId	pass	-	MyAutopilotWaypoint.cs:149 returns m_relatedEntityId
-Sandbox.ModAPI.Ingame.IMyAutopilotWaypoint.RelativeMatrix	main	-	MyAutopilotWaypoint.cs:80 RelatedEntity -> UpdateRelatedEntity :264 MySandboxGame.Invoke off main; writes m_relatedMatrixCurrent, HUD GPS Coords
+Sandbox.ModAPI.Ingame.IMyAutopilotWaypoint.RelativeMatrix	main	-	MyAutopilotWaypoint.cs:80 RelatedEntity -> UpdateRelatedEntity :264 MySandboxGame.Invoke on a worker thread; writes m_relatedMatrixCurrent, HUD GPS Coords
 Sandbox.ModAPI.Ingame.IMyBasicMissionBlock.SelectedMissionId	pass	queue	MyBasicMissionBlock.cs:47 m_selectedMission Sync read / Sync.Value set
 Sandbox.ModAPI.Ingame.IMyBasicMissionComponent.DetailedInfo	pass	-	MyBasicMissionFollowHome.cs:160 (FollowPlayer :130, Autopilot :154) get-only StringBuilder auto-property of own component
 Sandbox.ModAPI.Ingame.IMyBasicMissionComponent.IsSelected	pass	queue	MyBasicMissionFollowHome.cs:162 field read; set (also FollowPlayer :134) changes AiBlockSystem waypoints, Sync sets, event subscriptions
@@ -171,7 +171,7 @@ Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.LargeShipMaxSpeed	pass	-	MyProgram
 Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.PressurizationEnabled	pass	-	MyProgrammableBlock.cs:93 session settings reads
 Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.SmallShipMaxAngularSpeed	pass	-	MyProgrammableBlock.cs:113 MySector.EnvironmentDefinition read
 Sandbox.ModAPI.Ingame.IMyGridProgramWorldInfo.SmallShipMaxSpeed	pass	-	MyProgrammableBlock.cs:111 MySector.EnvironmentDefinition read
-Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.CanAccess	standin@Access	-	MyProgrammableBlock.cs:252/275 reads; the grid overload's BigOwners lacks the parent fallback off main, AccessStandIn applies it
+Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.CanAccess	standin@Access	-	MyProgrammableBlock.cs:252/275 reads; the grid overload's BigOwners lacks the parent fallback on a worker thread, AccessStandIn applies it
 Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.GetBlockGroupWithName	pass	-	MyGridTerminalSystem.cs:478 StringBuilder.CompareTo extension, read only
 Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.GetBlockGroups	pass	-	MyGridTerminalSystem.cs:417 iterates group-private BlockGroups list; proxy wraps results and collect args
 Sandbox.ModAPI.Ingame.IMyGridTerminalSystem.GetBlockWithId	pass	-	MyGridTerminalSystem.cs:491 m_blockTable.TryGetValue read
@@ -372,7 +372,7 @@ Sandbox.ModAPI.Ingame.IMyProductionBlock.RemoveQueueItem	queue	-	MyProductionBlo
 Sandbox.ModAPI.Ingame.IMyProductionBlock.UseConveyorSystem	pass	queue	MyProductionBlock.cs:245 Sync<bool> read; setter sets Sync
 Sandbox.ModAPI.Ingame.IMyProgrammableBlock.IsRunning	pass	-	MyProgrammableBlock.cs:484 m_isRunning field
 Sandbox.ModAPI.Ingame.IMyProgrammableBlock.TerminalRunArgument	pass	-	MyProgrammableBlock.cs:472 returns m_terminalRunArgument (setter private)
-Sandbox.ModAPI.Ingame.IMyProgrammableBlock.TryRun	standin@TryRun	-	MyProgrammableBlock.cs:1431 runs the other PB on the same thread if it may run off main in the same group, else false (TryRunStandIn)
+Sandbox.ModAPI.Ingame.IMyProgrammableBlock.TryRun	standin@TryRun	-	MyProgrammableBlock.cs:1431 runs the other PB on the same thread if it may run on a worker thread in the same group, else false (TryRunStandIn)
 Sandbox.ModAPI.Ingame.IMyProjector.BuildableBlocksCount	pass	-	MyProjectorBase.cs:844 int field m_buildableBlocksCount (set by projector work OnComplete on main)
 Sandbox.ModAPI.Ingame.IMyProjector.IsProjecting	pass	-	MyProjectorBase.cs:836/896 m_clipboard.IsActive auto-property (MyGridClipboard.cs:179)
 Sandbox.ModAPI.Ingame.IMyProjector.ProjectionOffset	pass	queue	MyProjectorBase.cs:794 plain field m_projectionOffset; setter queued to keep call order with the queued UpdateOffsetAndRotation
@@ -517,7 +517,7 @@ Sandbox.ModAPI.Ingame.IMyTerminalBlock.GetProperty	pass@Terminal	-	MyTerminalBlo
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasLocalPlayerAccess	pass	-	MyTerminalBlock.cs:894 LocalPlayerId -> HasPlayerAccessReason :933 admin settings and faction dictionary reads (MyIDModule.cs:33)
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasNobodyPlayerAccessToBlock	pass	-	MyTerminalBlock.cs:847 IDModule ShareMode/Owner reads
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasPlayerAccess	pass	-	MyTerminalBlock.cs:917 HasAdminUseTerminals dictionary reads + IDModule.GetUserRelationToOwner faction dictionary reads
-Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasPlayerAccessWithNobodyCheck	pass	-	MyTerminalBlock.cs:899 as HasPlayerAccess; isForPB path reads own grid BigOwners (recalc off main only under IsAsyncUpdateInProgress)
+Sandbox.ModAPI.Ingame.IMyTerminalBlock.HasPlayerAccessWithNobodyCheck	pass	-	MyTerminalBlock.cs:899 as HasPlayerAccess; isForPB path reads own grid BigOwners (recalc on a worker thread only under IsAsyncUpdateInProgress)
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.IsSameConstructAs	pass	-	MyTerminalBlock.cs:1418 -> MyCubeGrid.IsSameConstructAs :16421 MyCubeGridGroups.Mechanical.GetGroup dictionary reads
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.SearchActionsOfName	pass@Terminal	-	MyTerminalBlock.cs:1398 -> helper :50. Lookup with per-thread scratch lists, control lists made under a lock (TerminalStandIn)
 Sandbox.ModAPI.Ingame.IMyTerminalBlock.SetCustomName	queue	-	MyTerminalBlock.cs:668/684 UpdateCustomName (events) + RaiseEvent; void; snapshot the StringBuilder overload's text

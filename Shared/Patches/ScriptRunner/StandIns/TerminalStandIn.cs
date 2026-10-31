@@ -14,7 +14,7 @@ using VRage.Game.ModAPI.Ingame;
 
 namespace Shared.Patches;
 
-// Terminal properties and actions for scripts off the main thread (StandIn.Terminal).
+// Terminal properties and actions for scripts on a worker thread (StandIn.Terminal).
 //
 // The lookups of MyTerminalBlock (GetProperty, GetActionWithName, ...) fill scratch lists of the
 // MyTerminalControlFactoryHelper singleton; in the parallel phase every thread gets lists of its

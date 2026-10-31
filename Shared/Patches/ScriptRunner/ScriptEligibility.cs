@@ -10,13 +10,13 @@ using System.Threading;
 
 namespace Shared.Patches;
 
-// Decides from a compiled script's IL whether the script can run off the main thread (SE-626).
+// Decides from a compiled script's IL whether the script can run on a worker thread (SE-626).
 //
 // Every method the script calls is looked up: one of the game's (not of the .NET libraries or
 // of the script itself) must have the pass, queue or standin policy, unless its type is plain
 // data (a value type, VRageMath, the ini and command line parsers). A script calling anything
 // else keeps running on the main thread. The mechanisms (StandIn) the policies of its calls rely
-// on are collected in Needs: the script runs off the main thread only while all of them are on.
+// on are collected in Needs: the script runs on a worker thread only while all of them are on.
 // Every PB loads its own copy of a script's assembly, so the results are kept by a hash of the
 // script's source when the caller knows it: the IL is read once per distinct script.
 public static class ScriptEligibility
@@ -31,7 +31,7 @@ public static class ScriptEligibility
         // Whether the script reads MyGridProgram.IGC
         public bool UsesIgc;
 
-        // The mechanisms the script needs off the main thread
+        // The mechanisms the script needs on a worker thread
         public StandIn Needs;
 
         // The members needing them, at most MaxListed per mechanism, like "Terminal: GetProperty"

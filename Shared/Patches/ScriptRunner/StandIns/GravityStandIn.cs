@@ -6,7 +6,7 @@ using SpaceEngineers.Game.Entities.Blocks;
 
 namespace Shared.Patches;
 
-// Artificial and total gravity of ship controllers and parachutes for scripts off the main
+// Artificial and total gravity of ship controllers and parachutes for scripts on a worker
 // thread (StandIn.Gravity).
 //
 // The artificial gravity at a point is summed over the gravity generators around it, of any

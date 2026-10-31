@@ -32,7 +32,7 @@ namespace Shared.Patches
     //
     // Execute runs a script the way MyProgrammableBlock.Run does on the server, minus the
     // DetailedInfo update, which raises network events and so belongs on the main thread
-    // (MyProgrammableBlock.SetDetailedInfo). Off the main thread the caller must make sure
+    // (MyProgrammableBlock.SetDetailedInfo). On a worker thread the caller must make sure
     // nothing else touches the block's grid group meanwhile: before the script starts, the game
     // writes the PB access flags of every block in the group.
     [HarmonyPatch]
@@ -68,7 +68,7 @@ namespace Shared.Patches
                 .GetField("m_package", BindingFlags.NonPublic | BindingFlags.Static)
                 ?.GetValue(null) as MyLocalizationPackage;
 
-        // Set while this thread runs a script for Execute off the main thread
+        // Set while this thread runs a script for Execute on a worker thread
         [ThreadStatic]
         private static bool offMain;
 
@@ -183,7 +183,7 @@ namespace Shared.Patches
 
             if (!Enabled)
                 throw new InvalidOperationException(
-                    "Running a programmable block off the main thread needs FixScriptCounter"
+                    "Running a programmable block on a worker thread needs FixScriptCounter"
                 );
 
             offMain = true;
@@ -199,7 +199,7 @@ namespace Shared.Patches
 
         private static bool Prepare() => CounterPerThread;
 
-        // RunSandboxedProgramAction reports a run off the main thread as a mod rule violation.
+        // RunSandboxedProgramAction reports a run on a worker thread as a mod rule violation.
         // That report indexes the mod table with the thread's root mod id and throws when no mod
         // script was ever compiled, so runs started by Execute skip it.
         [HarmonyPrefix]

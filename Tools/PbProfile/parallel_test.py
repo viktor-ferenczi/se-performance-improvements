@@ -134,7 +134,7 @@ def main() -> int:
         runs_per_frame[case] = len(runs) / max(1, len(frames))
         print(
             f"== {case}: {pb_count} PBs ({len(test_pbs)} found), {len(frames)} frames, "
-            f"{runs_per_frame[case]:.1f} runs/frame ({off_main} of {len(runs)} off the main thread), "
+            f"{runs_per_frame[case]:.1f} runs/frame ({off_main} of {len(runs)} on a worker thread), "
             f"session {statistics.mean(session):.2f} ms mean {session[int(len(session) * 0.95)]:.2f} ms p95, "
             f"runs per PB {min(per_pb.values(), default=0)}..{max(per_pb.values(), default=0)}",
             flush=True,
@@ -155,7 +155,7 @@ def main() -> int:
         text = "\n".join(p.read_text(errors="replace") for p in logs.glob("*.log"))
         errors = [ln for ln in text.splitlines() if "Performance" in ln and ("Critical:" in ln or "Error:" in ln)]
         check(results, not errors, f"{case}: no Performance errors {errors[:1]}")
-        failed = [ln for ln in text.splitlines() if "writes of scripts run off the main thread failed" in ln]
+        failed = [ln for ln in text.splitlines() if "writes of scripts run on a worker thread failed" in ln]
         check(results, not failed, f"{case}: no failed writes {failed[:1]}")
 
         stopped = [r for r in pbs if r["instance"] != "True"]

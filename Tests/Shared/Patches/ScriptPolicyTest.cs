@@ -58,7 +58,7 @@ namespace Tests.Shared.Patches
             + "Policy.Ingame.ILamp.Describe\tstandin@Sprites\t-\n"
             + "Policy.Ingame.ILamp.Color\tpass@Terminal\t-\n";
 
-        // Off the main thread the proxy calls this instead of Lamp.Describe
+        // On a worker thread the proxy calls this instead of Lamp.Describe
         [StandInFor("Policy.Ingame.ILamp.Describe")]
         public static string Describe(ILamp lamp, int detail) => $"stand-in {detail} {lamp.Name}";
 

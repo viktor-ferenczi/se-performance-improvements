@@ -23,7 +23,7 @@ namespace Shared.Patches;
 // as MyResourceSinkComponent, reaches the script as itself. Value types and strings pass through.
 //
 // Each interface member gets its ScriptPolicy when the proxy type is emitted. While a ScriptWrites
-// log is active on the thread (a script running off the main thread), a queued member records the
+// log is active on the thread (a script running on a worker thread), a queued member records the
 // call in the log instead of making it, a getter whose setter is queued first returns the value
 // set in this run, and a main-thread member throws. Otherwise every member calls the game.
 public static class ScriptProxies
@@ -311,7 +311,7 @@ public static class ScriptProxies
             il.Emit(OpCodes.Ldarg, i + 1);
             ConvertIn(il, parameterTypes[i]);
         }
-        // Off the main thread a stand-in takes the same arguments, the game object first
+        // On a worker thread a stand-in takes the same arguments, the game object first
         if (PolicyOf(method) == MemberPolicy.StandIn && !writers.ContainsKey(method))
         {
             var standIn = StandInMethods.Of(method);

@@ -375,7 +375,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = true;
 
     [BoolOption(
-        "Give every thread its own programmable block instruction counter, so scripts can run off the main thread (needs restart)",
+        "Give every thread its own programmable block instruction counter, so scripts can run on a worker thread (needs restart)",
         Parent = "scripts"
     )]
     public bool FixScriptCounter
@@ -409,7 +409,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = 5f;
 
     [BoolOption(
-        "Hand the programmable block scripts that could run off the main thread proxy objects instead of the game objects they use, so their game calls can be checked and their writes delayed. Applies to scripts compiled or loaded afterwards",
+        "Hand the programmable block scripts that could run on a worker thread proxy objects instead of the game objects they use, so their game calls can be checked and their writes delayed. Applies to scripts compiled or loaded afterwards",
         Parent = "scripts"
     )]
     public bool FixScriptProxies

@@ -50,7 +50,7 @@ public static class RunnerTest
 
         if (!enabled)
         {
-            // Off the main thread the runner must refuse without the per-thread counter
+            // On a worker thread the runner must refuse without the per-thread counter
             var refused = Worker(() => Exec(pbs["normal1"], out _));
             Check(
                 "worker refused without FixScriptCounter",

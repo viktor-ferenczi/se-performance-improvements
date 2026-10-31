@@ -1,6 +1,6 @@
 # Tools
 
-Measurement tools for running programmable block (PB) scripts off the main thread (SE-626).
+Measurement tools for running programmable block (PB) scripts on a worker thread (SE-626).
 They are not part of the plugin build. Linux only so far.
 
 ## PbScan

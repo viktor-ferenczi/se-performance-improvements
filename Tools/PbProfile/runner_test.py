@@ -5,7 +5,7 @@
 Builds a world from six one-grid blueprints, gives their PBs the test programs below and runs
 the probe's RunnerTest (probe-plugin/Source/RunnerTest.cs) three times:
 
-    off      FixScriptCounter off: running off the main thread is refused
+    off      FixScriptCounter off: running on a worker thread is refused
     vanilla  FixScriptCounter on, the 3000 ms limit: everything runs, the runaway script stops
     limit    FixScriptCounter on, ScriptRunLimitMs=100: the slow script stops with the new text
 

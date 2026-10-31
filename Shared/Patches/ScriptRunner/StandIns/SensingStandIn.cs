@@ -8,13 +8,13 @@ using Sandbox.Game.GameSystems;
 
 namespace Shared.Patches;
 
-// Turrets, sensors, cameras and remote controls for scripts off the main thread
+// Turrets, sensors, cameras and remote controls for scripts on a worker thread
 // (StandIn.Sensing).
 //
 // The targets of turrets, turret controllers and sensors are set by the main thread; a script
 // gets them as MyDetectedEntityInfo, built from the target's position, velocity and owner. Its
 // world box may be computed lazily on that read, an idempotent write of the same values, as
-// the game's own targeting tasks already do off the main thread. A camera ray cast updates the
+// the game's own targeting tasks already do on a worker thread. A camera ray cast updates the
 // camera's own scan range and casts a ray in the physics world under the world's lock, which
 // the game also does from parallel tasks between steps. Two shared parts are serialized in the
 // parallel phase: the antenna system walk of a turret's CanControl (not reached on a dedicated

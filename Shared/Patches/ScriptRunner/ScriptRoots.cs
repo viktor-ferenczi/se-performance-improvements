@@ -16,7 +16,7 @@ using Shared.Tools;
 
 namespace Shared.Patches
 {
-    // Hands scripts that can run off the main thread proxies instead of the game objects behind
+    // Hands scripts that can run on a worker thread proxies instead of the game objects behind
     // their roots: GridTerminalSystem, Me, Runtime and IGC (FixScriptProxies, SE-626 stage 3).
     //
     // Everything a script reaches in the game hangs off these roots, so through the proxies every
@@ -49,7 +49,7 @@ namespace Shared.Patches
             // Why not proxied: null if the proxies were off when the script was created
             public string[] Blocking;
 
-            // The mechanisms a proxied script needs off the main thread, see ScriptEligibility
+            // The mechanisms a proxied script needs on a worker thread, see ScriptEligibility
             public StandIn Needs;
             public string[] Needing;
 
@@ -89,7 +89,7 @@ namespace Shared.Patches
             program is MyGridProgram p && Decisions.TryGetValue(p, out var d) && d.Proxied;
 
         // Where a script may run now: -1 on the main thread for good (no proxies), otherwise the
-        // mechanisms it needs that are off (StandIn), 0 if none, when it may run off the main thread
+        // mechanisms it needs that are off (StandIn), 0 if none, when it may run on a worker thread
         public static int State(Sandbox.ModAPI.IMyGridProgram program)
         {
             if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d) || !d.Proxied)
@@ -97,7 +97,7 @@ namespace Shared.Patches
             return (int)(d.Needs & ~ScriptStandIns.Active);
         }
 
-        // Whether a script's first use of IGC off the main thread is safe: its context was made
+        // Whether a script's first use of IGC on a worker thread is safe: its context was made
         // on the main thread, or the IGC stand-in serializes making it
         public static bool Prepared(Sandbox.ModAPI.IMyGridProgram program) =>
             !(program is MyGridProgram p)
@@ -120,11 +120,11 @@ namespace Shared.Patches
             if (missing != StandIn.None)
                 return $"main thread: needs {ScriptStandIns.Names(missing)}, which are off{uses}";
             return d.Needs == StandIn.None
-                ? "off the main thread"
-                : $"off the main thread, with {ScriptStandIns.Names(d.Needs)}{uses}";
+                ? "on a worker thread"
+                : $"on a worker thread, with {ScriptStandIns.Names(d.Needs)}{uses}";
         }
 
-        // On the main thread, before a proxied script runs off it. The game creates the IGC
+        // On the main thread, before a proxied script runs on a worker. The game creates the IGC
         // context of a PB on first use, in a dictionary shared by all PBs. The proxy types of the
         // classes the script will most likely meet are made here once, as making one takes long
         // enough to push a script's first runs on a worker over the run limits.

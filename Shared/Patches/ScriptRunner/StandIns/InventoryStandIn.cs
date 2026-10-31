@@ -10,7 +10,7 @@ namespace Shared.Patches;
 // They are static methods taking the block, and test it for game classes (MyEntity,
 // IMyInventoryOwner), which a proxy is not. So while the proxies are on, they get the game
 // object behind a proxy, and an inventory they return to a script with a proxy becomes a proxy
-// too. This keeps them working on the main thread as well. Off the main thread they only read,
+// too. This keeps them working on the main thread as well. On a worker thread they only read,
 // except SetUseConveyorSystem, a synced value, which is set on the main thread after the phase.
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "UnusedMember.Local")]
