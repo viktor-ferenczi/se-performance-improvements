@@ -324,8 +324,8 @@ namespace Shared.Patches
             IEnumerable<Script> scripts
         )
         {
-            // Include the versions of the loaded mod rewriting plugins (currently the implicitly
-            // loaded compat ones), so upgrading any of them invalidates the cached assemblies
+            // Include the code of the loaded mod rewriting plugins (currently the implicitly
+            // loaded compat ones), so changing any of them invalidates the cached assemblies
             var modRewriterVersionsHash = ModRewriterVersions.Hash;
             yield return modRewriterVersionsHash == null
                 ? ""

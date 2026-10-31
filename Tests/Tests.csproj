@@ -16,6 +16,7 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageReference Include="Lib.Harmony" Version="2.4.2" />
     <PackageReference Include="Mono.Cecil" Version="0.11.6" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.14.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,6 +27,7 @@
     <!-- Its only game-dependent reference, Common.Logger, is stubbed in the test -->
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
     <Compile Include="..\Shared\Tools\ScriptCacheKey.cs" Link="Shared\Tools\ScriptCacheKey.cs" />
+    <Compile Include="..\Shared\Tools\RewriterIdentity.cs" Link="Shared\Tools\RewriterIdentity.cs" />
     <Compile Include="..\Shared\Tools\RunQueue.cs" Link="Shared\Tools\RunQueue.cs" />
     <Compile Include="..\Shared\Tools\WorkerPool.cs" Link="Shared\Tools\WorkerPool.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptEligibility.cs" Link="Shared\Patches\ScriptEligibility.cs" />
