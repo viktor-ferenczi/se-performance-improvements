@@ -249,6 +249,16 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = 5;
 
     [BoolOption(
+        "Of ships joined by locked connectors, only the strongest not being flown keeps its dampeners and gyros slowing the group down, so they don't fight the pilot's ship. No ship setting changes.",
+        Parent = "simulation"
+    )]
+    public bool CalmConnectedShips
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [BoolOption(
         "Refresh the turret target groups in linear instead of quadratic time",
         Parent = "simulation"
     )]

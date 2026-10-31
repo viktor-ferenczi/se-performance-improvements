@@ -51,6 +51,7 @@ the code that implements them is organized.
 - Push apart grids stuck inside each other after a collision, like a ship rammed into a station in a no-damage safe zone (server, offline games and hosted multiplayer games)
 - Push grids stuck inside a planet or an asteroid out of it (server, offline games and hosted multiplayer games)
 - Remove dynamic grids buried entirely inside a planet every 5 minutes (server, offline games and hosted multiplayer games)
+- Stop ships joined by locked connectors from fighting each other: only the strongest ship not being flown keeps its dampeners and gyros slowing the group down (server, offline games and hosted multiplayer games)
 - Disable functional blocks in projected grids
 - Eliminate the blueprint-not-found log flooding from `GetBlueprintDefinition`
 

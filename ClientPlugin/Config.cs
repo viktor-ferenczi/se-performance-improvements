@@ -253,6 +253,16 @@ public class Config : IPluginConfig
     } = 5;
 
     [Checkbox(
+        label: "Calm connected ships",
+        description: "Of ships joined by locked connectors, only the strongest not being flown keeps its dampeners and gyros slowing the group down, so they don't fight the pilot's ship. No ship setting changes. Only where the game is the server."
+    )]
+    public bool CalmConnectedShips
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Checkbox(
         label: "Fix turret target groups",
         description: "Refreshes the turret target groups in linear instead of quadratic time (MyGridTargeting.RefreshGridConnections)"
     )]
