@@ -3,9 +3,9 @@
 // which only succeeds for a top-level type with no namespace.
 
 // The only Cecil pre-patch is IlInjectorPrepatch (FixScriptCounter). TargetDLLs names its
-// assembly only while that option is on in the config file, so with the option off the loader
-// leaves VRage.Library alone and only the Finish() post-hook is used. Magnetar runs the hook
-// either way, because HasPatches counts post-hooks (see Magnetar Shared/Preloader.cs).
+// assembly only while that option is on, so with the option off the loader leaves VRage.Library
+// alone and only the Finish() post-hook is used. Magnetar runs the hook either way, because
+// HasPatches counts post-hooks (see Magnetar Shared/Preloader.cs).
 //
 // Finish() runs in SetupPlugins, right after the game assembly resolver is set up and
 // before the game starts (Program.cs: PreHooks -> Patch -> SetupGameResolver -> PostHooks).
@@ -17,10 +17,13 @@
 // ReSharper disable once UnusedType.Global
 public class Preloader
 {
-    private static readonly bool FixScriptCounter = Shared.Tools.PreloadConfig.ReadBool(
-        true,
-        "FixScriptCounter"
-    );
+    // A server managed by Quasar has no config file: the loader was given the plugin's values
+    // before the preload hooks run
+    private static readonly bool FixScriptCounter = PluginSdk.Config.ManagedPluginConfiguration.Required
+        ? PluginSdk
+            .Config.ConfigStorage.LoadXml<ServerPlugin.Config.PerformanceConfig>("Performance.cfg")
+            .FixScriptCounter
+        : Shared.Tools.PreloadConfig.ReadBool(true, "FixScriptCounter");
 
     // ReSharper disable once UnusedMember.Global
     public static System.Collections.Generic.IEnumerable<string> TargetDLLs =>
