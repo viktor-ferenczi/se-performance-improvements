@@ -20,7 +20,7 @@ namespace Shared.Tools;
 //
 // They are recognized here by the presence of those hook types. The types exist as soon as
 // the plugin assemblies are loaded, so this works from the preloader hook and regardless of
-// the plugin Init order, and the assemblies' MVIDs feed the same hash as the modern detection.
+// the plugin Init order, and the assemblies' content IDs feed the same hash as the modern detection.
 internal static class LegacyModRewriters
 {
     // Full names of the marker types with the plugin each of them identifies. The compat
@@ -35,9 +35,9 @@ internal static class LegacyModRewriters
     };
 
     // Same result shape as ModRewriterVersions.FindModRewriters, empty if none are loaded
-    public static List<(Guid Mvid, string Description)> Find()
+    public static List<(Assembly Assembly, Guid ContentId, string Description)> Find()
     {
-        var rewriters = new List<(Guid Mvid, string Description)>();
+        var rewriters = new List<(Assembly Assembly, Guid ContentId, string Description)>();
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
         {
@@ -49,12 +49,13 @@ internal static class LegacyModRewriters
                 if (GetTypeOrNull(assembly, typeName) == null)
                     continue;
 
-                var mvid = assembly.ManifestModule.ModuleVersionId;
+                var contentId = RewriterIdentity.ContentId(assembly);
                 var name = assembly.GetName();
                 rewriters.Add(
                     (
-                        mvid,
-                        $"legacy {pluginName} {name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {typeName} {mvid:D}"
+                        assembly,
+                        contentId,
+                        $"legacy {pluginName} {name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {typeName} {contentId:D}"
                     )
                 );
 

@@ -8,10 +8,10 @@ using Shared.Logging;
 namespace Shared.Tools;
 
 // Some plugins rewrite mod scripts before compilation, so the compiled assembly depends on
-// their identity as well, not only on the script source code and the game version. The exact
-// build of each such plugin must therefore contribute to the compilation cache keys, otherwise
-// upgrading or recompiling one of them would keep serving assemblies from the cache which were
-// rewritten by the old build or reference its no longer loadable assembly name.
+// their code as well, not only on the script source code and the game version. The code of each
+// such plugin must therefore contribute to the compilation cache keys, otherwise upgrading one of
+// them would keep serving assemblies from the cache which were rewritten by the old build.
+// Rebuilding one from unchanged source keeps the keys, see RewriterIdentity.
 public static class ModRewriterVersions
 {
     // The plugin interface implemented by every plugin main type, matched by name to avoid
@@ -29,7 +29,7 @@ public static class ModRewriterVersions
         | BindingFlags.Static
         | BindingFlags.DeclaredOnly;
 
-    // SHA1 over the sorted module version IDs of the loaded mod rewriting plugin assemblies.
+    // SHA1 over the sorted content IDs of the loaded mod rewriting plugin assemblies.
     // Null if none of them are loaded, keeping the cache keys unchanged in that case.
     public static byte[] Hash { get; private set; }
 
@@ -38,7 +38,7 @@ public static class ModRewriterVersions
 
     private static bool initialized;
 
-    // Detects the loaded mod rewriting plugins and captures the hash of their module version IDs.
+    // Detects the loaded mod rewriting plugins and captures the hash of their content IDs.
     // Throws on any failure, terminating plugin initialization: the exception is caught by
     // Pulsar/Magnetar, logged as an ERROR and reported. Failing hard is deliberate, silently
     // skipping the rewriters would poison the compilation caches with wrongly keyed entries.
@@ -56,14 +56,16 @@ public static class ModRewriterVersions
         if (rewriters.Count == 0)
             return;
 
-        rewriters.Sort((a, b) => a.Mvid.CompareTo(b.Mvid));
+        rewriters.Sort((a, b) => a.ContentId.CompareTo(b.ContentId));
 
-        var mvids = new byte[rewriters.Count * 16];
+        var contentIds = new byte[rewriters.Count * 16];
         for (var i = 0; i < rewriters.Count; i++)
-            rewriters[i].Mvid.ToByteArray().CopyTo(mvids, i * 16);
+            rewriters[i].ContentId.ToByteArray().CopyTo(contentIds, i * 16);
 
         using (var sha1 = SHA1.Create())
-            Hash = sha1.ComputeHash(mvids);
+            Hash = sha1.ComputeHash(contentIds);
+
+        RewriterIdentity.RedirectOldBuilds(rewriters.Select(r => r.Assembly));
 
         rewriterDescriptions = string.Join("; ", rewriters.Select(r => r.Description));
     }
@@ -87,15 +89,9 @@ public static class ModRewriterVersions
     // in their loaders). That contract is detected here directly, on the loaded types, instead
     // of reflecting into the loader's own bookkeeping, whose layout differs between the two and
     // changes between releases.
-    //
-    // The assembly's module version ID identifies the exact build and nothing else is needed:
-    // Pulsar compiles plugins non-deterministically, so every recompilation mints a fresh random
-    // MVID, and plugins shipped as prebuilt DLLs are normally built deterministically, where the
-    // MVID is a content hash of the assembly. Either way it changes precisely when the build
-    // does, unlike the assembly version, which recompilations routinely leave untouched.
-    private static List<(Guid Mvid, string Description)> FindModRewriters()
+    private static List<(Assembly Assembly, Guid ContentId, string Description)> FindModRewriters()
     {
-        var rewriters = new List<(Guid Mvid, string Description)>();
+        var rewriters = new List<(Assembly Assembly, Guid ContentId, string Description)>();
         var pluginTypeCount = 0;
 
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -117,12 +113,13 @@ public static class ModRewriterVersions
                 if (!type.GetMethods(DeclaredMembers).Any(m => m.Name == RewriteMethodName))
                     continue;
 
-                var mvid = assembly.ManifestModule.ModuleVersionId;
+                var contentId = RewriterIdentity.ContentId(assembly);
                 var name = assembly.GetName();
                 rewriters.Add(
                     (
-                        mvid,
-                        $"{name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {type.FullName} {mvid:D}"
+                        assembly,
+                        contentId,
+                        $"{name.Name ?? "unknown"} {name.Version?.ToString() ?? "unknown"} {type.FullName} {contentId:D}"
                     )
                 );
 
