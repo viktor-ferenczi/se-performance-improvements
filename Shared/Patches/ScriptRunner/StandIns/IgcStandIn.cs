@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Reflection;
 using HarmonyLib;
+using Sandbox.Game.GameSystems;
 using Sandbox.Game.GameSystems.IntergridCommunication;
 using Sandbox.Game.SessionComponents;
 
@@ -69,6 +71,25 @@ public static class IgcStandIn
     private static class ConnectionPatch
     {
         private static bool Prepare() => ScriptRunner.CounterPerThread;
+
+        private static void Prefix(out bool __state) =>
+            __state = ScriptStandIns.Enter(ScriptStandIns.AntennaLock);
+
+        private static void Finalizer(bool __state) =>
+            ScriptStandIns.Exit(ScriptStandIns.AntennaLock, __state);
+    }
+
+    // Plugins answering whether a block is reachable in their own IGC patches walk the same relays,
+    // a Quasar cluster's reach over nodes for example
+    [HarmonyPatch]
+    private static class RelayedBroadcastersPatch
+    {
+        private static bool Prepare() => ScriptRunner.CounterPerThread;
+
+        private static IEnumerable<MethodBase> TargetMethods() =>
+            AccessTools
+                .GetDeclaredMethods(typeof(MyAntennaSystem))
+                .Where(method => method.Name == nameof(MyAntennaSystem.GetAllRelayedBroadcasters));
 
         private static void Prefix(out bool __state) =>
             __state = ScriptStandIns.Enter(ScriptStandIns.AntennaLock);

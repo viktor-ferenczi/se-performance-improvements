@@ -162,6 +162,8 @@ namespace Shared.Patches
                 ScriptStandIns.InPhase = false;
                 draining = false;
                 usedTicks = 0;
+                if (parallel != null)
+                    parallelRuns += Finished.Count;
                 ApplyFinished();
             }
 
@@ -170,8 +172,6 @@ namespace Shared.Patches
             ranRuns += result.Ran;
             frameTicks += result.UsedTicks;
             longestWait = Math.Max(longestWait, result.MaxWait);
-            if (parallel != null)
-                parallelRuns += Finished.Count;
             if (result.MaxWait > OverloadWaitFrames)
                 overloadFrames++;
 
