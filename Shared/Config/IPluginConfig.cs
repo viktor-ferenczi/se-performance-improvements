@@ -418,6 +418,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Minutes between two sweeps for buried grids
     int BuriedGridSweepMinutes { get; set; }
 
+    // Of ships joined by locked connectors, only the strongest not being flown keeps its dampeners and gyros slowing the group down (only where the game is the server)
+    bool CalmConnectedShips { get; set; }
+
     // Disables functional blocks in projected grids without affecting the blocks built from the projection
     bool FixProjection { get; set; }
 

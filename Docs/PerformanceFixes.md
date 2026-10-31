@@ -288,6 +288,65 @@ is logged with the grid's name, entity id, block count and position.
 
 Option `RemoveBuriedGrids`, on by default in both plugins, only where the game is the server.
 
+## Calming ships joined by locked connectors
+
+Ships locked together with a connector are one rigid body to the physics, but each keeps its
+own dampeners and gyros. A pilot's input only reaches the thrusters and gyros of the grid with
+the cockpit. The other ships see the group speed up or turn and work against it. With two equal
+ships, the forces add up to 12 times what is left to move the group, and it reaches 1.2 m/s after
+a 5 s push where it should reach 6.3 m/s. A plain stop has no such fight: the game shares the
+group's mass between the dampeners (`MyThrusterBlockThrustComponent.CalculateMass`) and their
+forces point the same way.
+
+`ConnectedShipsPatch` works out the rule once a second on the server, and at once when a
+connector locks or unlocks, for each set of ships joined by locked connectors. A ship is a grid
+with everything on its rotors, pistons and hinges.
+
+- A ship being flown, by a pilot or an autopilot, stays as it is.
+- Of the rest, the ship with the strongest thrusters keeps its dampeners: the maximum thrust
+  added up over the six directions, for working thrusters, on all its grids. Ships with dampeners
+  turned off don't count. A tie goes to the ship being flown or pushed, then the lowest entity id.
+- Gyros follow the same rule on their own, by gyro force, so a strong ship with no gyros doesn't
+  leave the group with none.
+- All other ships go quiet. Control input and overrides keep working on them, only the slowing
+  down stops.
+
+So a pilot in a weak ship still pushes against the strongest ship, which keeps its dampeners.
+
+Every ship stays on in three cases:
+
+- At rest: nobody pushes and the group is under 1 m/s and 0.05 rad/s. A ship without dampeners
+  keeps 0.1 m/s in the solver, which kept an equal pair awake for 100 s instead of 15 s.
+- In natural gravity, unless a grid of the ship keeping its dampeners can hold the whole group
+  with 50% to spare, by the game's own check (`ComputeResidualMass`).
+- Held by a static grid. The game already gives such ships fixed bodies, which dampeners and gyros
+  can't move (`MyCubeGrid.CheckEarlyDeactivation`).
+
+No setting changes. `DampenersEnabled` stays what the player or script set, is saved that way and
+reads the same to scripts. The patch only changes how `ComputeBaseThrust` and `CalculateMass` read
+it and skips the slowdown in `UpdateGyros`. The rule lives in memory and is rebuilt from what is
+connected, so a disconnect, save and load, crash or handover has nothing to restore. A multiplayer
+client does nothing, since the game turns off client prediction for ships in a connector
+constraint (`MyCubeGrid.UpdatePredictionFlag`) and the server owns their physics.
+
+Measured on Linux, game 1.210.014, on a server with no client, using `Tools/ConnectedShips`. The
+first ship pushes or turns for 5 s, and the group stops from 20 m/s and 0.2 rad/s. The ratio is the
+sum of the ships' forces over what's left of them, so 1 means nobody fights. Each cell is the
+option off, then on.
+
+| Ships | Speed after push (m/s) | Force ratio | Spin after turn (rad/s) | Torque ratio | Stop (s) |
+|---|---|---|---|---|---|
+| Two equal | 1.22, 6.30 | 11.95, 1.04 | 1.37, 2.20 | 2.45, 1.00 | 11.8, 17.1 |
+| Big and small | 1.79, 4.45 | 4.33, 1.00 | 2.12, 2.25 | 1.14, 1.00 | 8.7, 8.5 |
+| Chain of three | 0.60, 3.02 | 10.93, 1.00 | 0.63, 0.70 | 1.26, 1.00 | 38.1, 35.7 |
+| Strongest has no gyros | 1.65, 4.88 | 5.60, 1.03 | none, none | | no stop in 60 s, both |
+
+A plain stop of two equal ships takes longer, since fewer dampeners work until the group is under
+1 m/s. In the last row the ships use 60% less thrust on the way, but neither run gets the last
+0.1 m/s out of the group.
+
+Option `CalmConnectedShips`, on by default in both plugins, only where the game is the server.
+
 ## Skipping redundant updates of PB access to blocks
 
 Before every run of a programmable block the game calls

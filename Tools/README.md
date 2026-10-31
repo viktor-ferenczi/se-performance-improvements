@@ -43,3 +43,20 @@ python3 Tools/PbProfile/analyze.py ~/.se-test/<task>-ds0/probe --corpus <corpus>
 The sampled split is approximate. .NET stops a thread for a sample at a GC poll, so time in leaf
 frames without one is charged to the frame they return into. The stopwatch numbers from the
 probe are exact.
+
+## ConnectedShips
+
+Ships joined by locked connectors (SE-798) on an isolated Magnetar server. `rig.py` holds the
+server and client setup, in a claimed test slot (`testing/parallel-test-work` in the workspace),
+with paths overridable by the `CS_*` variables it lists. `probe` is a source-only plugin driven
+through files: it spawns and docks ships, gives input and reports what each ship is doing.
+
+- `test_connected.py`: the rule, settings kept, undocking, a static grid, gravity on a moon, crash,
+  clean restart, the option. Prints PASS or FAIL per check.
+- `mp_check.py`: a real headless client over DirectTransport flying the ships, run under the
+  se-remote project (`uv run --project <remote>/skills/se-remote python mp_check.py`). The client
+  also needs Bugfixes (`CS_BUGFIXES`).
+- `fight.py <option 0|1> [--no-bench-lock]`: how fast a group gets and how much force is lost.
+- `settle_trace.py <option 0|1> <seconds> [--no-bench-lock]`: speed of a stopping group every 5 s.
+- `docked_bench.py`: physics cost of ships docked to a static grid, fixed against forced dynamic
+  (SE-797), without Performance. Alone on the machine.
