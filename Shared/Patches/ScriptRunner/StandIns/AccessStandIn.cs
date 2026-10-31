@@ -8,10 +8,10 @@ using VRage.Game.ModAPI;
 
 namespace Shared.Patches;
 
-// IMyGridTerminalSystem.CanAccess for scripts off the main thread (StandIn.Access).
+// IMyGridTerminalSystem.CanAccess for scripts on a worker thread (StandIn.Access).
 //
 // A block's access is a read of ownership, factions and grid groups. A grid's is its big
-// owners, which off the main thread the game hands out without the fallback it uses on the
+// owners, which on a worker thread the game hands out without the fallback it uses on the
 // main thread for a grid owning no blocks, the owners of the grid it hangs on. The grid
 // overload here applies that fallback on any thread.
 public static class AccessStandIn

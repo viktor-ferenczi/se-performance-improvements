@@ -7,7 +7,7 @@ using Sandbox.Game.SessionComponents;
 
 namespace Shared.Patches;
 
-// Intergrid communication for scripts off the main thread (StandIn.Igc).
+// Intergrid communication for scripts on a worker thread (StandIn.Igc).
 //
 // Each PB has its own context, and a listener's messages are queued by the main thread before
 // the simulation, so accepting a message touches only the PB's own listener. What all PBs share

@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace Shared.Patches;
 
-// The mechanisms that make game members usable by scripts running off the main thread
+// The mechanisms that make game members usable by scripts running on a worker thread
 // (SE-626). A policy table row like "pass@Terminal" means pass while that mechanism is on, and
 // main otherwise. Each one can be switched off on its own (ScriptOffMain* options); a script
 // runs on a worker only if every mechanism it needs is on.
@@ -45,8 +45,8 @@ public enum StandIn
     Inventory = 1 << 9,
 }
 
-// Marks a public static method that replaces an interface member for scripts running off the
-// main thread: the proxy calls it with the game object and the arguments instead of the member.
+// Marks a public static method that replaces an interface member for scripts running on a
+// worker thread: the proxy calls it with the game object and the arguments instead of the member.
 // It must be public, as the proxies live in an assembly of their own.
 [AttributeUsage(AttributeTargets.Method)]
 public sealed class StandInForAttribute : Attribute

@@ -14,7 +14,7 @@ namespace Shared.Patches;
 // Their patches (StandIns/*.cs) are applied at startup whenever the PB counter is per thread,
 // whatever the options say, and act only during the parallel phase (InPhase). Applied later,
 // a patched method could still run unpatched where a caller compiled earlier inlined it. The
-// ScriptOffMain* options decide which scripts may leave the main thread: a script runs on a
+// ScriptOffMain* options decide which scripts may run on a worker thread: a script runs on a
 // worker only while every mechanism it needs is on (ScriptRoots.State).
 public static class ScriptStandIns
 {

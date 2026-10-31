@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Shared.Patches;
 
-// The writes of one script run off the main thread (SE-626).
+// The writes of one script run on a worker thread (SE-626).
 //
 // While a log is active on a thread, the proxies of ScriptProxies record the calls of queued
 // members here instead of making them, and refuse main-thread members. Replay makes the
@@ -90,7 +90,7 @@ public sealed class ScriptWrites
 
     public static Exception Refuse(string member) =>
         new InvalidOperationException(
-            $"{member} is not available to programmable block scripts running off the main thread"
+            $"{member} is not available to programmable block scripts running on a worker thread"
         );
 
     // On the main thread: makes the recorded calls. A failing call is reported and skipped.

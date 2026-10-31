@@ -400,7 +400,7 @@ public class Config : IPluginConfig
 
     [Checkbox(
         label: "Per-thread PB instruction counter (needs restart)",
-        description: "Gives every thread its own programmable block instruction counter, so scripts can run off the main thread. Needs a restart."
+        description: "Gives every thread its own programmable block instruction counter, so scripts can run on a worker thread. Needs a restart."
     )]
     public bool FixScriptCounter
     {
@@ -442,7 +442,7 @@ public class Config : IPluginConfig
 
     [Checkbox(
         label: "PB proxies",
-        description: "Hands the scripts that could run off the main thread proxy objects instead of the game objects they use, so their game calls can be checked and their writes delayed. Applies to scripts compiled or loaded afterwards.",
+        description: "Hands the scripts that could run on a worker thread proxy objects instead of the game objects they use, so their game calls can be checked and their writes delayed. Applies to scripts compiled or loaded afterwards.",
         enabledBy: nameof(FixScriptCounter)
     )]
     public bool FixScriptProxies

@@ -6,7 +6,7 @@ using System.Reflection;
 
 namespace Shared.Patches;
 
-// What a script may do with a game API member while it runs off the main thread (SE-626).
+// What a script may do with a game API member while it runs on a worker thread (SE-626).
 public enum MemberPolicy
 {
     // Needs the main thread; a script using it keeps running there
@@ -20,15 +20,15 @@ public enum MemberPolicy
     // worker, applied on the main thread afterwards
     Queue,
 
-    // Off the main thread the proxy calls a replacement made for workers instead, see
+    // On a worker thread the proxy calls a replacement made for workers instead, see
     // StandInForAttribute
     StandIn,
 }
 
-// The policy of each game member for scripts running off the main thread, from the table in
+// The policy of each game member for scripts running on a worker thread, from the table in
 // ScriptPolicyTable. A policy other than pass, queue and standin reads as main. A policy may
 // name the mechanism it relies on after an @, like pass@Terminal: then a script calling the
-// member runs off the main thread only while that mechanism is on (StandIn).
+// member runs on a worker thread only while that mechanism is on (StandIn).
 public static class ScriptPolicy
 {
     private static Dictionary<

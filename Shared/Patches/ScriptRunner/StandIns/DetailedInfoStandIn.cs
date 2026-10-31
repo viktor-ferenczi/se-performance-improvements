@@ -7,7 +7,7 @@ using SpaceEngineers.Game.Entities.Blocks;
 
 namespace Shared.Patches;
 
-// DetailedInfo of blocks for scripts off the main thread (StandIn.DetailedInfo).
+// DetailedInfo of blocks for scripts on a worker thread (StandIn.DetailedInfo).
 //
 // The getter refreshes the text if the block marked it dirty, by the block's UpdateDetailedInfo.
 // Almost all of them read their own block and format numbers into the text with the game's
@@ -15,7 +15,7 @@ namespace Shared.Patches;
 // state or raise events while refreshing: the piston raises PropertiesChanged, the flight
 // movement block writes synced values, the path recorder updates IsWorking and emissives, the
 // jump drive walks the physical grid group with a static scratch list and the projector updates
-// its statistics. Off the main thread those return their last text and are refreshed on the
+// its statistics. On a worker thread those return their last text and are refreshed on the
 // main thread after the phase, so a script sees their text one run late.
 public static class DetailedInfoStandIn
 {

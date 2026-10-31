@@ -11,7 +11,7 @@ at the end with the vanilla run:
     scheduler    the counter and the PB frame budget on
     pb       every PB option on: counter, frame budget, proxies, Auto threads
     standins pb with the soft limit at 100 ms and the thread decisions logged; the default
-             mechanisms (StandIn) let scripts off the main thread
+             mechanisms (StandIn) let scripts on a worker thread
     all      standins with every mechanism on, Sensing and Transfers too
 
 The world comes from build_world.py: the SE-633 one from the most-subscribed ship and station
@@ -53,7 +53,7 @@ CASES = {
         *("--option", "FixScriptProxies=true"),
     ],
 }
-# Off the main thread with the default mechanisms, and with all of them; the soft limit is raised,
+# On a worker thread with the default mechanisms, and with all of them; the soft limit is raised,
 # so it does not stop scripts the comparison is about
 CASES["standins"] = [
     *CASES["pb"],
@@ -187,9 +187,9 @@ def main() -> int:
             if m:
                 decisions[m.group(2)] = m.group(4)
         if decisions:
-            off = sum(1 for d in decisions.values() if d.startswith("off"))
-            print(f"   thread decisions: {off} of {len(decisions)} PBs off the main thread")
-            reasons = Counter(re.sub(r" \(.*", "", d) for d in decisions.values() if not d.startswith("off"))
+            on_worker = sum(1 for d in decisions.values() if d.startswith("on a worker"))
+            print(f"   thread decisions: {on_worker} of {len(decisions)} PBs on a worker thread")
+            reasons = Counter(re.sub(r" \(.*", "", d) for d in decisions.values() if not d.startswith("on a worker"))
             for reason, count in reasons.most_common(12):
                 print(f"     {count:3} {reason[:150]}")
 
