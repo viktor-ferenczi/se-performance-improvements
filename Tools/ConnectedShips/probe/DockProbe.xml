@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<PluginData
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="GitHubPlugin"
+>
+  <!-- Test-only server plugin of the connected ships rig, loaded as a dev folder.
+         Never published to a hub. -->
+  <Id>6E1D2C40-7B7A-4B0B-9A6E-2D5F0C9E7981</Id>
+  <RepoId>viktor-ferenczi/se-performance-improvements</RepoId>
+  <FriendlyName>Dock Probe</FriendlyName>
+  <Author>CometWorks</Author>
+  <Tooltip>Test hooks for the connected ships rig</Tooltip>
+  <Commit>TODO Git commit hash</Commit>
+</PluginData>
