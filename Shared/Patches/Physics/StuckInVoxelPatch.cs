@@ -29,10 +29,10 @@ namespace Shared.Patches
     // resting on the ground: the center of a corner block or a slope lying on its face, or of a
     // wheel suspension, whose model leaves part of its cells empty, can sit below the surface.
     // Such debris was pushed up, fell back and was pushed again without end (SE-937). Unless the
-    // grid is static or attached to a static grid, it is then
-    // moved away from the voxel body's center, StepMeters per update, until it neither touches
-    // the voxel nor has a sampled block center inside it, and left to the physics at rest. Only
-    // the server moves the grids, the clients follow through the usual position replication.
+    // grid is static or attached to a static grid, it is then moved away from the voxel body's
+    // center, StepMeters per update, until it neither touches the voxel nor has a sampled block
+    // center inside it, and left to the physics at rest. Only the server moves the grids, the
+    // clients follow through the usual position replication.
     [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     [HarmonyPatch(typeof(MyGridPhysics))]
