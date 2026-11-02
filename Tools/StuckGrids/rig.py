@@ -270,7 +270,8 @@ def main():
     }
     print(f"== voxel push-outs: {len(lines)} of {len(grids)} grids")
     for grid in sorted(grids):
-        print(f"{sum(grid in line for line in lines):5} {grid}")
+        times = [line[11:19] for line in lines if grid in line]
+        print(f"{len(times):5} {grid}, {times[0]} to {times[-1]}")
     return 0 if result == "finished" else 1
 
 
