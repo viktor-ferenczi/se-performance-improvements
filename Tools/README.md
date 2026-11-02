@@ -64,8 +64,19 @@ through files: it spawns and docks ships, gives input and reports what each ship
 ## SolarPanel
 
 Measurement probe for the solar panel output fix (`FixSolarPanel`). `probe-plugin` is a
-source-only server plugin, registered as a Magnetar dev folder (in Quasar: Configs, Developer,
+source-only plugin, registered as a Magnetar or Pulsar dev folder (in Quasar: Configs, Developer,
 Add dev folder, pick `SolarProbe.xml`, then tick it in the profile). Every 10 seconds it logs one
-`SolarProbe:` line into the game log: whether the fix is applied at that moment, how many solar
-outputs were computed, how many of those reached the power network, and how many distribution
-recomputes they caused and how long those took. Toggle the fix live and compare the lines.
+`SolarProbe:` line into the game log: whether the fix is applied at that moment (`on`, `off`, or
+which of the two solar components has it), how many solar outputs were computed, how many of
+those changed the output, and how many distribution recomputes there were and how long they
+took. Toggle the fix live and compare the lines.
+
+- `build_world.py <Empty World> --out <world>`: the game's Empty World with one static grid of
+  1200 large solar panels facing the same way, turned so the sun starts 60 degrees from their
+  normal and moves fast across them.
+- `rig.py <world> [--option FixSolarPanel=false] [--seconds 600]`: an isolated Magnetar server
+  in a claimed test slot (`SOLAR_SLOT`, see `testing/parallel-test-work` in the workspace) with
+  Performance from this checkout and the probe; prints the probe lines and their means.
+- `client_test.py <world> [--seconds 120]`: the same world offline on a headless Pulsar client
+  with the client plugin, loaded through the Remote plugin. Needs httpx; `BIN64` names the game's
+  `Bin64` on hosts where Pulsar can't find it.
