@@ -52,8 +52,9 @@ namespace StuckProbe;
 //
 // Debris mode (SE-937): with STUCK_VOXEL=planet, STUCK_DEBRIS lists large grid blocks as
 // "TypeId/SubtypeId", separated by ','. The shot drops STUCK_DEBRIS_COPIES single-block grids of
-// each, unpowered and turned at random, from 3 m above the Moon's surface, 15 m apart, instead
-// of placing the ship. Once the window ends, probe.log gets one DEBRIS line per grid: the height
+// each, unpowered and turned at random, from 3 m above the Moon's surface, 30 m apart, instead
+// of placing and launching the ship. STUCK_WAKE=1 wakes them every second, so they never sleep,
+// like the debris seen on a live server. Once the window ends, probe.log gets one DEBRIS line per grid: the height
 // of its center above the surface at the end, the lowest and highest it was over the last
 // half of the window, and how far it moved in that half.
 public class Plugin : IPlugin
@@ -96,6 +97,7 @@ public static class Probe
         Environment.GetEnvironmentVariable("STUCK_DEBRIS") ?? ""
     ).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
     private static readonly int DebrisCopies = (int)Number("STUCK_DEBRIS_COPIES", 3);
+    private static readonly bool Wake = Environment.GetEnvironmentVariable("STUCK_WAKE") == "1";
     private static readonly List<DebrisGrid> DebrisGrids = new List<DebrisGrid>();
     private static MyVoxelBase voxel;
     private static Vector3D placedCenter;
@@ -316,6 +318,10 @@ public static class Probe
     private static void Launch(double now)
     {
         launchedAt = now;
+        // The debris falls on its own
+        if (Debris.Length != 0)
+            return;
+
         if (
             !MyEntities.TryGetEntityById(ShipId, out MyCubeGrid ship)
             || !MyEntities.TryGetEntityById(StationId, out MyCubeGrid station)
@@ -473,7 +479,7 @@ public static class Probe
             var id = MyDefinitionId.Parse("MyObjectBuilder_" + item);
             for (var copy = 0; copy < DebrisCopies; copy++, index++)
             {
-                var above = center + up * 30000 + right * (15 * (index % 6)) + forward * (15 * (index / 6));
+                var above = center + up * 30000 + right * (30 * (index % 6)) + forward * (30 * (index / 6));
                 var surface = planet.GetClosestSurfacePointGlobal(above);
                 var turn = Quaternion.Normalize(
                     new Quaternion(
@@ -531,6 +537,9 @@ public static class Probe
         {
             if (!MyEntities.TryGetEntityById(debris.EntityId, out MyCubeGrid grid))
                 continue;
+
+            if (Wake)
+                grid.Physics?.ForceActivate();
 
             debris.Last = Height(grid);
             debris.At = grid.PositionComp.WorldAABB.Center;

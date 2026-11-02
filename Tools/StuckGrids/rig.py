@@ -269,6 +269,8 @@ def main():
         line.split(" is stuck inside")[0].split("Performance: ")[1] for line in lines
     }
     print(f"== voxel push-outs: {len(lines)} of {len(grids)} grids")
+    for grid in sorted(grids):
+        print(f"{sum(grid in line for line in lines):5} {grid}")
     return 0 if result == "finished" else 1
 
 
