@@ -257,6 +257,15 @@ def main():
     for name in ("probe.log", "seconds.tsv"):
         path = PROBE_DIR / name
         print(path.read_text(errors="replace") if path.exists() else f"(no {name})")
+    # The voxel push-out of the Performance plugin, from the server log
+    lines = [
+        line
+        for log in DATA.glob("*.log")
+        for line in log.read_text(errors="replace").splitlines()
+        if "Performance: Grid" in line and "is stuck inside" in line
+    ]
+    grids = {line.split(" is stuck inside")[0].split("Performance: ")[1] for line in lines}
+    print(f"== voxel push-outs: {len(lines)} of {len(grids)} grids")
     return 0 if result == "finished" else 1
 
 
