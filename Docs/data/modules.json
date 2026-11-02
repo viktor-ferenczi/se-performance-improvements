@@ -76,7 +76,7 @@
     },
     "simulation-and-blocks": {
       "title": "Simulation & Block Patches",
-      "summary": "Assorted per-block and per-subsystem fixes: turret targeting allocations, block access-right caching, wind-turbine atmosphere caching, PB block-ownership sync, disabled projected blocks, server-side footprint/wheel-trail removal and LCD surface tweaks."
+      "summary": "Assorted per-block and per-subsystem fixes: turret targeting allocations, block access-right caching, wind-turbine atmosphere caching, solar panel output thresholding, PB block-ownership sync, disabled projected blocks, server-side footprint/wheel-trail removal and LCD surface tweaks."
     },
     "tests": {
       "title": "Tests",

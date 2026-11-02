@@ -74,6 +74,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\StandIns\TerminalStandIn.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\StandIns\TransferStandIn.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\StandIns\TryRunStandIn.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\SolarPanel\MySolarGameLogicComponentPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyGridTargetingPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TargetingSystem\MyLargeTurretTargetingSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\TerminalSystem\MyGridTerminalSystemPatch.cs" />

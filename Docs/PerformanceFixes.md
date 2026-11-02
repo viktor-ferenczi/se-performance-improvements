@@ -170,6 +170,23 @@ safely be cached for a few seconds.
 
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/24209-performance-cache-the-result-of-mywindturbine-isinatmosphere)
 
+## Fewer solar panel output updates
+
+Every change of a solar panel's `MaxOutput` raises `OnProductionChanged`, which makes the
+grid's power network recompute its distribution on the next frame. Each panel recomputes its
+output every 100 frames, on staggered frames, and the sun angle drifts constantly, so with
+100+ panels on a grid the network recomputes nearly every frame.
+
+The plugin drops the changes of `MaxOutput` smaller than `SolarPanelThresholdPercent` of the
+panel's maximum output, 1% by default, in `OnSunAngleComputed` of both solar components. The
+comparison is against the last applied value, so the error never exceeds the threshold. Zero
+output is always passed on, so a panel turning on or going dark is reflected at once. The
+panel's reported output, and the oxygen farm's, lags behind the exact one by less than the
+threshold.
+
+Option `FixSolarPanel`, on by default in both plugins. The patch is applied only while the
+option is on.
+
 ## Less frequent sync of block counts for limit checking
 
 Suppresses frequent calls to `MyPlayerCollection.SendDirtyBlockLimits`.

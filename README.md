@@ -39,6 +39,7 @@ the code that implements them is organized.
 - Read the process memory statistic once per second instead of every frame
 - Cache safe zone checks (`IsSafe`, `IsActionAllowed`, optimized `IsOutside`)
 - Cache wind turbine atmosphere checks
+- Fewer solar panel output updates: changes of a panel's output below a threshold are not passed on to the power network
 - Cache conveyor network reachability lookups and the cooperative assembler master lookup
 - Cache the toolbar actions of large block groups while seated
 - Physics optimizations (`RigidBody` getter, configurable Havok thread count, faster cluster reordering)
