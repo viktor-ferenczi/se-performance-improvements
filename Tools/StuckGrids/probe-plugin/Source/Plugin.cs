@@ -88,8 +88,10 @@ public static class Probe
     private static readonly double Warmup = Number("STUCK_WARMUP", 20);
     private static readonly string VoxelKind = Environment.GetEnvironmentVariable("STUCK_VOXEL");
     private static readonly double Depth = Number("STUCK_DEPTH", 0);
-    private static readonly bool SafeZone = Environment.GetEnvironmentVariable("STUCK_SAFEZONE") == "1";
-    private static readonly bool Unpowered = Environment.GetEnvironmentVariable("STUCK_UNPOWERED") == "1";
+    private static readonly bool SafeZone =
+        Environment.GetEnvironmentVariable("STUCK_SAFEZONE") == "1";
+    private static readonly bool Unpowered =
+        Environment.GetEnvironmentVariable("STUCK_UNPOWERED") == "1";
     private static readonly double Hole = Number("STUCK_HOLE", 0);
     private static readonly bool Spin = Environment.GetEnvironmentVariable("STUCK_SPIN") == "1";
     private static readonly bool Static = Environment.GetEnvironmentVariable("STUCK_STATIC") == "1";
@@ -205,9 +207,12 @@ public static class Probe
                     ship.PositionComp.WorldAABB.Center,
                     station.PositionComp.WorldAABB.Center
                 )
-                : -1;
+            : -1;
         var speed = ship?.Physics?.LinearVelocity.Length() ?? -1;
-        var active = ship?.Physics == null ? -1 : ship.Physics.IsActive ? 1 : 0;
+        var active =
+            ship?.Physics == null ? -1
+            : ship.Physics.IsActive ? 1
+            : 0;
         if (Spin && ship?.Physics != null && launchedAt >= placedAt && shot >= 0)
             ship.Physics.AngularVelocity = Vector3.Up;
         var launched = shot >= 0 && launchedAt >= placedAt;
@@ -377,11 +382,18 @@ public static class Probe
 
     private static void SpawnVoxel()
     {
-        var at = MyEntities.GetEntityById(StationId).PositionComp.GetPosition() + new Vector3D(0, 0, 60000);
+        var at =
+            MyEntities.GetEntityById(StationId).PositionComp.GetPosition()
+            + new Vector3D(0, 0, 60000);
         voxel =
             VoxelKind == "planet"
                 ? (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.SpawnPlanet("Moon", 19000, 770, at)
-                : (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.CreateVoxelMapFromStorageName("SE770Asteroid", "Asteroid256-001", at);
+                : (MyVoxelBase)
+                    MyAPIGateway.Session.VoxelMaps.CreateVoxelMapFromStorageName(
+                        "SE770Asteroid",
+                        "Asteroid256-001",
+                        at
+                    );
         Log($"spawned {VoxelKind} {voxel?.EntityId} at {voxel?.PositionComp.WorldAABB.Center}");
     }
 
@@ -436,7 +448,9 @@ public static class Probe
         {
             var zone = new MyObjectBuilder_SafeZone
             {
-                PositionAndOrientation = new MyPositionAndOrientation(MatrixD.CreateTranslation(surface)),
+                PositionAndOrientation = new MyPositionAndOrientation(
+                    MatrixD.CreateTranslation(surface)
+                ),
                 Radius = 500,
                 PersistentFlags = MyPersistentEntityFlags2.InScene,
                 Shape = MySafeZoneShape.Sphere,
@@ -451,7 +465,9 @@ public static class Probe
             MyEntities.CreateFromObjectBuilderAndAdd(zone, false);
         }
 
-        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}, spin {Spin}, static {ship.IsStatic}");
+        Log(
+            $"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}, spin {Spin}, static {ship.IsStatic}"
+        );
     }
 
     private sealed class DebrisGrid
@@ -479,7 +495,8 @@ public static class Probe
             var id = MyDefinitionId.Parse("MyObjectBuilder_" + item);
             for (var copy = 0; copy < DebrisCopies; copy++, index++)
             {
-                var above = center + up * 30000 + right * (30 * (index % 6)) + forward * (30 * (index / 6));
+                var above =
+                    center + up * 30000 + right * (30 * (index % 6)) + forward * (30 * (index / 6));
                 var surface = planet.GetClosestSurfacePointGlobal(above);
                 var turn = Quaternion.Normalize(
                     new Quaternion(
@@ -504,7 +521,8 @@ public static class Probe
                 {
                     GridSizeEnum = MyCubeSize.Large,
                     IsStatic = false,
-                    PersistentFlags = MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled,
+                    PersistentFlags =
+                        MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled,
                     PositionAndOrientation = new MyPositionAndOrientation(matrix),
                     CreatePhysics = true,
                     DisplayName = $"Debris {id.SubtypeName} {copy}",
