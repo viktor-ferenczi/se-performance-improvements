@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<PluginData
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="GitHubPlugin"
+>
+  <Id>solar-probe</Id>
+  <RepoId>local/solar-probe</RepoId>
+  <FriendlyName>Solar panel probe (FixSolarPanel measurement)</FriendlyName>
+  <Author>CometWorks</Author>
+  <Tooltip>Test only: logs every 10 seconds how many solar output changes reached the power network and how many distribution recomputes they caused</Tooltip>
+  <SourceDirectories>
+    <Directory>Source</Directory>
+  </SourceDirectories>
+</PluginData>

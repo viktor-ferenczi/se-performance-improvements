@@ -60,3 +60,12 @@ through files: it spawns and docks ships, gives input and reports what each ship
 - `settle_trace.py <option 0|1> <seconds> [--no-bench-lock]`: speed of a stopping group every 5 s.
 - `docked_bench.py`: physics cost of ships docked to a static grid, fixed against forced dynamic
   (SE-797), without Performance. Alone on the machine.
+
+## SolarPanel
+
+Measurement probe for the solar panel output fix (`FixSolarPanel`). `probe-plugin` is a
+source-only server plugin, registered as a Magnetar dev folder (in Quasar: Configs, Developer,
+Add dev folder, pick `SolarProbe.xml`, then tick it in the profile). Every 10 seconds it logs one
+`SolarProbe:` line into the game log: whether the fix is applied at that moment, how many solar
+outputs were computed, how many of those reached the power network, and how many distribution
+recomputes they caused and how long those took. Toggle the fix live and compare the lines.

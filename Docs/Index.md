@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**102 files across 16 modules.**
+**103 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -175,6 +175,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`MyCharacterPatch.cs`](files/Shared/Patches/Character/MyCharacterPatch.cs.md) | `Shared/Patches/Character/MyCharacterPatch.cs` | Disables server-side character footprint rendering and body-contact audio by short-circuiting the relevant branches in `MyCharacter.RigidBody_ContactPointCallback` on dedicated servers. |
 | [`MyShipConnectorPatch.cs`](files/Shared/Patches/Connector/MyShipConnectorPatch.cs.md) | `Shared/Patches/Connector/MyShipConnectorPatch.cs` | Fixes a connector state-synchronisation bug by replacing `UpdateConnectionState` with a patched version that avoids redundant re-initialization and stale state on the server (file is currently compiled out via `#if UNTESTED`). |
 | [`MyEntityPatchForProjection.cs`](files/Shared/Patches/Projection/MyEntityPatchForProjection.cs.md) | `Shared/Patches/Projection/MyEntityPatchForProjection.cs` | Disables functional blocks on physics-less preview (projected) grids the moment they are added to the scene, preventing wasteful updates and projection-era bugs such as projected welders welding in creative mode. |
+| [`MySolarGameLogicComponentPatch.cs`](files/Shared/Patches/SolarPanel/MySolarGameLogicComponentPatch.cs.md) | `Shared/Patches/SolarPanel/MySolarGameLogicComponentPatch.cs` | Drops changes of a solar panel's `MaxOutput` smaller than a configurable threshold, so the grid's power network recomputes its distribution far less often. |
 | [`MyGridTargetingPatch.cs`](files/Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs.md) | `Shared/Patches/TargetingSystem/MyGridTargetingPatch.cs` | Makes the per-frame refresh of a turret grid's target groups linear in the number of grids in range instead of quadratic. |
 | [`MyLargeTurretTargetingSystemPatch.cs`](files/Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs.md) | `Shared/Patches/TargetingSystem/MyLargeTurretTargetingSystemPatch.cs` | Reduces GC pressure in `MyLargeTurretTargetingSystem.SortTargetRoots` by reusing per-turret arrays instead of allocating a new one every call (entire file is currently disabled via `#if false`). |
 | [`MyGridTerminalSystemPatch.cs`](files/Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs.md) | `Shared/Patches/TerminalSystem/MyGridTerminalSystemPatch.cs` | Skips the per-run refresh of `IsAccessibleForProgrammableBlock` on every terminal block when the owner, the blocks and their ownership have not changed since the last run. |

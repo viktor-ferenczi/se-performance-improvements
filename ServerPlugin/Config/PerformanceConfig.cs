@@ -162,6 +162,28 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = true;
 
     [BoolOption(
+        "Drop changes of a solar panel's output smaller than the threshold below, so the power network recomputes its distribution less often. Turning on and going dark still count at once",
+        Parent = "simulation"
+    )]
+    public bool FixSolarPanel
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [FloatOption(
+        0.1f,
+        10f,
+        "Smallest change of a solar panel's output, in percent of its maximum, passed on to the power network",
+        Parent = "simulation"
+    )]
+    public float SolarPanelThresholdPercent
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 1f;
+
+    [BoolOption(
         "Reduce memory allocations in IMyStorageExtensions.GetMaterialAt",
         Parent = "simulation"
     )]

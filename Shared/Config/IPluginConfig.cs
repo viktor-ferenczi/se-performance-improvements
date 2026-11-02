@@ -282,6 +282,14 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Caches the result of MyWindTurbine.IsInAtmosphere
     bool FixWindTurbine { get; set; }
 
+    // Drops changes of a solar panel's output smaller than SolarPanelThresholdPercent, so the
+    // power network recomputes its distribution less often
+    bool FixSolarPanel { get; set; }
+
+    // Smallest change of a solar panel's output, in percent of its maximum, passed on to the
+    // power network
+    float SolarPanelThresholdPercent { get; set; }
+
     // Reduces memory allocations in IMyStorageExtensions.GetMaterialAt
     bool FixVoxel { get; set; }
 

@@ -161,6 +161,32 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
+        label: "Fewer solar panel output updates",
+        description: "Drops changes of a solar panel's output smaller than the threshold below, so the power network recomputes its distribution less often. Turning on and going dark still count at once."
+    )]
+    public bool FixSolarPanel
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Slider(
+        0.1f,
+        10f,
+        0.1f,
+        SliderAttribute.SliderType.Float,
+        label: "Solar output threshold",
+        description: "Smallest change of a solar panel's output, in percent of its maximum, passed on to the power network",
+        enabledBy: nameof(FixSolarPanel),
+        unit: "%"
+    )]
+    public float SolarPanelThresholdPercent
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 1f;
+
+    [Checkbox(
         label: "Fix voxel performance",
         description: "Reduces memory allocations in IMyStorageExtensions.GetMaterialAt"
     )]

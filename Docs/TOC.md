@@ -80,7 +80,7 @@ each lives in [PerformanceFixes.md](PerformanceFixes.md).
 | [Keen Overhead Removal](modules/keen-overhead-removal.md) | Removes constant background overhead: `GC.Collect` pauses, per-frame process memory read, Mod API call-statistics rewriter. |
 | [Memory Allocation Patches](modules/memory-allocation.md) | Cuts GC pressure: cached `MyDefinitionId.ToString`, less frequent block-limit sync, allocation-free voxel material lookups. |
 | [World Loading Patches](modules/world-loading.md) | Caches compiled mods and in-game scripts on disk; eliminates blueprint log flooding. |
-| [Simulation & Block Patches](modules/simulation-and-blocks.md) | Assorted per-block/per-subsystem fixes: turret targeting, access-right caching, wind-turbine atmosphere caching, projected-block disabling, server-side footprint/wheel-trail removal. |
+| [Simulation & Block Patches](modules/simulation-and-blocks.md) | Assorted per-block/per-subsystem fixes: turret targeting, access-right caching, wind-turbine atmosphere caching, solar panel output thresholding, projected-block disabling, server-side footprint/wheel-trail removal. |
 
 ### Testing
 
