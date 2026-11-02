@@ -234,13 +234,13 @@ collects the contacts between a grid and a voxel body deeper than 5 cm. Havok re
 those less than 1 m deep even for a ship half inside an asteroid, and the depth comes and
 goes, so it can't tell a stuck grid from a landed one. A grid touching a voxel body is
 checked every 10 updates instead: up to 64 of its blocks, spread over the grid, are looked
-up in the voxel's content. A block is buried when its center is inside and so is the top of
-its box, the side facing away from the voxel body's center. When at least one in 20 of them is
-buried on 3 checks in a row, the grid is stuck. A landed grid, a rover or a mining ship has no
-buried block. The center alone is not enough: a block resting on the ground can have its
-center just below the surface, like a slope lying on its face or a wheel suspension, whose
-model leaves part of its cell empty. Such debris was pushed up, fell back and was pushed
-again every 2 seconds, without end (SE-937).
+up in the voxel's content. A block is buried when its center and all 8 corners of its box are
+inside. When at least one in 20 of them is buried on 3 checks in a row, the grid is stuck. A
+landed grid, a rover or a mining ship has no buried block. The center alone is not enough: a
+block resting on the ground can have its center below the surface, like a corner block or a
+slope lying on its face, or a wheel suspension, whose model leaves part of its cells empty.
+Such debris was pushed up, fell back and was pushed again every 2 seconds, without end
+(SE-937).
 Unless the grid is static or attached to a static grid, it is teleported with its physical
 group away from the voxel body's center, 0.5 m per update, until it has had no contact deeper than
 5 cm for 5 updates and none of the sampled block centers is inside, and its velocity is
