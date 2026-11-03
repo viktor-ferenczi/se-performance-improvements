@@ -6,7 +6,6 @@ using System.Threading;
 using HarmonyLib;
 using Sandbox.Game.EntityComponents;
 using Sandbox.Game.World;
-using SpaceEngineers.Game.Entities.Blocks;
 using SpaceEngineers.Game.EntityComponents.GameLogic;
 using VRage.Plugins;
 using VRage.Utils;
@@ -16,9 +15,10 @@ namespace SolarProbe;
 // Measurement probe for the solar panel fix (FixSolarPanel) of the Performance plugin, on the
 // dedicated server or an offline client. Every 10 seconds it writes one "SolarProbe:" line into
 // the game log: whether the fix is applied at that moment, how many times the solar components
-// computed an output, how many of those reached the panels' production change handler (and so
-// the power network), and how many times the power distributor recomputed its distribution and
-// how long that took in total. Toggling the fix live in Quasar shows up in the next line.
+// computed an output, how many of those changed the output (which is what reaches the power
+// network, or the gas output of oxygen farms and the farm plots' production), and how many times
+// the power distributor recomputed its distribution and how long that took in total. Toggling the
+// fix live in Quasar shows up in the next line.
 public class Plugin : IPlugin
 {
     public void Init(object gameInstance)
@@ -51,9 +51,12 @@ public static class Probe
     private static int recomputes;
     private static long recomputeTicks;
 
-    public static void Computed() => Interlocked.Increment(ref computed);
-
-    public static void Changed() => Interlocked.Increment(ref changed);
+    public static void Computed(bool outputChanged)
+    {
+        Interlocked.Increment(ref computed);
+        if (outputChanged)
+            Interlocked.Increment(ref changed);
+    }
 
     public static void Recomputed(long ticks)
     {
@@ -61,15 +64,26 @@ public static class Probe
         Interlocked.Add(ref recomputeTicks, ticks);
     }
 
-    // The fix is applied while the Performance plugin's transpiler is on the method; the plugin
-    // adds and removes it at runtime as the option changes
-    private static bool FixApplied()
+    // The fix is applied while the Performance plugin's transpilers are on the methods; the
+    // plugin adds and removes them at runtime as the option changes
+    private static bool FixApplied(MethodBase method)
     {
-        var info = Harmony.GetPatchInfo(NewSunAngle);
+        var info = Harmony.GetPatchInfo(method);
         return info != null
             && info.Transpilers.Any(p =>
                 p.PatchMethod.DeclaringType?.Name == "MySolarGameLogicComponentPatch"
             );
+    }
+
+    private static string FixState()
+    {
+        var legacy = FixApplied(LegacySunAngle);
+        var current = FixApplied(NewSunAngle);
+        if (legacy && current)
+            return "on";
+        if (!legacy && !current)
+            return "off";
+        return legacy ? "legacy-only" : "new-only";
     }
 
     public static void Tick()
@@ -86,7 +100,7 @@ public static class Probe
         frames = 0;
         var ms = Interlocked.Exchange(ref recomputeTicks, 0) * 1000.0 / Stopwatch.Frequency;
         Log(
-            $"fix={(FixApplied() ? "on" : "off")}"
+            $"fix={FixState()}"
                 + $" computed={Interlocked.Exchange(ref computed, 0)}"
                 + $" changed={Interlocked.Exchange(ref changed, 0)}"
                 + $" recomputes={Interlocked.Exchange(ref recomputes, 0)}"
@@ -98,6 +112,8 @@ public static class Probe
         MyLog.Default.WriteLineAndConsole($"SolarProbe: {message}");
 }
 
+// Compares the output before and after the computation, so it counts exactly the changes the fix
+// filters, of every solar component: panels, oxygen farms and farm plots
 [HarmonyPatch]
 public static class SunAnglePatch
 {
@@ -107,13 +123,11 @@ public static class SunAnglePatch
         yield return Probe.NewSunAngle;
     }
 
-    public static void Prefix() => Probe.Computed();
-}
+    public static void Prefix(object __instance, out float __state) =>
+        __state = ((IMySolarPanelComponent)__instance).MaxOutput;
 
-[HarmonyPatch(typeof(MySolarPanel), "OnProductionChanged")]
-public static class ProductionChangedPatch
-{
-    public static void Prefix() => Probe.Changed();
+    public static void Postfix(object __instance, float __state) =>
+        Probe.Computed(((IMySolarPanelComponent)__instance).MaxOutput != __state);
 }
 
 [HarmonyPatch(

@@ -180,9 +180,20 @@ output every 100 frames, on staggered frames, and the sun angle drifts constantl
 The plugin drops the changes of `MaxOutput` smaller than `SolarPanelThresholdPercent` of the
 panel's maximum output, 1% by default, in `OnSunAngleComputed` of both solar components. The
 comparison is against the last applied value, so the error never exceeds the threshold. Zero
-output is always passed on, so a panel turning on or going dark is reflected at once. The
-panel's reported output, and the oxygen farm's, lags behind the exact one by less than the
-threshold.
+output is always passed on, so a panel turning on or going dark is reflected at once. Oxygen
+farms and farm plots use the same solar components: an oxygen farm resets its gas output on
+every change, and a farm plot sends its efficiency to the clients, so they gain too. The output
+of panels, oxygen farms and farm plots lags behind the exact one by less than the threshold.
+
+How many changes still pass depends on how fast the sun moves across the panels. On a 2 hour
+sun cycle a panel's output changes by up to 1% in 11.5 seconds, so even at the steepest angle a
+panel passes a change only every 12 seconds or so, instead of every 1.7. Measured on a server
+with 1200 panels facing the same way, over 10 minutes while the sun moved from 60 to 30 degrees
+off their normal: 672 changes passed per 10 seconds instead of 7200, and the distribution was
+recomputed on 56 frames of 600 instead of all of them, 4.4 ms instead of 41 ms per 10 seconds
+(the two runs side by side, not alone on the machine).
+Panels facing the same way pass their changes together, within about 100 frames, every 12 to 20
+seconds. Near the panels' peak output almost nothing passes. The rig is in `Tools/SolarPanel`.
 
 Option `FixSolarPanel`, on by default in both plugins. The patch is applied only while the
 option is on.
