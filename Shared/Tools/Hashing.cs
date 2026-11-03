@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -46,12 +47,12 @@ public static class Hashing
     {
         foreach (var instruction in instructions)
         {
-            yield return instruction.opcode.GetHashCode();
+            // OpCode.GetHashCode() returns Value on .NET, but hashes the name on Mono
+            yield return instruction.opcode.Value;
 
-            if (instruction.operand is string s)
-                yield return s.Hash();
-            else if (instruction.operand != null && instruction.operand.GetType().IsValueType)
-                yield return instruction.operand.GetHashCode();
+            var operandHash = HashOperand(instruction.operand);
+            if (operandHash.HasValue)
+                yield return operandHash.Value;
 
             foreach (var label in instruction.labels)
                 yield return label.GetHashCode();
@@ -66,13 +67,50 @@ public static class Hashing
             yield return instruction.Offset.GetHashCode();
             yield return instruction.OpCode.GetHashCode();
 
-            if (instruction.Operand == null)
-                continue;
+            var operandHash = HashOperand(instruction.Operand);
+            if (operandHash.HasValue)
+                yield return operandHash.Value;
+        }
+    }
 
-            if (instruction.Operand.GetType().IsValueType)
-                yield return instruction.Operand.GetHashCode();
-            else if (instruction.Operand is string s)
-                yield return s.Hash();
+    // The hashes must come out the same on .NET Framework, Mono and .NET, so the number
+    // constants are not hashed with GetHashCode() where the runtimes disagree. The values
+    // match .NET's GetHashCode(), the runtime the expected hashes are recorded on.
+    private static int? HashOperand(object operand)
+    {
+        switch (operand)
+        {
+            case string s:
+                return s.Hash();
+
+            // .NET Framework and Mono: value ^ (value << 8)
+            case sbyte value:
+                return value;
+
+            // .NET Framework does not normalize NaN
+            case float value:
+            {
+                var bits = BitConverter.ToInt32(BitConverter.GetBytes(value), 0);
+                if (((bits - 1) & 0x7FFFFFFF) >= 0x7F800000)
+                    bits &= 0x7F800000;
+                return bits;
+            }
+
+            case double value:
+            {
+                var bits = BitConverter.DoubleToInt64Bits(value);
+                if (((bits - 1) & 0x7FFFFFFFFFFFFFFF) >= 0x7FF0000000000000)
+                    bits &= 0x7FF0000000000000;
+                return unchecked((int)bits ^ (int)(bits >> 32));
+            }
+
+            // byte, int, long and Label hash the same on every runtime
+            case ValueType value:
+                return value.GetHashCode();
+
+            // Member, type and local operands are left out
+            default:
+                return null;
         }
     }
 

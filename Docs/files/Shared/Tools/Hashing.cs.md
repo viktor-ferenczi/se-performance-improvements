@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Tools & Data Structures](../../../modules/tools.md) |
-| **Source** | [`Hashing.cs`](../../../../Shared/Tools/Hashing.cs) (103 lines) |
+| **Source** | [`Hashing.cs`](../../../../Shared/Tools/Hashing.cs) (141 lines) |
 | **Kind** | Static utility class `Hashing` |
 | **Role** | Hashing utility |
 
@@ -14,6 +14,8 @@
 `Hashing` supplies the hash functions used by the IL-verification pipeline. `HashBody()` on a `MethodInfo` or `ConstructorInfo` retrieves the current IL via `PatchProcessor.GetCurrentInstructions` and passes it through `HashInstructions()` and `CombineHashCodes()` to produce a stable 32-bit fingerprint of the method's compiled body.
 
 This fingerprint is the value stored in `[EnsureCode("hexhash")]` attributes. When [`EnsureCode.cs`](EnsureCode.cs.md)`.Verify()` runs at startup it calls `HashBody()` on each patched method and compares the result against the stored value, catching game updates that silently change the IL that a Harmony patch depends on.
+
+The hash comes out the same on .NET Framework, Mono and .NET, so one `[EnsureCode]` value covers the Windows and Linux builds of the client and the server. Opcodes are hashed by their numeric `Value` (Mono's `OpCode.GetHashCode()` hashes the opcode name), and `sbyte`, `float` and `double` operands go through `HashOperand`, which writes out .NET's `GetHashCode()` for them (.NET Framework and Mono hash `sbyte` constants differently, and .NET Framework doesn't normalize NaN). Member, type and local operands are not part of the hash.
 
 Two overloads of `HashInstructions` exist: one for Harmony `CodeInstruction` lists (used by transpilers at runtime) and one for Mono.Cecil `Instruction` collections (used by preloader patches that operate on raw assembly IL before loading).
 
@@ -26,6 +28,7 @@ Two overloads of `HashInstructions` exist: one for Harmony `CodeInstruction` lis
 | `HashBody(ConstructorInfo)` | Extension method | Same for constructor bodies. |
 | `HashInstructions(IEnumerable<CodeInstruction>)` | Extension method | Yields per-instruction hash components (opcode + typed operand + labels) for Harmony IL. |
 | `HashInstructions(IEnumerable<Instruction>)` | Extension method | Same for Mono.Cecil `Instruction` sequences (preloader path). |
+| `HashOperand(object)` | Private static method | Runtime-independent hash of a string or number operand; `null` for member, type and local operands. |
 | `CombineHashCodes(IEnumerable<int>)` | Extension method | Folds a sequence of hash ints into a single 32-bit value using a two-lane shift-xor mixer. |
 
 ## References
