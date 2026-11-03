@@ -27,7 +27,8 @@ from pathlib import Path
 
 HOME = Path.home()
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[1]
+# STUCK_PERFORMANCE: another checkout of the plugin to load, for an A/B against this one
+REPO = Path(os.environ.get("STUCK_PERFORMANCE", HERE.parents[1]))
 WORKSPACE = Path(os.environ.get("SE_WORKSPACE", HOME / "ws/se"))
 PARALLEL = WORKSPACE / "testing/parallel-test-work"
 DIRECT_TRANSPORT = WORKSPACE / "se1/direct-transport"
@@ -257,6 +258,20 @@ def main():
     for name in ("probe.log", "seconds.tsv"):
         path = PROBE_DIR / name
         print(path.read_text(errors="replace") if path.exists() else f"(no {name})")
+    # The voxel push-out of the Performance plugin, from the server log
+    lines = [
+        line
+        for log in DATA.glob("*.log")
+        for line in log.read_text(errors="replace").splitlines()
+        if "Performance: Grid" in line and "is stuck inside" in line
+    ]
+    grids = {
+        line.split(" is stuck inside")[0].split("Performance: ")[1] for line in lines
+    }
+    print(f"== voxel push-outs: {len(lines)} of {len(grids)} grids")
+    for grid in sorted(grids):
+        times = [line[11:19] for line in lines if grid in line]
+        print(f"{len(times):5} {grid}, {times[0]} to {times[-1]}")
     return 0 if result == "finished" else 1
 
 

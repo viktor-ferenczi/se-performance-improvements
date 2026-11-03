@@ -24,11 +24,15 @@ namespace Shared.Patches
     // Havok reports the contacts with a voxel body less than 1 m deep even for a ship half inside
     // an asteroid, and the depth comes and goes, so it does not tell a stuck grid from a landed
     // one. A grid in contact with a voxel body is checked every CheckTicks updates instead: when
-    // at least one in InsideShare of its sampled block centers is inside the voxel on StuckChecks
-    // checks in a row, it is stuck. Unless it is static or attached to a static grid, it is then
-    // moved away from the voxel body's center, StepMeters per update, until it neither touches
-    // the voxel nor has a sampled block center inside it, and left to the physics at rest. Only
-    // the server moves the grids, the clients follow through the usual position replication.
+    // at least one in InsideShare of its sampled blocks is buried in the voxel, all corners of its
+    // box inside, on StuckChecks checks in a row, it is stuck. The block center alone caught grids
+    // resting on the ground: the center of a corner block or a slope lying on its face, or of a
+    // wheel suspension, whose model leaves part of its cells empty, can sit below the surface.
+    // Such debris was pushed up, fell back and was pushed again without end (SE-937). Unless the
+    // grid is static or attached to a static grid, it is then moved away from the voxel body's
+    // center, StepMeters per update, until it neither touches the voxel nor has a sampled block
+    // center inside it, and left to the physics at rest. Only the server moves the grids, the
+    // clients follow through the usual position replication.
     [SuppressMessage("ReSharper", "UnusedType.Global")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     [HarmonyPatch(typeof(MyGridPhysics))]
@@ -185,7 +189,10 @@ namespace Shared.Patches
 
             var meters = stuck.MoveTicks * StepMeters;
             // A grid inside the voxel has no contact with its surface, but still costs as much
-            if (tick - stuck.LastTouch >= ApartTicks && CountInside(grid, stuck.Voxel).Inside == 0)
+            if (
+                tick - stuck.LastTouch >= ApartTicks
+                && CountInside(grid, stuck.Voxel, false).Inside == 0
+            )
             {
                 StuckGridsPatch.Stop(grid, stuck.Step);
                 Log.Info(
@@ -235,16 +242,23 @@ namespace Shared.Patches
             return true;
         }
 
-        // At least one in InsideShare of the sampled block centers is inside the voxel
+        // At least one in InsideShare of the sampled blocks is buried in the voxel
         private static bool IsStuck(MyCubeGrid grid, MyVoxelBase voxel)
         {
-            var (sampled, inside) = CountInside(grid, voxel);
+            var (sampled, inside) = CountInside(grid, voxel, true);
             return inside > 0 && inside * InsideShare >= sampled;
         }
 
-        // Samples up to SampledBlocks block centers spread over the grid
-        private static (int Sampled, int Inside) CountInside(MyCubeGrid grid, MyVoxelBase voxel)
+        // Samples up to SampledBlocks blocks spread over the grid. A block is inside when its
+        // center is, buried when all corners of its box are too.
+        private static (int Sampled, int Inside) CountInside(
+            MyCubeGrid grid,
+            MyVoxelBase voxel,
+            bool buried
+        )
         {
+            var matrix = grid.WorldMatrix;
+            var half = new Vector3D(grid.GridSize / 2);
             var blocks = grid.GetBlocks();
             var stride = blocks.Count / SampledBlocks + 1;
             int index = 0,
@@ -257,7 +271,14 @@ namespace Shared.Patches
 
                 block.ComputeWorldCenter(out Point[0]);
                 sampled++;
-                if (voxel.IsAnyOfPointInside(Point))
+                if (!voxel.IsAnyOfPointInside(Point))
+                    continue;
+
+                var box = new BoundingBoxD(
+                    (Vector3D)block.Min * grid.GridSize - half,
+                    (Vector3D)block.Max * grid.GridSize + half
+                );
+                if (!buried || voxel.AreAllAabbCornersInside(ref matrix, box))
                     inside++;
             }
 

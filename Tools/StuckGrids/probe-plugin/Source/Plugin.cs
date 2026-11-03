@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -13,6 +14,7 @@ using Sandbox.Game.Entities.Cube;
 using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using VRage;
+using VRage.Game;
 using VRage.Game.ObjectBuilders.Components;
 using VRage.ObjectBuilders;
 using VRage.Plugins;
@@ -47,6 +49,14 @@ namespace StuckProbe;
 // STUCK_SPIN=1 sets the ship turning every second, so its physics never sleeps. STUCK_STATIC=1
 // converts the placed ship to a static grid. The distance column is the ship's distance from
 // where it was placed, the contact columns count ship-voxel contacts.
+//
+// Debris mode (SE-937): with STUCK_VOXEL=planet, STUCK_DEBRIS lists large grid blocks as
+// "TypeId/SubtypeId", separated by ','. The shot drops STUCK_DEBRIS_COPIES single-block grids of
+// each, unpowered and turned at random, from 3 m above the Moon's surface, 30 m apart, instead
+// of placing and launching the ship. STUCK_WAKE=1 wakes them every second, so they never sleep,
+// like the debris seen on a live server. Once the window ends, probe.log gets one DEBRIS line per grid: the height
+// of its center above the surface at the end, the lowest and highest it was over the last
+// half of the window, and how far it moved in that half.
 public class Plugin : IPlugin
 {
     public void Init(object gameInstance)
@@ -78,11 +88,19 @@ public static class Probe
     private static readonly double Warmup = Number("STUCK_WARMUP", 20);
     private static readonly string VoxelKind = Environment.GetEnvironmentVariable("STUCK_VOXEL");
     private static readonly double Depth = Number("STUCK_DEPTH", 0);
-    private static readonly bool SafeZone = Environment.GetEnvironmentVariable("STUCK_SAFEZONE") == "1";
-    private static readonly bool Unpowered = Environment.GetEnvironmentVariable("STUCK_UNPOWERED") == "1";
+    private static readonly bool SafeZone =
+        Environment.GetEnvironmentVariable("STUCK_SAFEZONE") == "1";
+    private static readonly bool Unpowered =
+        Environment.GetEnvironmentVariable("STUCK_UNPOWERED") == "1";
     private static readonly double Hole = Number("STUCK_HOLE", 0);
     private static readonly bool Spin = Environment.GetEnvironmentVariable("STUCK_SPIN") == "1";
     private static readonly bool Static = Environment.GetEnvironmentVariable("STUCK_STATIC") == "1";
+    private static readonly string[] Debris = (
+        Environment.GetEnvironmentVariable("STUCK_DEBRIS") ?? ""
+    ).Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+    private static readonly int DebrisCopies = (int)Number("STUCK_DEBRIS_COPIES", 3);
+    private static readonly bool Wake = Environment.GetEnvironmentVariable("STUCK_WAKE") == "1";
+    private static readonly List<DebrisGrid> DebrisGrids = new List<DebrisGrid>();
     private static MyVoxelBase voxel;
     private static Vector3D placedCenter;
     private static readonly double Seconds = Number("STUCK_SECONDS", 180);
@@ -189,9 +207,12 @@ public static class Probe
                     ship.PositionComp.WorldAABB.Center,
                     station.PositionComp.WorldAABB.Center
                 )
-                : -1;
+            : -1;
         var speed = ship?.Physics?.LinearVelocity.Length() ?? -1;
-        var active = ship?.Physics == null ? -1 : ship.Physics.IsActive ? 1 : 0;
+        var active =
+            ship?.Physics == null ? -1
+            : ship.Physics.IsActive ? 1
+            : 0;
         if (Spin && ship?.Physics != null && launchedAt >= placedAt && shot >= 0)
             ship.Physics.AngularVelocity = Vector3.Up;
         var launched = shot >= 0 && launchedAt >= placedAt;
@@ -241,8 +262,12 @@ public static class Probe
             return;
         }
 
+        if (DebrisGrids.Count != 0)
+            TrackDebris(now - launchedAt >= Seconds / 2);
+
         if (last && now - launchedAt >= Seconds)
         {
+            ReportDebris();
             done = true;
             table.Dispose();
             Log("DONE");
@@ -260,6 +285,12 @@ public static class Probe
         )
         {
             Log("ship or station not found");
+            return;
+        }
+
+        if (VoxelKind != null && Debris.Length != 0)
+        {
+            DropDebris(station);
             return;
         }
 
@@ -292,6 +323,10 @@ public static class Probe
     private static void Launch(double now)
     {
         launchedAt = now;
+        // The debris falls on its own
+        if (Debris.Length != 0)
+            return;
+
         if (
             !MyEntities.TryGetEntityById(ShipId, out MyCubeGrid ship)
             || !MyEntities.TryGetEntityById(StationId, out MyCubeGrid station)
@@ -347,11 +382,18 @@ public static class Probe
 
     private static void SpawnVoxel()
     {
-        var at = MyEntities.GetEntityById(StationId).PositionComp.GetPosition() + new Vector3D(0, 0, 60000);
+        var at =
+            MyEntities.GetEntityById(StationId).PositionComp.GetPosition()
+            + new Vector3D(0, 0, 60000);
         voxel =
             VoxelKind == "planet"
                 ? (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.SpawnPlanet("Moon", 19000, 770, at)
-                : (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.CreateVoxelMapFromStorageName("SE770Asteroid", "Asteroid256-001", at);
+                : (MyVoxelBase)
+                    MyAPIGateway.Session.VoxelMaps.CreateVoxelMapFromStorageName(
+                        "SE770Asteroid",
+                        "Asteroid256-001",
+                        at
+                    );
         Log($"spawned {VoxelKind} {voxel?.EntityId} at {voxel?.PositionComp.WorldAABB.Center}");
     }
 
@@ -406,7 +448,9 @@ public static class Probe
         {
             var zone = new MyObjectBuilder_SafeZone
             {
-                PositionAndOrientation = new MyPositionAndOrientation(MatrixD.CreateTranslation(surface)),
+                PositionAndOrientation = new MyPositionAndOrientation(
+                    MatrixD.CreateTranslation(surface)
+                ),
                 Radius = 500,
                 PersistentFlags = MyPersistentEntityFlags2.InScene,
                 Shape = MySafeZoneShape.Sphere,
@@ -421,7 +465,131 @@ public static class Probe
             MyEntities.CreateFromObjectBuilderAndAdd(zone, false);
         }
 
-        Log($"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}, spin {Spin}, static {ship.IsStatic}");
+        Log(
+            $"shot {shot}: placed the ship {Depth} m into the {VoxelKind}, safe zone {SafeZone}, unpowered {Unpowered}, spin {Spin}, static {ship.IsStatic}"
+        );
+    }
+
+    private sealed class DebrisGrid
+    {
+        public string Name;
+        public long EntityId;
+        public double Low = double.MaxValue;
+        public double High = double.MinValue;
+        public double Last;
+        public Vector3D? From;
+        public Vector3D At;
+    }
+
+    private static void DropDebris(MyCubeGrid station)
+    {
+        var planet = (MyPlanet)voxel;
+        var center = planet.PositionComp.WorldAABB.Center;
+        var up = Vector3D.Normalize(station.PositionComp.GetPosition() - center);
+        var right = Vector3D.Normalize(Vector3D.CalculatePerpendicularVector(up));
+        var forward = Vector3D.Cross(up, right);
+        var random = new Random(937);
+        var index = 0;
+        foreach (var item in Debris)
+        {
+            var id = MyDefinitionId.Parse("MyObjectBuilder_" + item);
+            for (var copy = 0; copy < DebrisCopies; copy++, index++)
+            {
+                var above =
+                    center + up * 30000 + right * (30 * (index % 6)) + forward * (30 * (index / 6));
+                var surface = planet.GetClosestSurfacePointGlobal(above);
+                var turn = Quaternion.Normalize(
+                    new Quaternion(
+                        (float)random.NextDouble() - 0.5f,
+                        (float)random.NextDouble() - 0.5f,
+                        (float)random.NextDouble() - 0.5f,
+                        (float)random.NextDouble() - 0.5f
+                    )
+                );
+                var matrix = MatrixD.CreateFromQuaternion(turn);
+                matrix.Translation = surface + Vector3D.Normalize(surface - center) * 3;
+
+                var block = (MyObjectBuilder_CubeBlock)
+                    MyObjectBuilderSerializer.CreateNewObject(id.TypeId, id.SubtypeName);
+                block.Min = Vector3I.Zero;
+                block.IntegrityPercent = 1;
+                block.BuildPercent = 1;
+                if (block is MyObjectBuilder_FunctionalBlock functional)
+                    functional.Enabled = false;
+
+                var grid = new MyObjectBuilder_CubeGrid
+                {
+                    GridSizeEnum = MyCubeSize.Large,
+                    IsStatic = false,
+                    PersistentFlags =
+                        MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled,
+                    PositionAndOrientation = new MyPositionAndOrientation(matrix),
+                    CreatePhysics = true,
+                    DisplayName = $"Debris {id.SubtypeName} {copy}",
+                };
+                grid.CubeBlocks.Add(block);
+                MyEntities.RemapObjectBuilder(grid);
+                var entity = MyEntities.CreateFromObjectBuilderAndAdd(grid, false);
+                DebrisGrids.Add(
+                    new DebrisGrid { Name = id.SubtypeName, EntityId = entity?.EntityId ?? 0 }
+                );
+            }
+        }
+
+        Log($"shot {shot}: dropped {DebrisGrids.Count} debris grids onto the {VoxelKind}");
+    }
+
+    // Height of the grid's center above the surface, measured from the planet's center
+    private static double Height(MyCubeGrid grid)
+    {
+        var planet = (MyPlanet)voxel;
+        var position = grid.PositionComp.WorldAABB.Center;
+        var center = planet.PositionComp.WorldAABB.Center;
+        var surface = planet.GetClosestSurfacePointGlobal(position);
+        return Vector3D.Distance(position, center) - Vector3D.Distance(surface, center);
+    }
+
+    private static void TrackDebris(bool settled)
+    {
+        foreach (var debris in DebrisGrids)
+        {
+            if (!MyEntities.TryGetEntityById(debris.EntityId, out MyCubeGrid grid))
+                continue;
+
+            if (Wake)
+                grid.Physics?.ForceActivate();
+
+            debris.Last = Height(grid);
+            debris.At = grid.PositionComp.WorldAABB.Center;
+            if (!settled)
+                continue;
+
+            debris.From ??= debris.At;
+            debris.Low = Math.Min(debris.Low, debris.Last);
+            debris.High = Math.Max(debris.High, debris.Last);
+        }
+    }
+
+    private static void ReportDebris()
+    {
+        foreach (var debris in DebrisGrids)
+        {
+            var gone = !MyEntities.TryGetEntityById(debris.EntityId, out MyCubeGrid _);
+            var moved = debris.From.HasValue ? Vector3D.Distance(debris.From.Value, debris.At) : -1;
+            Log(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "DEBRIS {0} {1}: height {2:F2} m, last half {3:F2} to {4:F2} m, moved {5:F2} m{6}",
+                    debris.Name,
+                    debris.EntityId,
+                    debris.Last,
+                    debris.Low,
+                    debris.High,
+                    moved,
+                    gone ? ", GONE" : ""
+                )
+            );
+        }
     }
 
     public static void Contact(ref HkContactPointEvent value)

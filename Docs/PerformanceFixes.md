@@ -250,9 +250,14 @@ other: Havok solves the deep contact again on every step.
 collects the contacts between a grid and a voxel body deeper than 5 cm. Havok reports
 those less than 1 m deep even for a ship half inside an asteroid, and the depth comes and
 goes, so it can't tell a stuck grid from a landed one. A grid touching a voxel body is
-checked every 10 updates instead: up to 64 of its block centers, spread over the grid, are
-looked up in the voxel's content. When at least one in 20 of them is inside on 3 checks in a
-row, the grid is stuck. A landed grid, a rover or a mining ship has no block center inside.
+checked every 10 updates instead: up to 64 of its blocks, spread over the grid, are looked
+up in the voxel's content. A block is buried when its center and all 8 corners of its box are
+inside. When at least one in 20 of them is buried on 3 checks in a row, the grid is stuck. A
+landed grid, a rover or a mining ship has no buried block. The center alone is not enough: a
+block resting on the ground can have its center below the surface, like a corner block or a
+slope lying on its face, or a wheel suspension, whose model leaves part of its cells empty.
+Such debris was pushed up, fell back and was pushed again every 2 seconds, without end
+(SE-937).
 Unless the grid is static or attached to a static grid, it is teleported with its physical
 group away from the voxel body's center, 0.5 m per update, until it has had no contact deeper than
 5 cm for 5 updates and none of the sampled block centers is inside, and its velocity is
@@ -262,7 +267,8 @@ contact points reported. It gives up after 300 m.
 Option `PushGridsOutOfVoxels`, on by default in both plugins, only where the game is the
 server, like `SeparateStuckGrids`. The probe in `Tools/StuckGrids` has a voxel mode
 (`STUCK_VOXEL=planet|asteroid`, `STUCK_DEPTH`, `STUCK_SAFEZONE`) that spawns the voxel
-body and places the ship into its surface.
+body and places the ship into its surface, and a debris mode (`STUCK_DEBRIS`) that drops
+single-block grids onto the Moon and reports how they settle.
 
 Measured on a Linux Magnetar server (polaris, alone on the host) with an IMDC Rhea (40
 grids) placed with its center on the surface of a Moon (19 km) or an asteroid
