@@ -80,7 +80,7 @@ namespace Shared.Patches
             typeof(MySafeZoneAction),
             typeof(long)
         )]
-        [EnsureCode("a8373d73|19c76673")]
+        [EnsureCode("19c76673")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool IsActionAllowedForSafezonePrefix(
             MyEntity entity,
@@ -120,7 +120,7 @@ namespace Shared.Patches
             typeof(MySafeZoneAction),
             typeof(long)
         )]
-        [EnsureCode("a8373d73|19c76673")]
+        [EnsureCode("19c76673")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static void IsActionAllowedForSafezonePostfix(
             MyEntity entity,

@@ -30,7 +30,7 @@ namespace Shared.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(MyWindowsSystem.ProcessPrivateMemory), MethodType.Getter)]
-        [EnsureCode("4d18b11a|4a3cb737")]
+        [EnsureCode("4d18b11a")]
         private static bool ProcessPrivateMemoryGetterPrefix(ref long __result, ref bool __state)
         {
             if (!Config.FixMemoryStats)
@@ -50,7 +50,7 @@ namespace Shared.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(MyWindowsSystem.ProcessPrivateMemory), MethodType.Getter)]
-        [EnsureCode("4d18b11a|4a3cb737")]
+        [EnsureCode("4d18b11a")]
         private static void ProcessPrivateMemoryGetterPostfix(long __result, bool __state)
         {
             if (!__state)
