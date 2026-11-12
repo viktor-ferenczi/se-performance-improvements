@@ -15,6 +15,8 @@ namespace Shared.Plugin
     internal sealed class TestLogger
     {
         public void Error(Exception ex, string message, params object[] data) => throw ex;
+
+        public void Debug(string message) { }
     }
 }
 

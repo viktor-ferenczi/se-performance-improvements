@@ -15,6 +15,10 @@ namespace Shared.Patches
     // about half a millisecond per frame on the main thread, client and server alike.
     //
     // The value is refreshed at most once per second and served from the cache in between.
+    //
+    // Two getter bodies are allowed: the game's own (4d18b11a), and the one on Linux, where the
+    // compatibility layer has already replaced the getter (4a3cb737). A mismatch here would stop
+    // every uncategorized patch from being applied.
     [HarmonyPatch(typeof(MyWindowsSystem))]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -30,7 +34,7 @@ namespace Shared.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(MyWindowsSystem.ProcessPrivateMemory), MethodType.Getter)]
-        [EnsureCode("4d18b11a")]
+        [EnsureCode("4d18b11a|4a3cb737")]
         private static bool ProcessPrivateMemoryGetterPrefix(ref long __result, ref bool __state)
         {
             if (!Config.FixMemoryStats)
@@ -50,7 +54,7 @@ namespace Shared.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(MyWindowsSystem.ProcessPrivateMemory), MethodType.Getter)]
-        [EnsureCode("4d18b11a")]
+        [EnsureCode("4d18b11a|4a3cb737")]
         private static void ProcessPrivateMemoryGetterPostfix(long __result, bool __state)
         {
             if (!__state)

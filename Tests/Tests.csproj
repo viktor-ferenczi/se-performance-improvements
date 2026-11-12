@@ -38,6 +38,10 @@
     <Compile Include="..\Shared\Patches\ScriptRunner\StandIn.cs" Link="Shared\Patches\StandIn.cs" />
     <!-- The prepatch needs only Mono.Cecil; the test loads the game's VRage.Library.dll itself -->
     <Compile Include="..\Shared\Patches\ScriptRunner\IlInjectorPrepatch.cs" Link="Shared\Patches\IlInjectorPrepatch.cs" />
+    <!-- EnsureCode's hash check, with its only game-dependent reference (Common.Logger) stubbed -->
+    <Compile Include="..\Shared\Tools\EnsureCode.cs" Link="Shared\Tools\EnsureCode.cs" />
+    <Compile Include="..\Shared\Tools\CodeChange.cs" Link="Shared\Tools\CodeChange.cs" />
+    <Compile Include="..\Shared\Tools\Hashing.cs" Link="Shared\Tools\Hashing.cs" />
     <!-- The game's PB whitelist, made by Tools/PbProfile/whitelist.py -->
     <None Include="Shared\Patches\ScriptWhitelist.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
