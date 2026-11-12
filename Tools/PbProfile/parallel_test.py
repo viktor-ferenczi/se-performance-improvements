@@ -61,7 +61,7 @@ OPTIONS = [
 ]
 # About 4 s after the world is ready, every run in this world takes about 7 times as long for
 # 40 frames, on the main thread and the workers alike. With 4 threads every PB runs every few
-# frames, so the default 5 ms soft limit sees 3 slow runs in a row and stops every script; the
+# frames, so the default per-PB soft limit sees 3 slow runs in a row and stops every script; the
 # parallel case raises it. PB_TEST_WARMUP=0 shows the stall in runs.tsv.
 CASES = {
     "serial": [*OPTIONS, "--option", "ScriptThreadCountMode=Manual", "--option", "ScriptThreadCount=1"],

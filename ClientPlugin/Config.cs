@@ -458,7 +458,7 @@ public class Config : IPluginConfig
     {
         get;
         set => SetField(ref field, value);
-    } = 5f;
+    } = 10f;
 
     [Slider(
         0.1f,
@@ -566,7 +566,7 @@ public class Config : IPluginConfig
     {
         get;
         set => SetField(ref field, value);
-    } = 5f;
+    } = 10f;
 
     [Dropdown(
         label: "PB thread count",

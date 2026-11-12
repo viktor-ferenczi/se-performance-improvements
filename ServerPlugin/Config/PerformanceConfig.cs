@@ -426,7 +426,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     {
         get;
         set => SetField(ref field, value);
-    } = 5f;
+    } = 10f;
 
     [FloatOption(
         0.1f,
@@ -511,7 +511,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     {
         get;
         set => SetField(ref field, value);
-    } = 5f;
+    } = 10f;
 
     [EnumOption(
         "Programmable block thread count: Auto is the same number as the automatic physics thread count; Manual is exactly the number below. Used by the PB frame budget for the scripts with proxies, which then run on that many threads, the main thread included",

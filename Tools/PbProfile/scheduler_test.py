@@ -6,7 +6,7 @@ Builds a world with COPIES copies of each blueprint, all PBs running a sort of a
 on every tick, and loads it three times with FixScriptCounter on:
 
     off  FixScriptScheduler off: every PB runs every frame
-    on   FixScriptScheduler on at its defaults (5 ms budget): the PB time per frame stays within
+    on   FixScriptScheduler on at its defaults (10 ms budget): the PB time per frame stays within
          the budget plus one run, no PB waits much longer than the others, and the once a
          minute overload line is in the log
     soft ScriptSoftLimitMs=1: every PB is stopped on its third run (its Echo), with the soft limit message
@@ -29,7 +29,7 @@ sys.path.insert(0, str(HERE))
 import runner_test  # noqa: E402
 
 COPIES = 6
-BUDGET_MS = 5  # the default ScriptFrameBudgetMs
+BUDGET_MS = 10  # the default ScriptFrameBudgetMs
 WARMUP = 600
 FRAMES = 3600
 

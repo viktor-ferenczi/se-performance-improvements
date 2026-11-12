@@ -47,7 +47,7 @@ CASES = {
         *("--option", "ScriptPlayerQuota=Enforce"),
         *("--option", "ScriptPlayerSoftLimitMs=0.1", "--option", "ScriptPlayerHardLimitMs=1000"),
     ],
-    # The per-PB soft limit (5 ms in 3 runs) would stop scripts after a stall, so it is raised here
+    # The per-PB soft limit (10 ms in 3 runs) would stop scripts after a stall, so it is raised here
     "defaults": [*COUNTER, "--option", "ScriptPlayerQuota=Enforce", "--option", "ScriptSoftLimitMs=100"],
 }
 
