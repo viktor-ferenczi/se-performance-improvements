@@ -446,26 +446,10 @@ public class Config : IPluginConfig
 
     [Slider(
         0.1f,
-        1000f,
-        0.1f,
-        SliderAttribute.SliderType.Float,
-        label: "PB run time limit",
-        description: "Longest time a single programmable block run may take. The game's own limit is 3000 ms. A script over the limit is stopped in the middle of the run, like one over the instruction limit. Needs the per-thread PB instruction counter.",
-        enabledBy: nameof(FixScriptCounter),
-        unit: "ms"
-    )]
-    public float ScriptRunLimitMs
-    {
-        get;
-        set => SetField(ref field, value);
-    } = 100f;
-
-    [Slider(
-        0.1f,
         100f,
         0.1f,
         SliderAttribute.SliderType.Float,
-        label: "PB soft run time limit",
+        label: "Per-PB soft run time limit",
         description: "A script whose own code runs longer than this in 3 runs in a row is stopped. One slow run does not stop it. Needs the per-thread PB instruction counter.",
         enabledBy: nameof(FixScriptCounter),
         unit: "ms"
@@ -476,8 +460,24 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = 5f;
 
+    [Slider(
+        0.1f,
+        1000f,
+        0.1f,
+        SliderAttribute.SliderType.Float,
+        label: "Per-PB hard run time limit",
+        description: "Longest time a single programmable block run may take. The game's own limit is 3000 ms. A script over the limit is stopped in the middle of the run, like one over the instruction limit. Needs the per-thread PB instruction counter.",
+        enabledBy: nameof(FixScriptCounter),
+        unit: "ms"
+    )]
+    public float ScriptRunLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 100f;
+
     [Dropdown(
-        label: "PB player quota",
+        label: "Per-player limit mode",
         description: "Per-player programmable block time quota. Off does nothing. Report logs the PBs it would turn off. Enforce turns off a player's most expensive PB of the frame when all their PBs together run longer than the limits below, at most one PB per player and frame. NPCs are not limited. Needs the per-thread PB instruction counter.",
         enabledBy: nameof(FixScriptCounter)
     )]
@@ -492,7 +492,7 @@ public class Config : IPluginConfig
         1000f,
         0.1f,
         SliderAttribute.SliderType.Float,
-        label: "PB player soft limit",
+        label: "Per-player soft run time limit",
         description: "PB time per player and frame that turns off the player's most expensive PB when exceeded in 3 frames in a row.",
         enabledBy: nameof(ScriptPlayerQuotaEditable),
         unit: "ms"
@@ -508,7 +508,7 @@ public class Config : IPluginConfig
         1000f,
         0.1f,
         SliderAttribute.SliderType.Float,
-        label: "PB player hard limit",
+        label: "Per-player hard run time limit",
         description: "PB time per player and frame that turns off the player's most expensive PB when exceeded once. Not checked in a frame with a full garbage collection.",
         enabledBy: nameof(ScriptPlayerQuotaEditable),
         unit: "ms"
@@ -520,7 +520,7 @@ public class Config : IPluginConfig
     } = 100f;
 
     [Checkbox(
-        label: "PB player quota exempts admins",
+        label: "Per-player limit exempts admins",
         description: "Admins are not limited by the per-player PB time quota.",
         enabledBy: nameof(ScriptPlayerQuotaEditable)
     )]
