@@ -217,6 +217,19 @@ public enum ScriptThreadCountMode
     Manual,
 }
 
+// What the per-player programmable block time quota does (ScriptQuota)
+public enum ScriptPlayerQuotaMode
+{
+    // Nothing
+    Off,
+
+    // Logs the programmable blocks it would turn off
+    Report,
+
+    // Turns them off
+    Enforce,
+}
+
 // The range and the automatic value of the programmable block worker thread count
 public static class ScriptThreads
 {
@@ -334,6 +347,21 @@ public interface IPluginConfig : INotifyPropertyChanged
     // A programmable block script whose own code runs longer than this, in milliseconds, in
     // ScriptRunner.SoftLimitRuns runs in a row is stopped. Takes effect only with FixScriptCounter.
     float ScriptSoftLimitMs { get; set; }
+
+    // Limits the programmable block time of each player per frame by turning off their most
+    // expensive PB, see ScriptQuota. Takes effect only with FixScriptCounter.
+    ScriptPlayerQuotaMode ScriptPlayerQuota { get; set; }
+
+    // A player whose programmable blocks run longer than this in a frame, in milliseconds, in
+    // PlayerQuota.SoftLimitFrames frames in a row gets one of them turned off
+    float ScriptPlayerSoftLimitMs { get; set; }
+
+    // A player whose programmable blocks run longer than this in a frame, in milliseconds, gets one
+    // of them turned off at once
+    float ScriptPlayerHardLimitMs { get; set; }
+
+    // Admins are not limited by the per-player quota (NPCs never are)
+    bool ScriptPlayerQuotaExemptAdmins { get; set; }
 
     // Hands programmable block scripts that can run on a worker thread proxies instead of the
     // game objects behind their roots; applies to scripts created after it changes

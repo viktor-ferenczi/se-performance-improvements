@@ -476,6 +476,60 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = 5f;
 
+    [Dropdown(
+        label: "PB player quota",
+        description: "Per-player programmable block time quota. Off does nothing. Report logs the PBs it would turn off. Enforce turns off a player's most expensive PB of the frame when all their PBs together run longer than the limits below, at most one PB per player and frame. NPCs are not limited. Needs the per-thread PB instruction counter.",
+        enabledBy: nameof(FixScriptCounter)
+    )]
+    public ScriptPlayerQuotaMode ScriptPlayerQuota
+    {
+        get;
+        set => SetField(ref field, value);
+    } = ScriptPlayerQuotaMode.Off;
+
+    [Slider(
+        0.1f,
+        1000f,
+        0.1f,
+        SliderAttribute.SliderType.Float,
+        label: "PB player soft limit",
+        description: "PB time per player and frame that turns off the player's most expensive PB when exceeded in 3 frames in a row.",
+        enabledBy: nameof(ScriptPlayerQuotaEditable),
+        unit: "ms"
+    )]
+    public float ScriptPlayerSoftLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 10f;
+
+    [Slider(
+        0.1f,
+        1000f,
+        0.1f,
+        SliderAttribute.SliderType.Float,
+        label: "PB player hard limit",
+        description: "PB time per player and frame that turns off the player's most expensive PB when exceeded once. Not checked in a frame with a full garbage collection.",
+        enabledBy: nameof(ScriptPlayerQuotaEditable),
+        unit: "ms"
+    )]
+    public float ScriptPlayerHardLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 100f;
+
+    [Checkbox(
+        label: "PB player quota exempts admins",
+        description: "Admins are not limited by the per-player PB time quota.",
+        enabledBy: nameof(ScriptPlayerQuotaEditable)
+    )]
+    public bool ScriptPlayerQuotaExemptAdmins
+    {
+        get;
+        set => SetField(ref field, value);
+    } = false;
+
     [Checkbox(
         label: "PB proxies",
         description: "Hands the scripts that could run on a worker thread proxy objects instead of the game objects they use, so their game calls can be checked and their writes delayed. Applies to scripts compiled or loaded afterwards.",
@@ -661,6 +715,9 @@ public class Config : IPluginConfig
         get;
         set => SetField(ref field, value);
     } = false;
+
+    public bool ScriptPlayerQuotaEditable =>
+        FixScriptCounter && ScriptPlayerQuota != ScriptPlayerQuotaMode.Off;
 
     public bool ScriptFrameBudgetEditable => FixScriptCounter && FixScriptScheduler;
 

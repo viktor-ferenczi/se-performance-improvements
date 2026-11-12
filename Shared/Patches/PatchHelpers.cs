@@ -259,6 +259,7 @@ namespace Shared.Patches
             MyConveyorLinePatch.Update();
             ScriptRunner.Update();
             ScriptScheduler.Update();
+            ScriptQuota.Update();
             ScriptRoots.Update();
             ScriptStandIns.Update();
             // MyCubeBlockPatch.Update();

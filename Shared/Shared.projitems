@@ -61,6 +61,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRoots.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptWrites.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptQuota.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptScheduler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptStandIns.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\StandIn.cs" />
@@ -103,6 +104,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloadConfig.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\PreloaderHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RateLimiter.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\PlayerQuota.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RunQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\WorkerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RewriterIdentity.cs" />

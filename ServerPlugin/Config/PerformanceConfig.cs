@@ -440,6 +440,47 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
         set => SetField(ref field, value);
     } = 5f;
 
+    [EnumOption(
+        "Per-player programmable block time quota: Off does nothing; Report logs the PBs it would turn off; Enforce turns off a player's most expensive PB of the frame when all their PBs together run longer than the limits below, at most one PB per player and frame. The PB's detailed info says why and the owner gets a chat message. NPCs are not limited. Needs the per-thread instruction counter",
+        Parent = "scripts"
+    )]
+    public ScriptPlayerQuotaMode ScriptPlayerQuota
+    {
+        get;
+        set => SetField(ref field, value);
+    } = ScriptPlayerQuotaMode.Off;
+
+    [FloatOption(
+        0.1f,
+        1000f,
+        "Programmable block time per player and frame, in milliseconds, that turns off the player's most expensive PB when exceeded in 3 frames in a row",
+        Parent = "scripts"
+    )]
+    public float ScriptPlayerSoftLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 10f;
+
+    [FloatOption(
+        0.1f,
+        1000f,
+        "Programmable block time per player and frame, in milliseconds, that turns off the player's most expensive PB when exceeded once. Not checked in a frame with a full garbage collection",
+        Parent = "scripts"
+    )]
+    public float ScriptPlayerHardLimitMs
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 100f;
+
+    [BoolOption("Admins are not limited by the per-player PB time quota", Parent = "scripts")]
+    public bool ScriptPlayerQuotaExemptAdmins
+    {
+        get;
+        set => SetField(ref field, value);
+    } = false;
+
     [BoolOption(
         "Hand the programmable block scripts that could run on a worker thread proxy objects instead of the game objects they use, so their game calls can be checked and their writes delayed. Applies to scripts compiled or loaded afterwards",
         Parent = "scripts"
