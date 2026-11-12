@@ -15,6 +15,9 @@ namespace Shared.Patches
     // about half a millisecond per frame on the main thread, client and server alike.
     //
     // The value is refreshed at most once per second and served from the cache in between.
+    //
+    // 4d18b11a is the game's body. 4a3cb737 is the body LinuxCompat's preloader writes on Linux
+    // (Process.GetCurrentProcess().PrivateMemorySize64), pinned by LinuxCompatBodyHashTest.
     [HarmonyPatch(typeof(MyWindowsSystem))]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
@@ -30,7 +33,7 @@ namespace Shared.Patches
 
         [HarmonyPrefix]
         [HarmonyPatch(nameof(MyWindowsSystem.ProcessPrivateMemory), MethodType.Getter)]
-        [EnsureCode("4d18b11a")]
+        [EnsureCode("4d18b11a|4a3cb737")]
         private static bool ProcessPrivateMemoryGetterPrefix(ref long __result, ref bool __state)
         {
             if (!Config.FixMemoryStats)
@@ -50,7 +53,7 @@ namespace Shared.Patches
 
         [HarmonyPostfix]
         [HarmonyPatch(nameof(MyWindowsSystem.ProcessPrivateMemory), MethodType.Getter)]
-        [EnsureCode("4d18b11a")]
+        [EnsureCode("4d18b11a|4a3cb737")]
         private static void ProcessPrivateMemoryGetterPostfix(long __result, bool __state)
         {
             if (!__state)
