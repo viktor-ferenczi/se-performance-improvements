@@ -439,7 +439,7 @@ wall clock limit per run while `FixScriptCounter` is on. A script over it is sto
 middle of the run like one over the instruction limit, with a message that names the limit,
 and stays stopped until it is recompiled, as in the game.
 
-`ScriptSoftLimitMs` (0.1 to 100 ms, default 5) is the soft limit. It is checked after each run,
+`ScriptSoftLimitMs` (0.1 to 100 ms, default 10) is the soft limit. It is checked after each run,
 against the time of the script's own code, without the game's work before it such as the
 ownership walk. A script over it in 3 runs in a row is stopped the same way, with its own
 message; a run under it starts the count over. Both limits are wall clock time, so a short
@@ -459,7 +459,7 @@ added up by the PB's owner, or by its builder if nobody owns it. PBs with neithe
 bucket.
 
 A player whose PBs ran longer than `ScriptPlayerHardLimitMs` (0.1 to 1000 ms, default 100) in
-a frame, or longer than `ScriptPlayerSoftLimitMs` (0.1 to 1000 ms, default 10) in 3 frames in
+a frame, or longer than `ScriptPlayerSoftLimitMs` (0.1 to 100 ms, default 10) in 3 frames in
 a row, gets the PB that ran the longest in that frame turned off. That is at most one PB per
 player and frame. A frame in which none of the player's PBs ran leaves the soft limit count
 alone; a frame under the soft limit starts it over. Turning off keeps the script and its
@@ -474,9 +474,9 @@ every run in it; the soft limit still counts that frame. Each server, and each c
 keeps its own counts.
 
 The hard limit default matches `ScriptRunLimitMs`, so a single run between 25 and 100 ms is not
-turned off on its own. The soft limit is above `ScriptSoftLimitMs` and `ScriptFrameBudgetMs`
-(5 ms each): with the frame budget on and one PB thread, a player's queued runs rarely reach
-10 ms in a frame, and the quota mostly catches runs from timers, buttons and other scripts,
+turned off on its own. The soft limit defaults to the same 10 ms as `ScriptSoftLimitMs` and
+`ScriptFrameBudgetMs`: with the frame budget on and one PB thread, a player's queued runs rarely go
+over 10 ms in a frame, and the quota mostly catches runs from timers, buttons and other scripts,
 and players with PBs on several worker threads.
 
 `Tools/PbProfile/quota_test.py` tests it on an isolated Magnetar server.
@@ -487,7 +487,7 @@ and players with PBs on several worker threads.
 whose update frequency is due, in the after simulation update of its block, with no limit on
 their total time. With the option on, those runs go to a queue instead, and once every entity
 has had its update the queue runs on the main thread until the frame's PB time reaches
-`ScriptFrameBudgetMs` (0.1 to 100 ms, default 5). The runs left over wait for the next frame. A
+`ScriptFrameBudgetMs` (0.1 to 100 ms, default 10). The runs left over wait for the next frame. A
 PB due again while it waits still runs once, with the update types of all its due runs, the
 way the game merges them too.
 

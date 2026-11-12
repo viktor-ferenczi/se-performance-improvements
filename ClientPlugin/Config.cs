@@ -458,7 +458,7 @@ public class Config : IPluginConfig
     {
         get;
         set => SetField(ref field, value);
-    } = 5f;
+    } = 10f;
 
     [Slider(
         0.1f,
@@ -489,7 +489,7 @@ public class Config : IPluginConfig
 
     [Slider(
         0.1f,
-        1000f,
+        100f,
         0.1f,
         SliderAttribute.SliderType.Float,
         label: "Per-player soft run time limit",
@@ -566,7 +566,7 @@ public class Config : IPluginConfig
     {
         get;
         set => SetField(ref field, value);
-    } = 5f;
+    } = 10f;
 
     [Dropdown(
         label: "PB thread count",
