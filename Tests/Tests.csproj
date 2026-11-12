@@ -30,6 +30,7 @@
     <Compile Include="..\Shared\Tools\RewriterIdentity.cs" Link="Shared\Tools\RewriterIdentity.cs" />
     <Compile Include="..\Shared\Tools\Hashing.cs" Link="Shared\Tools\Hashing.cs" />
     <Compile Include="..\Shared\Tools\RunQueue.cs" Link="Shared\Tools\RunQueue.cs" />
+    <Compile Include="..\Shared\Tools\PlayerQuota.cs" Link="Shared\Tools\PlayerQuota.cs" />
     <Compile Include="..\Shared\Tools\WorkerPool.cs" Link="Shared\Tools\WorkerPool.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptEligibility.cs" Link="Shared\Patches\ScriptEligibility.cs" />
     <Compile Include="..\Shared\Patches\ScriptRunner\ScriptPolicy.cs" Link="Shared\Patches\ScriptPolicy.cs" />

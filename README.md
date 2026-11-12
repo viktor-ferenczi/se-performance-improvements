@@ -47,6 +47,7 @@ the code that implements them is organized.
 - Linear instead of quadratic refresh of turret target groups
 - Less frequent sync of block counts and block access rights; PB access to blocks refreshed only when something changed
 - Optional per-thread PB instruction counter (groundwork for running scripts on a worker thread) and configurable hard and soft PB run time limits
+- Optional PB time quota per player: turns off a player's most expensive PB when all their PBs together run too long in a frame (needs the per-thread PB instruction counter)
 - Optional PB time budget per frame: scheduled PB runs over it wait for later frames, the longest waiting first
 - Disable server-side character footprints and wheel trail tracking
 - Push apart grids stuck inside each other after a collision, like a ship rammed into a station in a no-damage safe zone (server, offline games and hosted multiplayer games)

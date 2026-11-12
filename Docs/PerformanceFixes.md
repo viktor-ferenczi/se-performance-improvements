@@ -448,6 +448,39 @@ run in it. In a test with a 5 ms hard limit, 30 scripts that normally run for 1.
 stopped by one stall of about 100 ms. The soft limit lets a script survive such a stall and
 still stops one that is slow every time.
 
+## PB time quota per player
+
+`ScriptPlayerQuota`, `Off` by default, needs `FixScriptCounter`. All the programmable blocks of
+one player share a time limit per frame. Every run is timed, the whole `ExecuteCode` including
+the game's ownership walk before the script, whatever started it (update frequency, timers,
+buttons, IGC, `TryRun`, mods) and on whatever thread it ran, the PB worker threads included.
+A run nested in another (`TryRun`) counts within the outer run. Between frames the runs are
+added up by the PB's owner, or by its builder if nobody owns it. PBs with neither share one
+bucket.
+
+A player whose PBs ran longer than `ScriptPlayerHardLimitMs` (0.1 to 1000 ms, default 100) in
+a frame, or longer than `ScriptPlayerSoftLimitMs` (0.1 to 1000 ms, default 10) in 3 frames in
+a row, gets the PB that ran the longest in that frame turned off. That is at most one PB per
+player and frame. A frame in which none of the player's PBs ran leaves the soft limit count
+alone; a frame under the soft limit starts it over. Turning off keeps the script and its
+state, which survive saves and cluster handovers, so the player only has to turn the block on
+again. The PB's detailed info says why, and the owner gets a chat message at most once a
+minute. Each turn-off is logged with the player, the times and the tick. `Report` logs what
+`Enforce` would turn off, at most once a minute per player, and changes nothing.
+
+NPC identities are never limited, admins only while `ScriptPlayerQuotaExemptAdmins` is off. The
+hard limit is not checked in a frame with a full (gen 2) garbage collection, which stalls
+every run in it; the soft limit still counts that frame. Each server, and each cluster node,
+keeps its own counts.
+
+The hard limit default matches `ScriptRunLimitMs`, so a single run between 25 and 100 ms is not
+turned off on its own. The soft limit is above `ScriptSoftLimitMs` and `ScriptFrameBudgetMs`
+(5 ms each): with the frame budget on and one PB thread, a player's queued runs rarely reach
+10 ms in a frame, and the quota mostly catches runs from timers, buttons and other scripts,
+and players with PBs on several worker threads.
+
+`Tools/PbProfile/quota_test.py` tests it on an isolated Magnetar server.
+
 ## PB time budget per frame
 
 `FixScriptScheduler`, off by default, needs `FixScriptCounter`. The game runs every script
