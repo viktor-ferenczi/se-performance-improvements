@@ -459,7 +459,7 @@ added up by the PB's owner, or by its builder if nobody owns it. PBs with neithe
 bucket.
 
 A player whose PBs ran longer than `ScriptPlayerHardLimitMs` (0.1 to 1000 ms, default 100) in
-a frame, or longer than `ScriptPlayerSoftLimitMs` (0.1 to 1000 ms, default 10) in 3 frames in
+a frame, or longer than `ScriptPlayerSoftLimitMs` (0.1 to 100 ms, default 10) in 3 frames in
 a row, gets the PB that ran the longest in that frame turned off. That is at most one PB per
 player and frame. A frame in which none of the player's PBs ran leaves the soft limit count
 alone; a frame under the soft limit starts it over. Turning off keeps the script and its

@@ -40,7 +40,7 @@ CASES = {
     "hard": [
         *COUNTER,
         *("--option", "ScriptPlayerQuota=Enforce"),
-        *("--option", "ScriptPlayerSoftLimitMs=1000", "--option", "ScriptPlayerHardLimitMs=0.1"),
+        *("--option", "ScriptPlayerSoftLimitMs=100", "--option", "ScriptPlayerHardLimitMs=0.1"),
     ],
     "soft": [
         *COUNTER,

@@ -452,7 +452,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     [FloatOption(
         0.1f,
-        1000f,
+        100f,
         "Programmable block time per player and frame, in milliseconds, that turns off the player's most expensive PB when exceeded in 3 frames in a row",
         Parent = "scripts"
     )]

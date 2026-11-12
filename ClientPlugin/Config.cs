@@ -489,7 +489,7 @@ public class Config : IPluginConfig
 
     [Slider(
         0.1f,
-        1000f,
+        100f,
         0.1f,
         SliderAttribute.SliderType.Float,
         label: "Per-player soft run time limit",
