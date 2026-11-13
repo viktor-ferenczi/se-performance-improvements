@@ -21,8 +21,8 @@ using SdkLogger = PluginSdk.Logging.Logger;
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.16.13")]
-[assembly: AssemblyFileVersion("1.16.13")]
+[assembly: AssemblyVersion("1.17.0")]
+[assembly: AssemblyFileVersion("1.17.0")]
 
 #endif
 
