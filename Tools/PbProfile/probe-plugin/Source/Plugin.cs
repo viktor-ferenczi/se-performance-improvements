@@ -115,6 +115,8 @@ public static class Probe
             Log($"world ready, warmup {Warmup} frames, measuring {Frames}");
             if (WhitelistDump.Target != null)
                 WhitelistDump.Run();
+            if (LateRoots.Enabled)
+                LateRoots.Run();
         }
         if (RunnerTest.Expect != null)
         {
@@ -126,6 +128,7 @@ public static class Probe
             }
             return;
         }
+        Steps.Frame(frame);
         if (frame == Warmup)
             Log("window open");
     }

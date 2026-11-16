@@ -57,6 +57,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptPolicy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptPolicyTable.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptProxies.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\RootDecisions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRoots.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptRunner.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptWrites.cs" />

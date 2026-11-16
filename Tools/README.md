@@ -40,6 +40,15 @@ PB_SLOT=<slot> python3 Tools/PbProfile/rig.py worlds/PbProfile --bench [--perfor
 python3 Tools/PbProfile/analyze.py ~/.se-test/<task>-ds0/probe --corpus <corpus> --titles details.json
 ```
 
+Two probe settings test the script proxies (SE-1588), passed to `rig.py` in the environment:
+
+- `PB_PROBE_LATE_ROOTS=1`: once the world is ready, takes off Performance's ScriptRoots patches,
+  recompiles every PB and patches again, so every script exists before the patches, as when the
+  plugin can only patch from `Init` after the world loaded.
+- `PB_PROBE_STEPS="600:FixScriptProxies=false;900:recompile;1500:sighup"`: at those frames after
+  the world is ready, sets a Performance option in the running server (as Quasar does),
+  recompiles every PB, or sends SIGHUP (Magnetar saves the world and reloads its config).
+
 The sampled split is approximate. .NET stops a thread for a sample at a GC poll, so time in leaf
 frames without one is charged to the frame they return into. The stopwatch numbers from the
 probe are exact.
