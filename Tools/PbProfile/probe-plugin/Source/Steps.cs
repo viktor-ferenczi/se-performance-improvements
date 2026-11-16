@@ -52,10 +52,15 @@ public static class Steps
             return "sent";
         }
         var (name, value) = (action.Split('=', 2)[0], action.Split('=', 2)[1]);
-        var config = AccessTools
-            .Property(AccessTools.TypeByName("Shared.Plugin.Common"), "Config")
-            .GetValue(null);
-        var property = AccessTools.Property(config.GetType(), name);
+        // Other plugins built from the same template have a Shared.Plugin.Common too
+        var (config, property) = AppDomain
+            .CurrentDomain.GetAssemblies()
+            .Select(a => a.GetType("Shared.Plugin.Common"))
+            .Where(t => t != null)
+            .Select(t => AccessTools.Property(t, "Config")?.GetValue(null))
+            .Where(c => c != null)
+            .Select(c => (c, AccessTools.Property(c.GetType(), name)))
+            .First(x => x.Item2 != null);
         property.SetValue(config, Convert.ChangeType(value, property.PropertyType));
         return $"{name} is {property.GetValue(config)}";
     }
