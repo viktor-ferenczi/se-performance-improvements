@@ -292,17 +292,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     // ---- Requires server restart ---------------------------------------
 
-    [BoolOption(
-        "Reduce memory allocations in the turret targeting system (needs restart)",
-        Parent = "restart"
-    )]
-    public bool FixTargeting
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
-    [BoolOption("Optimize the MyPhysicsBody.RigidBody getter (needs restart)", Parent = "restart")]
+    [BoolOption("Faster MyClusterTree.ReorderClusters (needs restart)", Parent = "restart")]
     public bool FixPhysics
     {
         get;

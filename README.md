@@ -43,7 +43,7 @@ the code that implements them is organized.
 - Cache conveyor network reachability lookups and the cooperative assembler master lookup
 - Cache the toolbar actions of large block groups while seated
 - Physics optimizations (configurable Havok thread count, faster cluster reordering)
-- Reduce frequent memory allocations (`MyDefinitionId.ToString`, turret targeting, voxel material lookups)
+- Reduce frequent memory allocations (`MyDefinitionId.ToString`, voxel material lookups)
 - Linear instead of quadratic refresh of turret target groups
 - Less frequent sync of block counts and block access rights; PB access to blocks refreshed only when something changed
 - Optional per-thread PB instruction counter (groundwork for running scripts on a worker thread) and configurable hard and soft PB run time limits
