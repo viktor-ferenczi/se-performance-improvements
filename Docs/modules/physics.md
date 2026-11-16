@@ -2,13 +2,11 @@
 
 Havok and physics-engine optimizations: a configurable Havok thread count, a faster `RigidBody` getter and a better-complexity cluster reordering algorithm.
 
-The physics module addresses three distinct but related bottlenecks in the Havok-based physics engine used by Space Engineers.
+The physics module addresses two distinct but related bottlenecks in the Havok-based physics engine used by Space Engineers.
 
 The first is the size of the Havok job thread pool. `MyPhysics.LoadData` takes it from `MyVRage.Platform.System.OptimalHavokThreadCount`, which the game answers with a hard `null`, so Havok sizes the pool from the machine on its own terms. [`MyWindowsSystemPatch.cs`](../files/Shared/Patches/Physics/MyWindowsSystemPatch.cs.md) answers that property instead: either automatically (`physicalCores - 1`; the default on both the client and the server) or with the number the operator configured. In the `Game` mode it answers nothing and the game's own sizing stands. It replaced a transpiler on `MyPhysics.LoadData` which wrote an `int` into a `Nullable<int>` local — invalid IL, disabled on .NET Core because it corrupted memory during world load.
 
 The second is a quadratic-time algorithm inside `MyClusterTree.ReorderClusters` that matches physics object data to clusters via an O(N×M) nested loop. [`MyClusterTreePatch.cs`](../files/Shared/Patches/Physics/MyClusterTreePatch.cs.md) replaces this with an O(N+M) set-union pass, reducing load time and mid-game lag when many grids are moving.
-
-The third is a minor IL inefficiency in the frequently-called `MyPhysicsBody.RigidBody` getter, which loads a parent-body field twice. [`MyPhysicsBodyPatch.cs`](../files/Shared/Patches/Physics/MyPhysicsBodyPatch.cs.md) removes the redundant load with a transpiler.
 
 [`PhysicsFixes.cs`](../files/Shared/Patches/Physics/PhysicsFixes.cs.md) is a shared utility that groups the `SetClusterSize` helper used to keep all `MyClusterTree` size statics in sync.
 
@@ -17,13 +15,12 @@ The third is a minor IL inefficiency in the frequently-called `MyPhysicsBody.Rig
 | File | Summary |
 | --- | --- |
 | [`MyClusterTreePatch.cs`](../files/Shared/Patches/Physics/MyClusterTreePatch.cs.md) | Transpiler replacing the O(N×M) nested loop in `ReorderClusters` with an O(N+M) set-union algorithm. |
-| [`MyPhysicsBodyPatch.cs`](../files/Shared/Patches/Physics/MyPhysicsBodyPatch.cs.md) | Transpiler removing a redundant field load in the `RigidBody` property getter. |
 | [`MyWindowsSystemPatch.cs`](../files/Shared/Patches/Physics/MyWindowsSystemPatch.cs.md) | Postfix answering `OptimalHavokThreadCount`, which decides how many worker threads the Havok job pool gets. |
 | [`PhysicsFixes.cs`](../files/Shared/Patches/Physics/PhysicsFixes.cs.md) | Shared utility: `SetClusterSize` keeps all `MyClusterTree` size statics consistent. |
 
 ## How it fits together
 
-All three patch classes have a static `Configure()` method called by the plugin on startup and config change. The cluster tree and rigid body patches set an `enabled` flag from `Config.FixPhysics` there. [`MyWindowsSystemPatch.cs`](../files/Shared/Patches/Physics/MyWindowsSystemPatch.cs.md) does not depend on `FixPhysics`: it resolves the thread count from `Config.HavokThreadCountMode` and `Config.HavokThreadCount` instead, and writes it back into `Config.HavokThreadCount` so the configuration always shows the count the game is going to get. The range and the automatic value live in `HavokThreads` next to the configuration, not in the patch, so a config object can use them in its defaults without touching `Common` while it is being constructed.
+All patch classes have a static `Configure()` method called by the plugin on startup and config change. The cluster tree patch sets an `enabled` flag from `Config.FixPhysics` there. [`MyWindowsSystemPatch.cs`](../files/Shared/Patches/Physics/MyWindowsSystemPatch.cs.md) does not depend on `FixPhysics`: it resolves the thread count from `Config.HavokThreadCountMode` and `Config.HavokThreadCount` instead, and writes it back into `Config.HavokThreadCount` so the configuration always shows the count the game is going to get. The range and the automatic value live in `HavokThreads` next to the configuration, not in the patch, so a config object can use them in its defaults without touching `Common` while it is being constructed.
 
 [`MyClusterTreePatch.cs`](../files/Shared/Patches/Physics/MyClusterTreePatch.cs.md) is the most architecturally complex: its transpiler rewrites a non-trivial IL sequence and delegates the replacement logic to `OptimizedImplementation`, which uses a per-thread `HashSet<ulong>` (`CollidedObjectKeysPool`) from a `ThreadLocal` pool. This avoids allocations on the hot path while remaining thread-safe.
 
