@@ -120,12 +120,18 @@ Sandbox.ModAPI.Ingame.IMyDefensiveCombatBlock.IsFleeing	pass	-	MyDefensiveCombat
 Sandbox.ModAPI.Ingame.IMyDefensiveCombatBlock.LockTarget	pass	queue	MyDefensiveCombatBlock.cs:469 m_lockTarget Sync read / Sync.Value set
 Sandbox.ModAPI.Ingame.IMyDefensiveCombatBlock.SearchEnemyComponent	pass	-	MyDefensiveCombatBlock.cs:481 returns m_searchEnemyComponent field; proxy wraps result
 Sandbox.ModAPI.Ingame.IMyDefensiveCombatBlock.WaypointZoneSize	pass	queue	MyDefensiveCombatBlock.cs:406 Sync read; set clamps to definition range + Sync.Value set
+Sandbox.ModAPI.Ingame.IMyDestroyBlockComponent.Detach	queue	-	MyDestroyBlockComponent.cs:122 MyMultiplayer.RaiseEvent DetachRequest; void
 Sandbox.ModAPI.Ingame.IMyDoor.CloseDoor	queue	-	MyDoor.cs:168/MyAdvancedDoor.cs:229/MyAirtightDoorGeneric.cs:132 -> ToggleDoor: SetOpenRequest RaiseEvent or Open Sync set
 Sandbox.ModAPI.Ingame.IMyDoor.Open	pass	-	MyDoorBase.cs:67 m_open Sync read
 Sandbox.ModAPI.Ingame.IMyDoor.OpenDoor	queue	-	MyDoor.cs:156/MyAdvancedDoor.cs:217/MyAirtightDoorGeneric.cs:120 -> ToggleDoor network write
 Sandbox.ModAPI.Ingame.IMyDoor.OpenRatio	pass	-	MyDoor.cs:129 / MyAdvancedDoor.cs:168 (loop over list) / MyAirtightDoorGeneric.cs:106 field reads
 Sandbox.ModAPI.Ingame.IMyDoor.Status	pass	-	MyDoor.cs:109 / MyAdvancedDoor.cs:101 / MyAirtightDoorGeneric.cs:84 field reads
 Sandbox.ModAPI.Ingame.IMyDoor.ToggleDoor	queue	-	MyDoor.cs:180 SetOpenRequest RaiseEvent; MyAirtightDoorGeneric.cs:144 Open Sync set
+Sandbox.ModAPI.Ingame.IMyEmpEntityComponent.Countdown	pass	queue	MyEmpEntityComponent.cs:127 get m_countdownMs Sync read; set Sync.Value set and, on the server while counting down, m_dischargeFrame
+Sandbox.ModAPI.Ingame.IMyEmpEntityComponent.Discharge	queue	-	MyEmpEntityComponent.cs:405 MyMultiplayer.RaiseEvent DischargeRequest; void
+Sandbox.ModAPI.Ingame.IMyEmpEntityComponent.IsCountingDown	pass	-	MyEmpEntityComponent.cs:143 m_isCountingDown Sync read
+Sandbox.ModAPI.Ingame.IMyEmpEntityComponent.StartCountdown	queue	-	MyEmpEntityComponent.cs:395 MyMultiplayer.RaiseEvent SetCountdownRunning(true); void
+Sandbox.ModAPI.Ingame.IMyEmpEntityComponent.StopCountdown	queue	-	MyEmpEntityComponent.cs:400 MyMultiplayer.RaiseEvent SetCountdownRunning(false); void
 Sandbox.ModAPI.Ingame.IMyEventControllerBlock.IsAndModeEnabled	pass	queue	MyEventControllerBlock.cs:200 m_isAndModeEnabled Sync read / Sync.Value set
 Sandbox.ModAPI.Ingame.IMyEventControllerBlock.IsLowerOrEqualCondition	pass	queue	MyEventControllerBlock.cs:188 m_conditionInvert Sync read / Sync.Value set
 Sandbox.ModAPI.Ingame.IMyEventControllerBlock.Threshold	pass	queue	MyEventControllerBlock.cs:176 m_threshold Sync read; set Clamp(0,1) + Sync.Value set (pending get returns unclamped value)
@@ -255,10 +261,7 @@ Sandbox.ModAPI.Ingame.IMyLightingComponent.Radius	pass	queue	MyLightingComponent
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.Attach	queue	-	MyMechanicalConnectionBlockBase.cs:1516 writes m_lastAttachmentChangeRequestFrame and m_connectionState Sync
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.Detach	queue	-	MyMechanicalConnectionBlockBase.cs:1527 same as Attach
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.IsAttached	pass	-	MyMechanicalConnectionBlockBase.cs:246 field read
-Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.IsLocked	pass	-	MyMechanicalConnectionBlockBase.cs:409 m_isWelding/m_welded field reads
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.PendingAttachment	pass	-	MyMechanicalConnectionBlockBase.cs:421 m_connectionState Sync read
-Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.SafetyLock	pass	queue	MyMechanicalConnectionBlockBase.cs:390 m_isWelding/m_welded reads; set m_forceWeld Sync
-Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.SafetyLockSpeed	pass	queue	MyMechanicalConnectionBlockBase.cs:377 m_weldSpeed Sync read; set clamps and sets Sync
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.Top	pass	-	MyMechanicalConnectionBlockBase.cs:240 m_topBlock read
 Sandbox.ModAPI.Ingame.IMyMechanicalConnectionBlock.TopGrid	pass	-	MyMechanicalConnectionBlockBase.cs:228 m_topBlock.CubeGrid read
 Sandbox.ModAPI.Ingame.IMyMessageProvider.AcceptMessage	pass@Igc	-	MyMessageListener.cs:83 dequeues the PB's own listener, filled by main before the simulation; an inactive broadcast listener drops from its own context
@@ -576,7 +579,10 @@ Sandbox.ModAPI.Ingame.IMyUpgradeModule.Connections	pass	-	MyUpgradeModule.cs:55 
 Sandbox.ModAPI.Ingame.IMyUpgradeModule.FillUpgradeList	pass	-	MyUpgradeModule.cs:450 copies m_upgrades array into caller list
 Sandbox.ModAPI.Ingame.IMyUpgradeModule.GetUpgradeList	pass	-	MyUpgradeModule.cs:462 out new list copy of m_upgrades
 Sandbox.ModAPI.Ingame.IMyUpgradeModule.UpgradeCount	pass	-	MyUpgradeModule.cs:53 m_upgrades.Length
+Sandbox.ModAPI.Ingame.IMyUserControllableGun.CycleSelectedAmmoType	queue	-	MyUserControllableGun.cs:301 server: GunBase.CycleSelectedAmmoType (Sync set) and a notification event per online player; client: RaiseEvent; void
+Sandbox.ModAPI.Ingame.IMyUserControllableGun.ForceReload	main	-	MyUserControllableGun.cs:352 returns the result of GunBase.ForceReload (MyGunBase.cs:1105), which changes the gun's magazine state, or RaiseEvent on a client
 Sandbox.ModAPI.Ingame.IMyUserControllableGun.IsShooting	pass	-	MyUserControllableGun.cs:79 Sync<bool> m_isShooting
+Sandbox.ModAPI.Ingame.IMyUserControllableGun.SelectedAmmoType	pass	queue	MyUserControllableGun.cs:126 get GunBase.SelectedAmmoType Sync read + definition array read; set GunBase.SelectedAmmoType (MyGunBase.cs:337) Sync.Value set + OnAmmoAmountChanged
 Sandbox.ModAPI.Ingame.IMyUserControllableGun.Shoot	pass	queue	MyUserControllableGun.cs:81 m_forceShoot read; setter SetShooting
 Sandbox.ModAPI.Ingame.IMyUserControllableGun.ShootOnce	queue	-	MyUserControllableGun.cs:305 OnShootOncePressed; void
 Sandbox.ModAPI.Ingame.IMyWarhead.Detonate	queue	-	MyWarhead.cs:644/386 Explode (damage, entity removal); void
