@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using HarmonyLib;
 using Sandbox.Definitions;
@@ -27,6 +26,8 @@ namespace Shared.Patches
     // from the option and from ScriptEligibility. A script never mixes proxies and game objects,
     // which would break comparisons like block == Me. So a change of the option applies to
     // scripts instantiated afterwards (after a recompile or a world load).
+    // A script the PB created before these patches were applied has no decision and keeps the
+    // game objects until it is instantiated again.
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "UnusedMember.Local")]
     public static class ScriptRoots
@@ -62,8 +63,8 @@ namespace Shared.Patches
             public bool IgcReady;
         }
 
-        private static readonly ConditionalWeakTable<MyGridProgram, Decision> Decisions =
-            new ConditionalWeakTable<MyGridProgram, Decision>();
+        private static readonly RootDecisions<MyGridProgram, Decision> Decisions =
+            new RootDecisions<MyGridProgram, Decision>(Decide);
 
         public static bool Enabled => Config.Enabled && Config.FixScriptProxies;
 
@@ -86,13 +87,13 @@ namespace Shared.Patches
 
         // True if this script instance runs with proxies behind its roots
         public static bool IsProxied(Sandbox.ModAPI.IMyGridProgram program) =>
-            program is MyGridProgram p && Decisions.TryGetValue(p, out var d) && d.Proxied;
+            program is MyGridProgram p && Decisions.Of(p) is { } d && d.Proxied;
 
         // Where a script may run now: -1 on the main thread for good (no proxies), otherwise the
         // mechanisms it needs that are off (StandIn), 0 if none, when it may run on a worker thread
         public static int State(Sandbox.ModAPI.IMyGridProgram program)
         {
-            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d) || !d.Proxied)
+            if (!(program is MyGridProgram p) || !(Decisions.Of(p) is { } d) || !d.Proxied)
                 return -1;
             return (int)(d.Needs & ~ScriptStandIns.Active);
         }
@@ -101,7 +102,7 @@ namespace Shared.Patches
         // on the main thread, or the IGC stand-in serializes making it
         public static bool Prepared(Sandbox.ModAPI.IMyGridProgram program) =>
             !(program is MyGridProgram p)
-            || !Decisions.TryGetValue(p, out var d)
+            || !(Decisions.Of(p) is { } d)
             || !d.UsesIgc
             || d.IgcReady
             || (ScriptStandIns.Active & StandIn.Igc) != 0;
@@ -109,7 +110,7 @@ namespace Shared.Patches
         // The reason behind State, for ScriptLogThreadDecisions
         public static string Explain(Sandbox.ModAPI.IMyGridProgram program)
         {
-            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d))
+            if (!(program is MyGridProgram p) || !(Decisions.Of(p) is { } d))
                 return "main thread: created before PB proxies were on";
             if (!d.Proxied)
                 return d.Blocking == null
@@ -130,7 +131,7 @@ namespace Shared.Patches
         // enough to push a script's first runs on a worker over the run limits.
         public static void Prepare(Sandbox.ModAPI.IMyGridProgram program, MyProgrammableBlock pb)
         {
-            if (!(program is MyGridProgram p) || !Decisions.TryGetValue(p, out var d))
+            if (!(program is MyGridProgram p) || !(Decisions.Of(p) is { } d))
                 return;
             if (d.UsesIgc && d.Igc != null)
             {
@@ -166,35 +167,34 @@ namespace Shared.Patches
         [ThreadStatic]
         private static string creating;
 
-        private static bool Decide(MyGridProgram program) => DecisionOf(program).Proxied;
+        // Runtime and Me are set while the game creates the script, so they decide; a run's
+        // GridTerminalSystem and IGC follow that decision (IsProxied), see RootDecisions
+        private static bool DecideAtCreation(MyGridProgram program) =>
+            Decisions.AtCreation(program).Proxied;
 
-        private static Decision DecisionOf(MyGridProgram program) =>
-            Decisions.GetValue(
-                program,
-                p =>
-                {
-                    if (!Enabled)
-                        return new Decision();
-                    var scans = ScriptEligibility.Scans;
-                    var result = ScriptEligibility.Of(p.GetType().Assembly, creating);
-                    if (ScriptEligibility.Scans != scans)
-                        Common.Logger.Debug(
-                            $"PB script eligibility scan: {result.Milliseconds:F1} ms, {ScriptEligibility.Scans} scans so far"
-                        );
-                    if (!result.OffMain)
-                        Common.Logger.Debug(
-                            $"PB script stays on the main thread: {string.Join(", ", result.Blocking)}"
-                        );
-                    return new Decision
-                    {
-                        Proxied = result.OffMain,
-                        UsesIgc = result.UsesIgc,
-                        Blocking = result.Blocking,
-                        Needs = result.Needs,
-                        Needing = result.Needing,
-                    };
-                }
-            );
+        private static Decision Decide(MyGridProgram p)
+        {
+            if (!Enabled)
+                return new Decision();
+            var scans = ScriptEligibility.Scans;
+            var result = ScriptEligibility.Of(p.GetType().Assembly, creating);
+            if (ScriptEligibility.Scans != scans)
+                Common.Logger.Debug(
+                    $"PB script eligibility scan: {result.Milliseconds:F1} ms, {ScriptEligibility.Scans} scans so far"
+                );
+            if (!result.OffMain)
+                Common.Logger.Debug(
+                    $"PB script stays on the main thread: {string.Join(", ", result.Blocking)}"
+                );
+            return new Decision
+            {
+                Proxied = result.OffMain,
+                UsesIgc = result.UsesIgc,
+                Blocking = result.Blocking,
+                Needs = result.Needs,
+                Needing = result.Needing,
+            };
+        }
 
         // The display name of a block definition with a variant is built in a StringBuilder of the
         // definition, shared by every block of that type. Scripts read it through CustomName and
@@ -252,7 +252,7 @@ namespace Shared.Patches
                 ref IMyGridProgramRuntimeInfo value
             )
             {
-                if (Decide(__instance))
+                if (DecideAtCreation(__instance))
                     value = ScriptProxies.WrapAs<IMyGridProgramRuntimeInfo>(value);
             }
 
@@ -260,7 +260,7 @@ namespace Shared.Patches
             [HarmonyPatch(typeof(MyGridProgram), Prefix + "Me")]
             private static void MePrefix(MyGridProgram __instance, ref IMyProgrammableBlock value)
             {
-                if (Decide(__instance))
+                if (DecideAtCreation(__instance))
                     value = ScriptProxies.WrapAs<IMyProgrammableBlock>(value);
             }
 
@@ -271,7 +271,7 @@ namespace Shared.Patches
                 ref IMyGridTerminalSystem value
             )
             {
-                if (value != null && Decide(__instance))
+                if (value != null && IsProxied(__instance))
                     value = ScriptProxies.WrapAs<IMyGridTerminalSystem>(value);
             }
 
@@ -282,8 +282,8 @@ namespace Shared.Patches
                 ref Func<IMyIntergridCommunicationSystem> value
             )
             {
-                var decision = DecisionOf(__instance);
-                if (value == null || !decision.Proxied)
+                var decision = Decisions.Of(__instance);
+                if (value == null || decision?.Proxied != true)
                     return;
                 var getter = value;
                 IMyIntergridCommunicationSystem proxy = null;
