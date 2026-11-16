@@ -128,6 +128,7 @@ public static class Probe
             }
             return;
         }
+        Steps.Frame(frame);
         if (frame == Warmup)
             Log("window open");
     }

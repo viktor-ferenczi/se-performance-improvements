@@ -1,8 +1,6 @@
 using System;
 using System.Linq;
 using HarmonyLib;
-using Sandbox.Game.Entities;
-using Sandbox.Game.Entities.Blocks;
 
 namespace PbProbe;
 
@@ -40,21 +38,7 @@ public static class LateRoots
         foreach (var (original, patch) in patched)
             new Harmony(patch.owner).Unpatch(original, patch.PatchMethod);
 
-        var recompile = AccessTools.Method(typeof(MyProgrammableBlock), "Recompile");
-        var programs = 0;
-        foreach (
-            var pb in MyEntities
-                .GetEntities()
-                .OfType<MyCubeGrid>()
-                .SelectMany(g => g.GetFatBlocks<MyProgrammableBlock>())
-                .ToList()
-        )
-        {
-            if (string.IsNullOrEmpty(((Sandbox.ModAPI.IMyProgrammableBlock)pb).ProgramData))
-                continue;
-            recompile.Invoke(pb, new object[] { true });
-            programs++;
-        }
+        var programs = Steps.Recompile();
 
         var owner = patched.Select(x => x.p.owner).FirstOrDefault() ?? "Performance";
         new Harmony(owner).CreateClassProcessor(roots).Patch();
