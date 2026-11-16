@@ -286,9 +286,6 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Caches frequent recalculations in safe zones
     bool FixSafeZone { get; set; }
 
-    // Reduces memory allocations in the turret targeting system (needs restart)
-    bool FixTargeting { get; set; }
-
     // Refreshes the turret target groups in linear instead of quadratic time
     bool FixTargetGroups { get; set; }
 

@@ -170,6 +170,12 @@ public static class ScriptEligibility
         // FixScriptCounter, which the parallel phase needs anyway
         if (name.StartsWith("VRage.Library.Compiler.IlInjector"))
             return true;
+        // Since 1.211.017 the compiler sends static Regex calls and Regex constructors with a
+        // timeout to this wrapper, which caps the match timeout (RegexTimeoutRewriter). It is
+        // stateless over the thread-safe BCL Regex. Only this type: ModPerfCounter shares its
+        // namespace.
+        if (name == "VRage.Scripting.CompilerMethods.MyScriptRegex")
+            return true;
 
         var policy = called is MethodInfo method
             ? ScriptProxies.PolicyOf(method)

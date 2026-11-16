@@ -32,7 +32,6 @@ See the *Reducing memory allocations in the turret targeting system* section of 
 
 ## References
 
-- [`MyLargeTurretTargetingSystemPatch.cs`](MyLargeTurretTargetingSystemPatch.cs.md) — the (disabled) allocation fix of the same subsystem, under the same option
 - [simulation-and-blocks](../../../../modules/simulation-and-blocks.md) — module overview
 
 ---

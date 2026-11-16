@@ -300,18 +300,8 @@ public class Config : IPluginConfig
 
     [Separator("Requires server restart")]
     [Checkbox(
-        label: "Fix turret targeting (needs restart)",
-        description: "Reduces memory allocations in the turret targeting system (needs restart)"
-    )]
-    public bool FixTargeting
-    {
-        get;
-        set => SetField(ref field, value);
-    } = true;
-
-    [Checkbox(
         label: "Fix physics performance (needs restart)",
-        description: "Optimizes the MyPhysicsBody.RigidBody getter (needs restart)"
+        description: "Faster MyClusterTree.ReorderClusters (needs restart)"
     )]
     public bool FixPhysics
     {

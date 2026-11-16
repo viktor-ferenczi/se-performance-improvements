@@ -83,22 +83,37 @@ namespace Shared.Patches
             collectStats: true
         );
 
+        // IsSafe answers for one zone: its player and faction lists, and since 1.211.017 the
+        // faction owning its safe zone block (NPC bots of that faction are safe). So the key
+        // combines the zone and the entity, as for IsActionAllowed.
         [HarmonyPrefix]
         [HarmonyPatch("IsSafe")]
         [EnsureCode("569da41e")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsSafePrefix(MyEntity entity, ref bool __result, ref bool __state)
+        private static bool IsSafePrefix(
+            MySafeZone __instance,
+            MyEntity entity,
+            ref bool __result,
+            ref long __state
+        )
         {
             if (!enabled)
                 return true;
 
-            if (IsSafeCache.TryGetValue(entity.EntityId, out var value))
+            var entityId = entity.EntityId;
+            var key = __instance.EntityId ^ entityId;
+            if (IsSafeCache.TryGetValue(key, out var value))
             {
+                // In case of very rare key collision just run the original
+                value ^= (uint)entityId;
+                if (value > 1)
+                    return true;
+
                 __result = value != 0;
                 return false;
             }
 
-            __state = true;
+            __state = key;
             return true;
         }
 
@@ -106,13 +121,17 @@ namespace Shared.Patches
         [HarmonyPatch("IsSafe")]
         [EnsureCode("569da41e")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void IsSafePostfix(MyEntity entity, bool __result, bool __state)
+        private static void IsSafePostfix(MyEntity entity, bool __result, long __state)
         {
-            if (!__state)
+            if (__state == 0)
                 return;
 
-            var entityId = entity.EntityId;
-            IsSafeCache.Store(entityId, __result ? 1u : 0u, 120u + (uint)(entityId & 15));
+            var entityIdLow32Bits = (uint)entity.EntityId;
+            IsSafeCache.Store(
+                __state,
+                (__result ? 1u : 0u) ^ entityIdLow32Bits,
+                120u + (entityIdLow32Bits & 15)
+            );
         }
 
         #endregion

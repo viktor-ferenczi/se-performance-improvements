@@ -134,20 +134,9 @@ but introduced a
 as a result, so the fix to `MyDefinitionId.ToString` has been put back into this
 plugin.
 
-## Reducing memory allocations in the turret targeting system
+## Linear target group refresh
 
-There are large memory allocations in some frequently called routines, causing
-quite a bit of GC pressure:
-
-- `MyLargeTurretTargetingSystem.SortTargetRoots`
-- `MyLargeTurretTargetingSystem.UpdateVisibilityCacheCounters` (this part was
-  disabled due to reported crashes)
-
-[Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/24145-excessive-memory-allocation-in-mylargeturrettargetingsystem)
-
-### Linear target group refresh
-
-A separate option from the allocation fix above. A grid with turrets refreshes its
+A grid with turrets refreshes its
 list of target groups
 once per frame in `MyGridTargeting.RefreshGridConnections`: every top-most entity in
 the turrets' range, grouped by physical connection. The game pops entities off the
