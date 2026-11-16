@@ -42,7 +42,7 @@ the code that implements them is organized.
 - Fewer solar panel output updates: changes of a panel's output below a threshold are not passed on to the power network
 - Cache conveyor network reachability lookups and the cooperative assembler master lookup
 - Cache the toolbar actions of large block groups while seated
-- Physics optimizations (`RigidBody` getter, configurable Havok thread count, faster cluster reordering)
+- Physics optimizations (configurable Havok thread count, faster cluster reordering)
 - Reduce frequent memory allocations (`MyDefinitionId.ToString`, turret targeting, voxel material lookups)
 - Linear instead of quadratic refresh of turret target groups
 - Less frequent sync of block counts and block access rights; PB access to blocks refreshed only when something changed

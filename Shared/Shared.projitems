@@ -42,7 +42,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\OptionalPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\PatchHelpers.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyClusterTreePatch.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyPhysicsBodyPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\MyWindowsSystemPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\PhysicsFixes.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Physics\StuckGridsPatch.cs" />

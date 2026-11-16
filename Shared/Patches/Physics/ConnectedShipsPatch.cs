@@ -379,7 +379,7 @@ namespace Shared.Patches
             // the group
             [HarmonyTranspiler]
             [HarmonyPatch(typeof(MyThrusterBlockThrustComponent), "CalculateMass")]
-            [EnsureCode("1946da52")]
+            [EnsureCode("0e541b01")]
             private static IEnumerable<CodeInstruction> CalculateMassTranspiler(
                 IEnumerable<CodeInstruction> instructions
             ) => ReadDampenersActive(instructions);
@@ -388,7 +388,7 @@ namespace Shared.Patches
             // still runs when nothing is turning, to take the gyro system off the update list.
             [HarmonyPrefix]
             [HarmonyPatch(typeof(MyGridGyroSystem), "UpdateGyros")]
-            [EnsureCode("b277c708")]
+            [EnsureCode("47215809")]
             private static bool UpdateGyrosPrefix(MyGridGyroSystem __instance)
             {
                 var grid = __instance.Grid;

@@ -222,7 +222,6 @@ namespace Shared.Patches
             MySafeZonePatch.Configure();
             MySessionComponentSafeZonesPatch.Configure();
             MyWindowsSystemPatch.Configure();
-            MyPhysicsBodyPatch.Configure();
             MyClusterTreePatch.Configure();
             MyCharacterPatch.Configure();
             MyStorageExtensionsPatch.Configure();
