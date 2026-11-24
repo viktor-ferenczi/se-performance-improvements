@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**103 files across 16 modules.**
+**109 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -69,6 +69,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`Cache.cs`](files/Shared/Tools/Cache.cs.md) | `Shared/Tools/Cache.cs` | Generic time-bounded key/value cache protected by a reader/writer lock. |
 | [`CacheStat.cs`](files/Shared/Tools/CacheStat.cs.md) | `Shared/Tools/CacheStat.cs` | Lightweight, non-thread-safe accumulator for cache hit-rate statistics used in DEBUG builds. |
 | [`CodeChange.cs`](files/Shared/Tools/CodeChange.cs.md) | `Shared/Tools/CodeChange.cs` | Data class describing a detected mismatch between the expected and actual IL hash of a patched game method. |
+| [`CompilationQueue.cs`](files/Shared/Tools/CompilationQueue.cs.md) | `Shared/Tools/CompilationQueue.cs` | Bounds concurrent asynchronous work and admits waiting requests in FIFO order. |
 | [`ConveyorStat.cs`](files/Shared/Tools/ConveyorStat.cs.md) | `Shared/Tools/ConveyorStat.cs` | Non-thread-safe call-count and failure-rate accumulator for the conveyor reachability cache. |
 | [`EnsureCode.cs`](files/Shared/Tools/EnsureCode.cs.md) | `Shared/Tools/EnsureCode.cs` | Custom attribute that verifies the IL hash of a Harmony-patched game method at plugin startup, detecting game updates that would break a patch. |
 | [`GameAssembliesToPublicize.cs`](files/Shared/Tools/GameAssembliesToPublicize.cs.md) | `Shared/Tools/GameAssembliesToPublicize.cs` | Assembly-level `[IgnoresAccessChecksTo]` declarations listing every game assembly publicized by Krafs.Publicizer. |
@@ -81,10 +82,10 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`PreloaderHelpers.cs`](files/Shared/Tools/PreloaderHelpers.cs.md) | `Shared/Tools/PreloaderHelpers.cs` | Static helper class for Mono.Cecil-based preloader patches: IL index search, hash verification, and debug IL recording over `Collection<Instruction>`. |
 | [`RateLimiter.cs`](files/Shared/Tools/RateLimiter.cs.md) | `Shared/Tools/RateLimiter.cs` | Simple token-bucket rate limiter that caps the number of log messages (or any action) permitted per reporting period. |
 | [`RewriterIdentity.cs`](files/Shared/Tools/RewriterIdentity.cs.md) | `Shared/Tools/RewriterIdentity.cs` | Content ID of a rewriter plugin that survives a rebuild from unchanged source, and the redirect from older builds' random assembly names to the loaded build. |
-| [`ScriptCacheKey.cs`](files/Shared/Tools/ScriptCacheKey.cs.md) | `Shared/Tools/ScriptCacheKey.cs` | Builds the cache key of a compiled script assembly as one SHA-1 over an ordered sequence of strings. |
 | [`RwLock.cs`](files/Shared/Tools/RwLock.cs.md) | `Shared/Tools/RwLock.cs` | Lightweight spin-based reader/writer lock implemented as static helpers over a shared `int` counter, plus a convenience wrapper class. |
 | [`RwLockDictionary.cs`](files/Shared/Tools/RwLockDictionary.cs.md) | `Shared/Tools/RwLockDictionary.cs` | `Dictionary<TK, TV>` subclass with embedded spin-based reader/writer locking, used as the backing store for all plugin caches. |
 | [`RwLockHashSet.cs`](files/Shared/Tools/RwLockHashSet.cs.md) | `Shared/Tools/RwLockHashSet.cs` | `HashSet<T>` subclass with embedded spin-based reader/writer locking, used for thread-safe set membership tracking. |
+| [`ScriptCacheKey.cs`](files/Shared/Tools/ScriptCacheKey.cs.md) | `Shared/Tools/ScriptCacheKey.cs` | Builds the cache key of a compiled script assembly as one SHA-1 over an ordered sequence of strings. |
 | [`TranspilerHelpers.cs`](files/Shared/Tools/TranspilerHelpers.cs.md) | `Shared/Tools/TranspilerHelpers.cs` | Static helper class for Harmony transpiler patches: IL search, hash verification, debug IL recording, and deep-clone utilities for `CodeInstruction` sequences. |
 | [`TwoLayerCache.cs`](files/Shared/Tools/TwoLayerCache.cs.md) | `Shared/Tools/TwoLayerCache.cs` | Two-layer cache that combines a lock-free immutable read path with a synchronized mutable write path for minimal read overhead. |
 | [`UintCache.cs`](files/Shared/Tools/UintCache.cs.md) | `Shared/Tools/UintCache.cs` | Specialised time-bounded cache that packs a `uint` value and a tick-based expiry into a single `ulong`, eliminating per-entry object allocation. |
@@ -160,7 +161,11 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`ImageLoader.cs`](files/Shared/Patches/Image/ImageLoader.cs.md) | `Shared/Patches/Image/ImageLoader.cs` | Decodes an image through the bundled ImageSharp and, in debug builds, logs size, time and a hash of the decoded pixels for both this and the game's decoder. |
 | [`ImageSharpRuntime.cs`](files/Shared/Patches/Image/ImageSharpRuntime.cs.md) | `Shared/Patches/Image/ImageSharpRuntime.cs` | Loads a renamed copy of the shipped ImageSharp 2.1.13 beside the game's own 2019 beta and decodes images through reflection with the same pixel format selection as `MyImage.Load`. |
 | [`MyImagePatch.cs`](files/Shared/Patches/Image/MyImagePatch.cs.md) | `Shared/Patches/Image/MyImagePatch.cs` | Prefix on `MyImage.Load` that routes image decoding to the bundled ImageSharp, falling back to the game's decoder on any failure. |
+| [`CompilationWorkers.cs`](files/Shared/Patches/ScriptCompiler/CompilationWorkers.cs.md) | `Shared/Patches/ScriptCompiler/CompilationWorkers.cs` | Queues mod and programmable-block compilations on the same set of workers. |
+| [`EditorCompilation.cs`](files/Shared/Patches/ScriptCompiler/EditorCompilation.cs.md) | `Shared/Patches/ScriptCompiler/EditorCompilation.cs` | Checks programmable-block editor code through the shared worker queue. |
+| [`ModCompilation.cs`](files/Shared/Patches/ScriptCompiler/ModCompilation.cs.md) | `Shared/Patches/ScriptCompiler/ModCompilation.cs` | Batches mod compilation at world startup and registers completed assemblies in discovery order. |
 | [`MyScriptCompilerPatch.cs`](files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md) | `Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs` | Caches compiled mod and in-game script assemblies to disk, short-circuiting the Roslyn compilation step on subsequent world loads. |
+| [`ProgrammableBlockCompilation.cs`](files/Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs.md) | `Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs` | Submits live programmable-block compiles without waiting on the simulation thread. |
 | [`XmlSerializationReaderPatch.cs`](files/Shared/Patches/Serialization/XmlSerializationReaderPatch.cs.md) | `Shared/Patches/Serialization/XmlSerializationReaderPatch.cs` | Reuses the name IDs of the game's generated XML readers per name table instead of rebuilding them for every polymorphic element. |
 
 ## [Simulation & Block Patches](modules/simulation-and-blocks.md)
@@ -184,5 +189,6 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 
 | File | Path | Summary |
 | --- | --- | --- |
+| [`CompilationQueueTest.cs`](files/Tests/Shared/Tools/CompilationQueueTest.cs.md) | `Tests/Shared/Tools/CompilationQueueTest.cs` | Exercises the shared worker limit, fault and cancellation handling, and session shutdown. |
 | [`RateLimiterTest.cs`](files/Tests/Shared/Tools/RateLimiterTest.cs.md) | `Tests/Shared/Tools/RateLimiterTest.cs` | xUnit test verifying the core quota-and-reset behaviour of `RateLimiter.cs`. |
 

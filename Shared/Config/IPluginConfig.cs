@@ -239,6 +239,15 @@ public static class ScriptThreads
     public static int Auto => HavokThreads.Auto;
 }
 
+public static class CompilationLimits
+{
+    public const int Min = 1;
+    public const int Max = 64;
+    public const int Default = 2;
+
+    public static int Clamp(int value) => Math.Max(Min, Math.Min(Max, value));
+}
+
 // Configuration properties shared by the patches in the Shared project.
 //
 // The client implements this interface with its in-game settings dialog
@@ -262,8 +271,10 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Disables resource updates while grids are being moved between groups
     bool FixGridGroups { get; set; }
 
-    // Caches compiled mods for faster world load
+    // Mod and PB compilation requests share this many workers.
     int MaxConcurrentCompilations { get; set; }
+
+    // Caches compiled mods for faster world load
     bool CacheMods { get; set; }
 
     // Caches compiled in-game scripts (PB programs) to reduce lag

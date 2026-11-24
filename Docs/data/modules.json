@@ -72,7 +72,7 @@
     },
     "world-loading": {
       "title": "World Loading Patches",
-      "summary": "Speeds up world load by caching compiled mods and in-game scripts, and rate-limits the blueprint-not-found log flooding from `GetBlueprintDefinition`."
+      "summary": "Queues and caches mod and programmable block compilations, speeds up image and XML loading, and reduces blueprint lookup logging."
     },
     "simulation-and-blocks": {
       "title": "Simulation & Block Patches",

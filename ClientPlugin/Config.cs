@@ -100,8 +100,8 @@ public class Config : IPluginConfig
     } = true;
 
     [Slider(
-        1,
-        64,
+        CompilationLimits.Min,
+        CompilationLimits.Max,
         1f,
         SliderAttribute.SliderType.Integer,
         label: "Concurrent compilations",
@@ -110,8 +110,8 @@ public class Config : IPluginConfig
     public int MaxConcurrentCompilations
     {
         get;
-        set => SetField(ref field, value);
-    } = 2;
+        set => SetField(ref field, CompilationLimits.Clamp(value));
+    } = CompilationLimits.Default;
 
     [Checkbox(
         label: "Disable Mod API statistics",

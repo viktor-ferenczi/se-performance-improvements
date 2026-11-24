@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Shared.Config;
 using Shared.Tools;
 using Xunit;
 
@@ -11,6 +12,16 @@ public class CompilationQueueTest
 {
     [ThreadStatic]
     private static bool submitting;
+
+    [Theory]
+    [InlineData(0, CompilationLimits.Min)]
+    [InlineData(CompilationLimits.Default, 2)]
+    [InlineData(4, 4)]
+    [InlineData(100, CompilationLimits.Max)]
+    public void ConfigurationUsesTheSameBoundsAsTheSettingsControls(int value, int expected)
+    {
+        Assert.Equal(expected, CompilationLimits.Clamp(value));
+    }
 
     [Theory]
     [InlineData(1)]

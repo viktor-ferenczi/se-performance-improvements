@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Plugin Core](../../../modules/shared-plugin-core.md) |
-| **Source** | [`IPluginConfig.cs`](../../../../Shared/Config/IPluginConfig.cs) (322 lines) |
+| **Source** | [`IPluginConfig.cs`](../../../../Shared/Config/IPluginConfig.cs) (476 lines) |
 | **Kind** | Interface extending `INotifyPropertyChanged` |
 | **Role** | Configuration contract |
 
@@ -23,6 +23,7 @@ Most are `bool`. The exception is the Havok physics thread count, which is a `Ha
 
 | Member | Kind | Description |
 | --- | --- | --- |
+| `MaxConcurrentCompilations` | Integer property | Shared limit for mod and PB compilation. Defaults to two workers and accepts 1–64. |
 | `Enabled` | Property | Master kill-switch; when `false` all patches skip their logic. |
 | `FixGridMerge` / `FixGridPaste` | Properties | Suppress conveyor/world updates during merge and paste operations. |
 | `FixGridGroups` | Property | Suppress resource updates during grid-group transitions. |
