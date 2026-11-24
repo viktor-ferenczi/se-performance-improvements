@@ -105,6 +105,18 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [IntOption(
+        1,
+        64,
+        "Maximum number of mod and programmable block compilations running at once",
+        Parent = "worldload"
+    )]
+    public int MaxConcurrentCompilations
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 2;
+
     [BoolOption(
         "Disable the collection of Mod API call statistics to eliminate the overhead",
         Parent = "worldload"

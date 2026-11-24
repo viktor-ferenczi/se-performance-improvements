@@ -263,6 +263,7 @@ public interface IPluginConfig : INotifyPropertyChanged
     bool FixGridGroups { get; set; }
 
     // Caches compiled mods for faster world load
+    int MaxConcurrentCompilations { get; set; }
     bool CacheMods { get; set; }
 
     // Caches compiled in-game scripts (PB programs) to reduce lag

@@ -51,7 +51,11 @@
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Projection\MyEntityPatchForProjection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySafeZonePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\SafeZone\MySessionComponentSafeZonesPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\EditorCompilation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\MyScriptCompilerPatch.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\CompilationWorkers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\ModCompilation.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptCompiler\ProgrammableBlockCompilation.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\IlInjectorPrepatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptEligibility.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\ScriptRunner\ScriptPolicy.cs" />
@@ -107,6 +111,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RunQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\WorkerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RewriterIdentity.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\CompilationQueue.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ScriptCacheKey.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockDictionary.cs" />

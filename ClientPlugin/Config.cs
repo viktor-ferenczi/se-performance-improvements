@@ -99,6 +99,20 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Slider(
+        1,
+        64,
+        1f,
+        SliderAttribute.SliderType.Integer,
+        label: "Concurrent compilations",
+        description: "Maximum number of mod and programmable block compilations running at once."
+    )]
+    public int MaxConcurrentCompilations
+    {
+        get;
+        set => SetField(ref field, value);
+    } = 2;
+
     [Checkbox(
         label: "Disable Mod API statistics",
         description: "Disable the collection of Mod API call statistics to eliminate the overhead"
