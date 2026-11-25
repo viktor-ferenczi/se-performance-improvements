@@ -21,8 +21,8 @@ using SdkLogger = PluginSdk.Logging.Logger;
 #if !LOCAL_BUILD
 using System.Reflection;
 
-[assembly: AssemblyVersion("1.18.0")]
-[assembly: AssemblyFileVersion("1.18.0")]
+[assembly: AssemblyVersion("1.19.0")]
+[assembly: AssemblyFileVersion("1.19.0")]
 
 #endif
 
@@ -36,6 +36,7 @@ public class Plugin : IPlugin, ICommonPlugin
 
     public long Tick { get; private set; }
     private static bool failed;
+    private static bool forcedSleepFailed;
 
     // Shared logger, used by the Harmony patch scaffolding via Plugin.Common.Logger.
     public IPluginLogger Log => Logger;
@@ -272,6 +273,7 @@ public class Plugin : IPlugin, ICommonPlugin
     {
         try
         {
+            Patches.ForcedSleepService.Stop();
             if (config != null)
                 config.PropertyChanged -= OnConfigChanged;
         }
@@ -314,5 +316,19 @@ public class Plugin : IPlugin, ICommonPlugin
         StuckInVoxelPatch.Update();
         BuriedGridSweeper.Update();
         ConnectedShipsPatch.Update();
+        if (Tick % 15 == 0 && !forcedSleepFailed)
+        {
+            // A failure here turns off supported-grid sleep only, not every per-tick fix above.
+            try
+            {
+                Patches.ForcedSleepService.Update(config);
+            }
+            catch (Exception e)
+            {
+                forcedSleepFailed = true;
+                SdkLog.Error("Supported-grid sleep failed and is off until restart", e);
+                Patches.ForcedSleepService.Stop();
+            }
+        }
     }
 }
