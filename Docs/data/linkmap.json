@@ -1338,7 +1338,7 @@
           "doc_link": "../files/Tests/Shared/Tools/CompilationQueueTest.cs.md",
           "source_link": "../../Tests/Shared/Tools/CompilationQueueTest.cs",
           "tier": 2,
-          "lines": 131
+          "lines": 132
         },
         {
           "path": "Tests/Shared/Tools/RateLimiterTest.cs",
@@ -1576,7 +1576,7 @@
           "doc_link": "../files/Shared/Patches/ScriptCompiler/CompilationWorkers.cs.md",
           "source_link": "../../Shared/Patches/ScriptCompiler/CompilationWorkers.cs",
           "tier": 2,
-          "lines": 55
+          "lines": 61
         },
         {
           "path": "Shared/Patches/ScriptCompiler/EditorCompilation.cs",
@@ -1584,7 +1584,7 @@
           "doc_link": "../files/Shared/Patches/ScriptCompiler/EditorCompilation.cs.md",
           "source_link": "../../Shared/Patches/ScriptCompiler/EditorCompilation.cs",
           "tier": 2,
-          "lines": 141
+          "lines": 145
         },
         {
           "path": "Shared/Patches/ScriptCompiler/ModCompilation.cs",
@@ -1592,7 +1592,7 @@
           "doc_link": "../files/Shared/Patches/ScriptCompiler/ModCompilation.cs.md",
           "source_link": "../../Shared/Patches/ScriptCompiler/ModCompilation.cs",
           "tier": 2,
-          "lines": 172
+          "lines": 171
         },
         {
           "path": "Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",

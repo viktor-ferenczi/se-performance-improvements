@@ -21,7 +21,7 @@ Mod loading and programmable blocks share a bounded compilation queue. The cache
 
 The platform compiler queues both mod and PB requests, including cache lookups, with a default limit of two workers. During world startup the mod loader waits for the discovered scripts and registers them in order before the factories read their assemblies. During play, PB edits and editor checks return to the game thread for activation or diagnostics. A later edit or a closed block invalidates an outstanding result.
 
-The global plugin switch controls the queue. The two cache switches independently control disk reads and writes. A compile that fails has no assembly to store.
+The queue runs when the plugin is enabled and the worker limit is positive. At zero, mods, live PBs and editor checks use the original compilation path. The two cache switches independently control disk reads and writes. A compile that fails has no assembly to store.
 
 Cache directories (`CompiledMods/`, `CompiledInGameScripts/`) live under `Common.CacheDir` and are created at `Configure()` time. The patch respects `CacheMods` and `CacheScripts` config flags independently, so operators can cache one type but not the other.
 

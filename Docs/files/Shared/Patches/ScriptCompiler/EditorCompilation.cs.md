@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [World Loading Patches](../../../../modules/world-loading.md) |
-| **Source** | [`EditorCompilation.cs`](../../../../../Shared/Patches/ScriptCompiler/EditorCompilation.cs) (141 lines) |
+| **Source** | [`EditorCompilation.cs`](../../../../../Shared/Patches/ScriptCompiler/EditorCompilation.cs) (145 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 

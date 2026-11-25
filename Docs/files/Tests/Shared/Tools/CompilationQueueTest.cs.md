@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Tests](../../../../modules/tests.md) |
-| **Source** | [`CompilationQueueTest.cs`](../../../../../Tests/Shared/Tools/CompilationQueueTest.cs) (131 lines) |
+| **Source** | [`CompilationQueueTest.cs`](../../../../../Tests/Shared/Tools/CompilationQueueTest.cs) (132 lines) |
 | **Kind** | xUnit test class |
 | **Role** | Unit test |
 

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using HarmonyLib;
 using Sandbox;
 using Sandbox.Game.World;
-using Shared.Plugin;
 using VRage.Game;
 using VRage.Scripting;
 using VRage.Utils;
