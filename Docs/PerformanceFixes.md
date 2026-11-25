@@ -95,7 +95,8 @@ default. Set `MaxConcurrentCompilations` to a value from 1 to 16 to change the s
 Turn off `CompileOnWorkerThreads` to compile on the game thread. Existing queued jobs finish. The worker queue also runs when either disk cache is disabled. The loader
 registers completed mods in their original order. In a running world, a PB
 can take several ticks to become ready after a paste or edit. An edit replaces
-the previous request for that block. Compile errors appear in its terminal.
+the previous request for that block. Repeated Recompile clicks share the pending compilation
+when the source is unchanged. A run requested before activation is skipped. Compile errors appear in its terminal.
 
 `CompilationCacheRoot` defaults to `Performance`. Relative paths start at the
 game instance’s `Storage` folder. An absolute path can point both caches at

@@ -5,17 +5,17 @@
 |  |  |
 | --- | --- |
 | **Module** | [World Loading Patches](../../../../modules/world-loading.md) |
-| **Source** | [`ProgrammableBlockCompilation.cs`](../../../../../Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs) (159 lines) |
+| **Source** | [`ProgrammableBlockCompilation.cs`](../../../../../Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs) (197 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 
 ## Purpose
 
-Each edit supersedes the pending result for that block. A successful result activates on the game thread after the block and session are checked again. Compilation failure writes the diagnostics into the terminal.
+A source change supersedes the pending result for that block. Repeated requests for the same source reuse the pending compilation. A successful result activates on the game thread after the block and session are checked again. Compilation failure writes the diagnostics into the terminal.
 
 ## Key members
 
-`Compile` submits the current program and schedules completion. `Forget` and `Terminated` invalidate pending results when a block closes or terminates.
+`Recompile` coalesces duplicate requests at the server event handler. `ExecuteCode` skips a run while the block is waiting for its assembly. `Compile` submits the current program and schedules completion. `Forget` and `Terminated` invalidate pending results when a block closes or terminates.
 
 ## References
 
