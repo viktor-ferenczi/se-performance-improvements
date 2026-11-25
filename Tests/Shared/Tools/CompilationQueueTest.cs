@@ -131,4 +131,15 @@ public class CompilationQueueTest
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => cancelled);
         Assert.Equal(42, await success.WaitAsync(TimeSpan.FromSeconds(5)));
     }
+
+    [Fact]
+    public void ASenderGetsOneRemoteCheckAtATime()
+    {
+        var gate = new PerKeyGate<ulong>();
+        Assert.True(gate.TryEnter(1));
+        Assert.False(gate.TryEnter(1));
+        Assert.True(gate.TryEnter(2));
+        gate.Exit(1);
+        Assert.True(gate.TryEnter(1));
+    }
 }

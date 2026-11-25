@@ -83,3 +83,13 @@ internal sealed class CompilationQueue<T>(Func<int> concurrency)
         }
     }
 }
+
+// One request in flight per key, such as a remote player's code checks. Game thread only.
+internal sealed class PerKeyGate<TKey>
+{
+    private readonly HashSet<TKey> busy = new();
+
+    internal bool TryEnter(TKey key) => busy.Add(key);
+
+    internal void Exit(TKey key) => busy.Remove(key);
+}
