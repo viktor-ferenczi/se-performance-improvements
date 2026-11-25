@@ -29,7 +29,9 @@ internal static class EditorCompilation
     [HarmonyPatch("CheckCodeButtonClicked")]
     private static bool CheckLocal(MyGuiScreenEditor __instance)
     {
-        if (!Common.Config.Enabled || !MyVRage.Platform.Scripting.IsRuntimeCompilationSupported)
+        if (
+            !CompilationWorkers.Enabled || !MyVRage.Platform.Scripting.IsRuntimeCompilationSupported
+        )
             return true;
 
         var editor = __instance;
@@ -68,7 +70,9 @@ internal static class EditorCompilation
     [HarmonyPatch("CompileProgramServer")]
     private static bool CheckRemote(byte[] program)
     {
-        if (!Common.Config.Enabled || !MyVRage.Platform.Scripting.IsRuntimeCompilationSupported)
+        if (
+            !CompilationWorkers.Enabled || !MyVRage.Platform.Scripting.IsRuntimeCompilationSupported
+        )
             return true;
         if (!MySession.Static.EnableIngameScripts)
             return false;

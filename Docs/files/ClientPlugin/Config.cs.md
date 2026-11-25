@@ -23,7 +23,7 @@ The options are grouped into seven sections mirroring the server config: *Core*,
 
 | Member | Kind | Description |
 | --- | --- | --- |
-| `MaxConcurrentCompilations` | Integer property | Shared limit for mod and PB compilation. Defaults to two workers and accepts 1–64. |
+| `MaxConcurrentCompilations` | Integer property | Shared limit for mod and PB compilation. Defaults to two workers and accepts 0–64. Zero uses the original compilation path. |
 | `Default` | `static Config` | Canonical defaults instance; used as fallback when no saved config exists. |
 | `Current` | `static Config` | Live singleton loaded by [`ConfigStorage.cs`](Settings/ConfigStorage.cs.md) at startup; shared with all Harmony patches via `IPluginConfig`. |
 | `Title` | `string` | Dialog caption (`"Performance"`), read by [`SettingsGenerator.cs`](Settings/SettingsGenerator.cs.md). |

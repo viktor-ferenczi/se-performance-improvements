@@ -108,7 +108,7 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     [IntOption(
         CompilationLimits.Min,
         CompilationLimits.Max,
-        "Maximum number of mod and programmable block compilations running at once",
+        "Maximum concurrent mod and programmable block compilations. Set to zero to use the original game-thread compilation path",
         Parent = "worldload"
     )]
     public int MaxConcurrentCompilations

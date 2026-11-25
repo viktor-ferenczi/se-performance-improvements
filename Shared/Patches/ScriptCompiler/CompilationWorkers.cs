@@ -18,6 +18,9 @@ internal static class CompilationWorkers
         Common.Config.MaxConcurrentCompilations
     );
 
+    internal static bool Enabled =>
+        Common.Config.Enabled && Common.Config.MaxConcurrentCompilations > 0;
+
     internal static void WaitForIdle(bool cancelPending = false) =>
         Queue.WaitForIdle(cancelPending);
 
@@ -32,7 +35,10 @@ internal static class CompilationWorkers
         ref Task<Assembly> __result
     )
     {
-        if (!Common.Config.Enabled || target != MyApiTarget.Ingame && target != MyApiTarget.Mod)
+        if (
+            !CompilationWorkers.Enabled
+            || target != MyApiTarget.Ingame && target != MyApiTarget.Mod
+        )
             return true;
 
         // The mod loader clears and reuses the file list as soon as the call returns.

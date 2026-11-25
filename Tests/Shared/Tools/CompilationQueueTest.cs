@@ -14,7 +14,8 @@ public class CompilationQueueTest
     private static bool submitting;
 
     [Theory]
-    [InlineData(0, CompilationLimits.Min)]
+    [InlineData(-1, 0)]
+    [InlineData(0, 0)]
     [InlineData(CompilationLimits.Default, 2)]
     [InlineData(4, 4)]
     [InlineData(100, CompilationLimits.Max)]

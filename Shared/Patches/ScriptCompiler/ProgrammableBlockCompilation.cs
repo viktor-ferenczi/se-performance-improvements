@@ -46,7 +46,7 @@ internal static class ProgrammableBlockCompilation
     {
         var block = __instance;
         Pending.Remove(block);
-        if (!Common.Config.Enabled || !Sync.IsServer)
+        if (!CompilationWorkers.Enabled || !Sync.IsServer)
             return true;
 
         var session = MySession.Static;

@@ -241,7 +241,7 @@ public static class ScriptThreads
 
 public static class CompilationLimits
 {
-    public const int Min = 1;
+    public const int Min = 0;
     public const int Max = 64;
     public const int Default = 2;
 

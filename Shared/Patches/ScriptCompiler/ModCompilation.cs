@@ -26,7 +26,7 @@ internal static class ModCompilation
     private static void Begin(out List<(Task<Assembly>, Action)> __state)
     {
         __state = batch;
-        batch = Common.Config.Enabled ? new() : null;
+        batch = CompilationWorkers.Enabled ? new() : null;
     }
 
     [HarmonyFinalizer]

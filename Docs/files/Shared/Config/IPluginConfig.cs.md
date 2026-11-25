@@ -23,7 +23,7 @@ Most are `bool`. The exception is the Havok physics thread count, which is a `Ha
 
 | Member | Kind | Description |
 | --- | --- | --- |
-| `MaxConcurrentCompilations` | Integer property | Shared limit for mod and PB compilation. Defaults to two workers and accepts 1–64. |
+| `MaxConcurrentCompilations` | Integer property | Shared limit for mod and PB compilation. Defaults to two workers and accepts 0–64. Zero uses the original compilation path. |
 | `Enabled` | Property | Master kill-switch; when `false` all patches skip their logic. |
 | `FixGridMerge` / `FixGridPaste` | Properties | Suppress conveyor/world updates during merge and paste operations. |
 | `FixGridGroups` | Property | Suppress resource updates during grid-group transitions. |

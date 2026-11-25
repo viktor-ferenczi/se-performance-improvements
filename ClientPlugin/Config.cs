@@ -105,7 +105,7 @@ public class Config : IPluginConfig
         1f,
         SliderAttribute.SliderType.Integer,
         label: "Concurrent compilations",
-        description: "Maximum number of mod and programmable block compilations running at once."
+        description: "Maximum concurrent mod and programmable block compilations. Set to zero to use the original game-thread compilation path."
     )]
     public int MaxConcurrentCompilations
     {
