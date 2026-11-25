@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Plugin Entry Point](../../modules/client-plugin.md) |
-| **Source** | [`Config.cs`](../../../ClientPlugin/Config.cs) (756 lines) |
+| **Source** | [`Config.cs`](../../../ClientPlugin/Config.cs) (767 lines) |
 | **Kind** | `class Config : IPluginConfig` (which extends `INotifyPropertyChanged`) |
 | **Role** | Configuration |
 
@@ -23,6 +23,7 @@ The options are grouped into seven sections mirroring the server config: *Core*,
 
 | Member | Kind | Description |
 | --- | --- | --- |
+| `CompilationCacheRoot` | Property | Root for both compilation caches. Defaults to `Performance`, relative to the instance’s `Storage` folder. Absolute paths are supported. Changes apply on restart. |
 | `CompileOnWorkerThreads` | Boolean property | Run mod and PB compilations on worker threads. Enabled by default. |
 | `MaxConcurrentCompilations` | Integer property | Shared worker limit for mod and PB compilation. Accepts 1–16 and defaults to 2. |
 | `Default` | `static Config` | Canonical defaults instance; used as fallback when no saved config exists. |

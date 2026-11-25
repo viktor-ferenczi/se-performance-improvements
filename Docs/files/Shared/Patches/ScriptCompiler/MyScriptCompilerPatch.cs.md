@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [World Loading Patches](../../../../modules/world-loading.md) |
-| **Source** | [`MyScriptCompilerPatch.cs`](../../../../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs) (301 lines) |
+| **Source** | [`MyScriptCompilerPatch.cs`](../../../../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs) (367 lines) |
 | **Kind** | Static Harmony patch class |
 | **Role** | Performance patch |
 
@@ -17,7 +17,7 @@ A Transpiler is injected into the `MoveNext` method of the compiler's internal a
 
 Cache keys are 20-byte SHA-1 hashes, built by [`ScriptCacheKey`](../../Tools/ScriptCacheKey.cs.md) from an ordered sequence of parts: the key format, the versions of the loaded mod rewriting plugins ([`ModRewriterVersions`](../../Tools/ModRewriterVersions.cs.md)), the .NET runtime version, the game's build version (from `Common.GameVersion`), the compiler's conditional compilation symbols (sorted), then the file name and source text of every `Script` in compilation order. Duplicate files count twice and renaming or reordering files changes the key. The runtime/build/symbol parts ensure stale entries are never loaded after a game update or SDK change, and bumping `ScriptCacheKey.Format` drops every old entry. Separate directories (`CompiledMods/` and `CompiledInGameScripts/`) are used for the two `MyApiTarget` types. The patch respects the `CacheMods` and `CacheScripts` config flags independently.
 
-`StoreIntoCache` writes to a uniquely named `.tmp` file next to the cache file and moves it into place, so a crash mid-write never leaves a partial `.cache` file. If a concurrent compile of the same scripts stored the file first, that one is kept. `Common` deletes `*.cache.*.tmp` files older than an hour at startup.
+`StoreIntoCache` writes to a uniquely named `.tmp` file next to the cache file and moves it into place, so a crash mid-write never leaves a partial `.cache` file. If a concurrent compile of the same scripts stored the file first, that one is kept. At startup, `PerformanceStorage` expires temporary files matching the cache writer’s naming pattern after one hour.
 
 When loading from cache the patch uses `Assembly.Load(byte[])` rather than `Assembly.LoadFrom` to avoid preventing world re-loads due to locked files. I/O errors are retried up to 200 times (5 ms sleep each) to handle the race condition where multiple threads try to load the same script simultaneously.
 
@@ -32,7 +32,7 @@ When loading from cache the patch uses `Assembly.Load(byte[])` rather than `Asse
 | `StoreIntoCache` | Static method | Writes the `MemoryStream` of a freshly compiled assembly to a temp file, moves it into place, then rewinds the stream. |
 | `GetCachePath` | Static method | Checks config flags and constructs the `.cache` file path from the computed hash. |
 | `GetScriptsHash` | Static method | Computes the cache key with `ScriptCacheKey.Compute` over the parts listed by `GetCacheKeyParts`. |
-| `InGameScriptCacheDir` / `ModScriptCacheDir` | Static properties | Lazily-initialised paths inside `Common.CacheDir` for each target type. |
+| `InGameScriptCacheDir` / `ModScriptCacheDir` | Static fields | Paths assigned by `Configure` under `Common.CompilationCacheDir`, one per target type. |
 
 ## Patch targets
 
@@ -44,7 +44,7 @@ When loading from cache the patch uses `Assembly.Load(byte[])` rather than `Asse
 
 - [world-loading](../../../../modules/world-loading.md)
 - [`ScriptCacheKey.cs`](../../Tools/ScriptCacheKey.cs.md) — builds the cache key
-- [`PreloaderHelpers.cs`](../../Tools/PreloaderHelpers.cs.md) — provides `Common.CacheDir` and `Common.GameVersion`
+- [`Common.cs`](../../Plugin/Common.cs.md) — provides `CompilationCacheDir` and `GameVersion`
 
 ---
 

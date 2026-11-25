@@ -8,6 +8,7 @@ The project links shared source files into an xUnit test assembly. The compilati
 
 | File | Summary |
 | --- | --- |
+| [`PerformanceStorageTest.cs`](../files/Tests/Shared/Tools/PerformanceStorageTest.cs.md) | Verifies paths, migration and reuse of a shared compilation cache. |
 | [`RateLimiterTest.cs`](../files/Tests/Shared/Tools/RateLimiterTest.cs.md) | xUnit test verifying quota exhaustion, skip counting, and reset behaviour of [`RateLimiter.cs`](../files/Shared/Tools/RateLimiter.cs.md) |
 | [`CompilationQueueTest.cs`](../files/Tests/Shared/Tools/CompilationQueueTest.cs.md) | Exercises the shared worker limit, fault and cancellation handling, and session shutdown. |
 

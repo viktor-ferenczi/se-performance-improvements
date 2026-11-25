@@ -26,6 +26,7 @@
     <!-- Its only game-dependent reference, Common.Logger, is stubbed in the test -->
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
     <Compile Include="..\Shared\Tools\CompilationQueue.cs" Link="Shared\Tools\CompilationQueue.cs" />
+    <Compile Include="..\Shared\Tools\PerformanceStorage.cs" Link="Shared\Tools\PerformanceStorage.cs" />
     <Compile Include="..\Shared\Tools\ScriptCacheKey.cs" Link="Shared\Tools\ScriptCacheKey.cs" />
     <Compile Include="..\Shared\Tools\RewriterIdentity.cs" Link="Shared\Tools\RewriterIdentity.cs" />
     <Compile Include="..\Shared\Tools\Hashing.cs" Link="Shared\Tools\Hashing.cs" />

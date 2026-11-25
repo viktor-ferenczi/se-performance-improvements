@@ -32,15 +32,8 @@ namespace Shared.Patches
             nameof(StoreIntoCache)
         );
 
-        private static string InGameScriptCacheDir =>
-            inGameScriptCacheDir
-            ?? (inGameScriptCacheDir = Path.Combine(Common.CacheDir, "CompiledInGameScripts"));
-        private static string inGameScriptCacheDir;
-
-        private static string ModScriptCacheDir =>
-            modScriptCacheDir
-            ?? (modScriptCacheDir = Path.Combine(Common.CacheDir, "CompiledMods"));
-        private static string modScriptCacheDir;
+        private static string InGameScriptCacheDir;
+        private static string ModScriptCacheDir;
 
         private static IPluginConfig Config => Common.Config;
         private static IPluginLogger Log => Common.Logger;
@@ -52,8 +45,14 @@ namespace Shared.Patches
                 throw new Exception("MyScriptCompilerPatch: Reflection error");
             }
 
-            Directory.CreateDirectory(InGameScriptCacheDir);
-            Directory.CreateDirectory(ModScriptCacheDir);
+            InGameScriptCacheDir = PerformanceStorage.OpenCache(
+                Common.CompilationCacheDir,
+                "CompiledInGameScripts"
+            );
+            ModScriptCacheDir = PerformanceStorage.OpenCache(
+                Common.CompilationCacheDir,
+                "CompiledMods"
+            );
         }
 
         // ReSharper disable once UnusedMember.Local
@@ -190,9 +189,14 @@ namespace Shared.Patches
 #endif
                     return assembly;
                 }
+                catch (FileNotFoundException)
+                {
+                    // Another node expired the entry after the existence check.
+                    return null;
+                }
                 catch (IOException)
                 {
-                    // All I/O errors are retried for 1 second
+                    // Other I/O errors are retried for 1 second
                     // This exception can happen on trying to compile the same script multiple times concurrently:
                     // HResult = -2147024864
                     // Message = "The process cannot access the file 'C:\Torch\Instance\PerformanceImprovements\Cache\CompiledInGameScripts\9daecd2c41d387772f8edcc792da89a6b776ec2e.cache' because it is being used by another process."

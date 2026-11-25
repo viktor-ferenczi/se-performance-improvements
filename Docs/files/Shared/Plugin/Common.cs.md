@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Shared Plugin Core](../../../modules/shared-plugin-core.md) |
-| **Source** | [`Common.cs`](../../../../Shared/Plugin/Common.cs) (99 lines) |
+| **Source** | [`Common.cs`](../../../../Shared/Plugin/Common.cs) (96 lines) |
 | **Kind** | Static class |
 | **Role** | Plugin bootstrap / shared state hub |
 
@@ -13,7 +13,7 @@
 
 `Common` is the single static rendezvous point for the plugin's shared state. By accepting an [`ICommonPlugin.cs`](ICommonPlugin.cs.md) it avoids any circular assembly dependency: the `Shared` project knows nothing about `ClientPlugin` or `ServerPlugin`; it only knows the interface.
 
-`SetPlugin` runs the one-time setup, once per process: it points the shared accessors at the given plugin (via `AttachPlugin`), records the game version string, derives three well-known filesystem directories (`DataDir`, `CacheDir`, `DebugDir`) under the platform storage path, and then calls `CleanupCache` and `CleanupDebug`. These helpers delete stale `.cache` files (any file older than 90 days, or all of them when the game version has changed) and stale `.il` debug dumps (when either the game or plugin version has changed), so the compilation caches for mods and PB scripts are never reused across game updates. Finally it calls `PatchHelpers.Configure()`, letting patch classes perform one-time setup before the patches are applied by the caller. The client calls `SetPlugin` from its `Init`; the dedicated server calls it from its early bootstrap with a lightweight stand-in plugin (see [`Plugin.cs`](../../ServerPlugin/Plugin.cs.md).`EarlyStartup`), because the heavy setup must happen before world-load compilation.
+`SetPlugin` takes the game instance’s user-data directory. It migrates the old Performance folder, resolves the configured compilation cache root relative to `Storage` when necessary, and keeps debug output and image-library files in `Storage/Performance`. Startup expires compiled entries after 90 days and abandoned temporary files after one hour. The game build is part of the cache key, so a node can join a populated cache after an upgrade. A change to either the game or plugin version clears the local plugin-generated IL dumps. The client calls this setup from `Init`. Magnetar calls it before world-load compilation from `EarlyStartup`.
 
 `AttachPlugin` does just the accessor wiring — `Plugin`, `Logger`, `Config` — and nothing else. `SetPlugin` delegates to it, and the dedicated server calls it again from `Init` to swap the live `Plugin` instance in for the early stand-in, so per-tick code reaches the real `Tick` counter.
 
@@ -28,7 +28,8 @@ All patch code reads `Common.Logger`, `Common.Config`, and `Common.Tick` (via `P
 | `Config` | Static property | The [`IPluginConfig.cs`](../Config/IPluginConfig.cs.md) extracted from `Plugin.Config`; gates every patch. |
 | `GameVersion` | Static property | Game version string (including build number) used to detect cache invalidation. |
 | `PluginVersion` | Const string | Plugin version string; triggers debug dump cleanup when changed. One of the four places a version bump changes, see "Plugin version" in [Development](../../../Development.md#plugin-version). |
-| `DataDir` / `CacheDir` / `DebugDir` | Static properties | Derived filesystem paths under the platform storage directory. |
+| `DataDir` / `CacheDir` / `DebugDir` | Static properties | Local plugin, cache and debug paths under the instance’s `Storage` directory. |
+| `CompilationCacheDir` | Static property | The `Cache` directory under the configured compilation root. |
 | `SetPlugin(ICommonPlugin, string, string)` | Static method | One-time per-process setup: `AttachPlugin`, record game version, derive/clean the storage directories, then `PatchHelpers.Configure()`. Client calls it from `Init`; server from its early bootstrap with a stand-in. |
 | `AttachPlugin(ICommonPlugin)` | Static method | Points `Plugin` / `Logger` / `Config` at the given instance. Called by `SetPlugin`, and again from the server's `Init` to swap the stand-in for the live instance. |
 

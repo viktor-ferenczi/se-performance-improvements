@@ -33,6 +33,7 @@ The `Shared/Tools` module is the foundation layer that every performance patch i
 | [`RewriterIdentity.cs`](../files/Shared/Tools/RewriterIdentity.cs.md) | Content ID of a rewriter that survives a rebuild from unchanged source, and the redirect from older builds' assembly names |
 | [`MySessionExtensions.cs`](../files/Shared/Tools/MySessionExtensions.cs.md) | Extension methods exposing the internal `MySession.m_updateAllowed` field via publicized direct access |
 | [`ObjectPools.cs`](../files/Shared/Tools/ObjectPools.cs.md) | Shared bucket-based `StringBuilder` pool for GC-pressure reduction in string-formatting hot paths |
+| [`PerformanceStorage.cs`](../files/Shared/Tools/PerformanceStorage.cs.md) | Resolves compilation cache paths, migrates legacy data and expires cache entries. |
 | [`PreloaderHelpers.cs`](../files/Shared/Tools/PreloaderHelpers.cs.md) | Mono.Cecil helpers for preloader patches: instruction index search, hash verification, and debug IL recording |
 | [`RateLimiter.cs`](../files/Shared/Tools/RateLimiter.cs.md) | Token-bucket limiter that caps the number of log messages or other actions per reporting period |
 | [`ScriptCacheKey.cs`](../files/Shared/Tools/ScriptCacheKey.cs.md) | Cache key of a compiled script assembly: one SHA-1 over an ordered sequence of strings |

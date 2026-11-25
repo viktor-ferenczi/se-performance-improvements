@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using ClientPlugin.Settings;
 using ClientPlugin.Settings.Elements;
 using Shared.Config;
+using Shared.Tools;
 
 namespace ClientPlugin;
 
@@ -98,6 +99,16 @@ public class Config : IPluginConfig
         get;
         set => SetField(ref field, value);
     } = true;
+
+    [Textbox(
+        label: "Compilation cache root (restart)",
+        description: "Folder for compiled mods and programmable blocks. Use an absolute path or one relative to Storage. Takes effect on restart."
+    )]
+    public string CompilationCacheRoot
+    {
+        get;
+        set => SetField(ref field, value);
+    } = PerformanceStorage.DefaultRoot;
 
     [Checkbox(
         label: "Compile on worker threads",
