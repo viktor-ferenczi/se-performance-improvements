@@ -21,8 +21,48 @@ using VRageMath;
 
 namespace ServerPlugin.Patches;
 
-/// <summary>Sleep a still, supported physical group only when its whole Havok island is still.
-/// Control and structural changes release the group. Native contacts can wake the island directly.</summary>
+/// <summary>
+/// Forced physics sleep for stopped, supported grids (Viktor 2026-09-26).
+///
+/// Why: vanilla keeps a stopped ship's rigid body awake for good. MyEntityThrustComponent calls
+/// ActivatePhysics every frame while dampeners hold against gravity, MyShipController.MoveAndRotate
+/// does it every frame while a player sits in control, and a rotor or wheel whose motor has a non-zero
+/// target does it too. Havok then keeps the whole island awake - the ship, its subgrids and every
+/// wreck touching it. w33 node-2 at 2026-09-25 23:57: 122 of 167 awake grids moved &lt;0.5 m/s and
+/// stayed awake 44 s later, in four piles around damaged Polaris copies at the Earth base, 7,167 of
+/// ~9,250 awake blocks.
+///
+/// Rule. A physical group (connectors, landing gear, rotors, pistons) is put to sleep when every
+/// non-static member has stayed below <see cref="m_linear"/> m/s and <see cref="m_angular"/> rad/s
+/// for <see cref="m_holdSeconds"/>, AND it is supported: a member touches voxel, a static grid or a
+/// sleeping non-static grid, or the group holds a static grid. A group stopped in space or hovering
+/// mid-air is left alone. Cockpits, thrusters and gyros do not prevent it.
+/// The unit Havok sleeps is the simulation island, so the group's active island must be still as a whole:
+/// every still grid in it sleeps and wakes with the group, a character or a moving body refuses
+/// (<see cref="ExtendToIsland"/>).
+///
+/// While asleep the game's own wake calls are held shut (ForcedSleepPatch.cs:
+/// MyCubeGrid.ActivatePhysics, the rotor and wheel ActivatePhysics, the thrust and gyro updates).
+/// It wakes on:
+///  - collision: Havok itself activates the body (a hit, an explosion impulse, a body landing on it);
+///    the next tick sees IsActive and releases the group;
+///  - a control change: pilot input, dampeners toggled, thrust or gyro override changed, control or
+///    autopilot thrust/torque changed (the patches call <see cref="Wake"/>);
+///  - a structural change (Viktor 2026-09-26): a block added, removed or damaged, a block's integrity
+///    changed (welding, grinding), or the grid split. Each slept grid subscribes to its own OnBlockAdded,
+///    OnBlockRemoved, OnBlockIntegrityChanged, OnGridBlockDamaged and OnGridSplit while asleep; the
+///    block-count poll stays as a backstop. So a ship whose support was ground away does not hang in
+///    the air, and a weapon hit (its impulse goes through the held managed Activate) wakes the ship.
+/// Rotor/hinge/piston target changes do NOT wake (not in the rule); a script-driven turret on a
+/// sleeping ship turns again once something wakes the ship.
+///
+/// On with PerformanceConfig.SleepSupportedGrids (default on for cluster nodes, off elsewhere), tuned by
+/// SleepLinearSpeed (m/s, 0.1), SleepAngularSpeed (rad/s, 0.05) and SleepHoldSeconds (2). The old
+/// CLUSTER_FORCED_SLEEP* variables supply the defaults. On a cluster node it waits for the cluster's
+/// IsFrozen callback, so a node still running the cluster's own copy of this service keeps that one.
+/// Game thread only (Plugin.Update and the cluster's freeze, which calls <see cref="ReleaseForTransfer"/>),
+/// except <see cref="IsSlept"/> and <see cref="Wake"/>, which the patches may call from parallel updates.
+/// </summary>
 public static class ForcedSleepService
 {
     private const int TicksPerSecond = 4; // Sample every 15 simulation frames.
@@ -443,10 +483,12 @@ public static class ForcedSleepService
         }
         foreach (MyCubeGrid member in m_members)
         {
-            if (member.Physics == null || !member.Physics.Enabled)
-                return false;
+            // A transfer freeze disables physics, so ask about the freeze first: a group with a member in
+            // transit must not sleep. Any other member without enabled physics is skipped, as before.
             if (Frozen(member.EntityId) || m_slept.ContainsKey(member.EntityId))
                 return false;
+            if (member.Physics == null || !member.Physics.Enabled)
+                continue;
             if (
                 !m_stillSince.TryGetValue(member.EntityId, out long since)
                 || m_tick - since < holdTicks
