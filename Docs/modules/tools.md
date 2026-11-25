@@ -43,6 +43,7 @@ The `Shared/Tools` module is the foundation layer that every performance patch i
 | [`TwoLayerCache.cs`](../files/Shared/Tools/TwoLayerCache.cs.md) | Two-layer cache with a lock-free immutable read path and a synchronized mutable write path |
 | [`UintCache.cs`](../files/Shared/Tools/UintCache.cs.md) | Allocation-free time-bounded cache that packs a `uint` value and expiry tick into a single `ulong` |
 | [`Workarounds.cs`](../files/Shared/Tools/Workarounds.cs.md) | Shim extension methods compensating for missing game or .NET Framework APIs |
+| [`CompilationQueue.cs`](../files/Shared/Tools/CompilationQueue.cs.md) | Bounds concurrent asynchronous work and admits waiting requests in FIFO order. |
 
 ## How it fits together
 

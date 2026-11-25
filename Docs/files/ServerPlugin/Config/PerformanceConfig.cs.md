@@ -5,7 +5,7 @@
 |  |  |
 | --- | --- |
 | **Module** | [Server Plugin Entry Point](../../../modules/server-plugin.md) |
-| **Source** | [`PerformanceConfig.cs`](../../../../ServerPlugin/Config/PerformanceConfig.cs) (141 lines) |
+| **Source** | [`PerformanceConfig.cs`](../../../../ServerPlugin/Config/PerformanceConfig.cs) (649 lines) |
 | **Kind** | Class extending `PluginSdk.Config.PluginConfig`, implementing `IPluginConfig` |
 | **Role** | Configuration |
 
@@ -21,6 +21,8 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 
 | Member | Kind | Description |
 | --- | --- | --- |
+| `CompileOnWorkerThreads` | Boolean property | Run mod and PB compilations on worker threads. Enabled by default. |
+| `MaxConcurrentCompilations` | Integer property | Shared worker limit for mod and PB compilation. Accepts 1–16 and defaults to 2. |
 | `Enabled` | Property | Master switch; disables all patches when `false`. Default: `true`. |
 | `FixGridMerge` / `FixGridPaste` | Properties | Suppress redundant conveyor/world updates during merge and paste. Default: `true`. |
 | `FixGridGroups` | Property | Suppresses resource updates while grids move between groups. Default: `true`. |

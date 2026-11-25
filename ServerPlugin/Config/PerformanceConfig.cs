@@ -106,6 +106,28 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
     } = true;
 
     [BoolOption(
+        "Run mod and programmable block compilation on worker threads",
+        Parent = "worldload"
+    )]
+    public bool CompileOnWorkerThreads
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [IntOption(
+        CompilationLimits.Min,
+        CompilationLimits.Max,
+        "Maximum concurrent mod and programmable block compilations when worker threads are enabled",
+        Parent = "worldload"
+    )]
+    public int MaxConcurrentCompilations
+    {
+        get;
+        set => SetField(ref field, CompilationLimits.Clamp(value));
+    } = CompilationLimits.Default;
+
+    [BoolOption(
         "Disable the collection of Mod API call statistics to eliminate the overhead",
         Parent = "worldload"
     )]

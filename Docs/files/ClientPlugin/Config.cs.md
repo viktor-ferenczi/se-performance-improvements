@@ -5,13 +5,13 @@
 |  |  |
 | --- | --- |
 | **Module** | [Client Plugin Entry Point](../../modules/client-plugin.md) |
-| **Source** | [`Config.cs`](../../../ClientPlugin/Config.cs) (287 lines) |
+| **Source** | [`Config.cs`](../../../ClientPlugin/Config.cs) (756 lines) |
 | **Kind** | `class Config : IPluginConfig` (which extends `INotifyPropertyChanged`) |
 | **Role** | Configuration |
 
 ## Purpose
 
-`Config` is the client counterpart to the server's `PerformanceConfig`. Each performance fix is a public `bool` auto-property using the C# `field` contextual keyword for its backing store (`get; set => SetField(ref field, value);`) with an `= true` initializer — client users want maximum performance out of the box. The Havok physics thread count is the exception: a `HavokThreadCountMode` dropdown (default `Auto`) plus an `int` slider. Selecting `Auto` sets the count to `HavokThreads.Auto`, and the count's setter keeps it there while `Auto` is on, so a stale stored number is replaced on load. Writing a property raises `PropertyChanged`. The class implements `IPluginConfig` so the Harmony patches in the `Shared` project can gate on it uniformly via `Plugin.Common.Config`.
+`Config` is the client counterpart to the server's `PerformanceConfig`. Each performance fix is a public `bool` auto-property using the C# `field` contextual keyword for its backing store (`get; set => SetField(ref field, value);`) with an `= true` initializer — client users want maximum performance out of the box. Worker counts use numeric settings. Compilation has a shared limit for both script targets. Havok has a `HavokThreadCountMode` dropdown (default `Auto`) plus an `int` slider. Selecting `Auto` sets the count to `HavokThreads.Auto`, and the count's setter keeps it there while `Auto` is on, so a stale stored number is replaced on load. Writing a property raises `PropertyChanged`. The class implements `IPluginConfig` so the Harmony patches in the `Shared` project can gate on it uniformly via `Plugin.Common.Config`.
 
 Two flags are exceptions: `FixWheelTrail` and `FixTextPanel` are **client-side stubs** (`get => false; set { }`) with no `[Checkbox]` attribute, so they do not appear in the client dialog and always read `false`. Their patches now run only on the server ([`MyWheelPatch.cs`](../ServerPlugin/Patches/Wheel/MyWheelPatch.cs.md), [`MyLcdSurfaceComponentPatch.cs`](../ServerPlugin/Patches/TextPanel/MyLcdSurfaceComponentPatch.cs.md)), where the real toggles live in [`PerformanceConfig.cs`](../ServerPlugin/Config/PerformanceConfig.cs.md).
 
@@ -23,6 +23,8 @@ The options are grouped into seven sections mirroring the server config: *Core*,
 
 | Member | Kind | Description |
 | --- | --- | --- |
+| `CompileOnWorkerThreads` | Boolean property | Run mod and PB compilations on worker threads. Enabled by default. |
+| `MaxConcurrentCompilations` | Integer property | Shared worker limit for mod and PB compilation. Accepts 1–16 and defaults to 2. |
 | `Default` | `static Config` | Canonical defaults instance; used as fallback when no saved config exists. |
 | `Current` | `static Config` | Live singleton loaded by [`ConfigStorage.cs`](Settings/ConfigStorage.cs.md) at startup; shared with all Harmony patches via `IPluginConfig`. |
 | `Title` | `string` | Dialog caption (`"Performance"`), read by [`SettingsGenerator.cs`](Settings/SettingsGenerator.cs.md). |

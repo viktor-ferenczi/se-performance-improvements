@@ -396,9 +396,33 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
+    "Shared/Patches/ScriptCompiler/CompilationWorkers.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/ScriptCompiler/CompilationWorkers.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/ScriptCompiler/EditorCompilation.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/ScriptCompiler/EditorCompilation.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/ScriptCompiler/ModCompilation.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/ScriptCompiler/ModCompilation.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs": {
       "module": "../../../../modules/world-loading.md",
       "source": "../../../../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
+    "Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs": {
+      "module": "../../../../modules/world-loading.md",
+      "source": "../../../../../Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs",
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
@@ -489,6 +513,12 @@
     "Shared/Tools/CodeChange.cs": {
       "module": "../../../modules/tools.md",
       "source": "../../../../Shared/Tools/CodeChange.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
+    "Shared/Tools/CompilationQueue.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/CompilationQueue.cs",
       "toc": "../../../TOC.md",
       "index": "../../../Index.md"
     },
@@ -600,6 +630,12 @@
       "toc": "../../../TOC.md",
       "index": "../../../Index.md"
     },
+    "Tests/Shared/Tools/CompilationQueueTest.cs": {
+      "module": "../../../../modules/tests.md",
+      "source": "../../../../../Tests/Shared/Tools/CompilationQueueTest.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Tests/Shared/Tools/RateLimiterTest.cs": {
       "module": "../../../../modules/tests.md",
       "source": "../../../../../Tests/Shared/Tools/RateLimiterTest.cs",
@@ -619,7 +655,7 @@
           "doc_link": "../files/ClientPlugin/Config.cs.md",
           "source_link": "../../ClientPlugin/Config.cs",
           "tier": 1,
-          "lines": 273
+          "lines": 756
         },
         {
           "path": "ClientPlugin/Plugin.cs",
@@ -1113,7 +1149,7 @@
           "doc_link": "../files/ServerPlugin/Config/PerformanceConfig.cs.md",
           "source_link": "../../ServerPlugin/Config/PerformanceConfig.cs",
           "tier": 2,
-          "lines": 133
+          "lines": 649
         },
         {
           "path": "ServerPlugin/Plugin.cs",
@@ -1152,7 +1188,7 @@
           "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
           "source_link": "../../Shared/Config/IPluginConfig.cs",
           "tier": 2,
-          "lines": 153
+          "lines": 476
         },
         {
           "path": "Shared/Plugin/Common.cs",
@@ -1297,6 +1333,14 @@
       "index": "../Index.md",
       "members": [
         {
+          "path": "Tests/Shared/Tools/CompilationQueueTest.cs",
+          "name": "CompilationQueueTest.cs",
+          "doc_link": "../files/Tests/Shared/Tools/CompilationQueueTest.cs.md",
+          "source_link": "../../Tests/Shared/Tools/CompilationQueueTest.cs",
+          "tier": 2,
+          "lines": 132
+        },
+        {
           "path": "Tests/Shared/Tools/RateLimiterTest.cs",
           "name": "RateLimiterTest.cs",
           "doc_link": "../files/Tests/Shared/Tools/RateLimiterTest.cs.md",
@@ -1334,6 +1378,14 @@
           "source_link": "../../Shared/Tools/CodeChange.cs",
           "tier": 3,
           "lines": 22
+        },
+        {
+          "path": "Shared/Tools/CompilationQueue.cs",
+          "name": "CompilationQueue.cs",
+          "doc_link": "../files/Shared/Tools/CompilationQueue.cs.md",
+          "source_link": "../../Shared/Tools/CompilationQueue.cs",
+          "tier": 2,
+          "lines": 85
         },
         {
           "path": "Shared/Tools/ConveyorStat.cs",
@@ -1519,12 +1571,44 @@
           "lines": 84
         },
         {
+          "path": "Shared/Patches/ScriptCompiler/CompilationWorkers.cs",
+          "name": "CompilationWorkers.cs",
+          "doc_link": "../files/Shared/Patches/ScriptCompiler/CompilationWorkers.cs.md",
+          "source_link": "../../Shared/Patches/ScriptCompiler/CompilationWorkers.cs",
+          "tier": 2,
+          "lines": 61
+        },
+        {
+          "path": "Shared/Patches/ScriptCompiler/EditorCompilation.cs",
+          "name": "EditorCompilation.cs",
+          "doc_link": "../files/Shared/Patches/ScriptCompiler/EditorCompilation.cs.md",
+          "source_link": "../../Shared/Patches/ScriptCompiler/EditorCompilation.cs",
+          "tier": 2,
+          "lines": 145
+        },
+        {
+          "path": "Shared/Patches/ScriptCompiler/ModCompilation.cs",
+          "name": "ModCompilation.cs",
+          "doc_link": "../files/Shared/Patches/ScriptCompiler/ModCompilation.cs.md",
+          "source_link": "../../Shared/Patches/ScriptCompiler/ModCompilation.cs",
+          "tier": 2,
+          "lines": 171
+        },
+        {
           "path": "Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
           "name": "MyScriptCompilerPatch.cs",
           "doc_link": "../files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md",
           "source_link": "../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
           "tier": 1,
           "lines": 301
+        },
+        {
+          "path": "Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs",
+          "name": "ProgrammableBlockCompilation.cs",
+          "doc_link": "../files/Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs.md",
+          "source_link": "../../Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs",
+          "tier": 2,
+          "lines": 159
         }
       ]
     }

@@ -20,12 +20,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Test the self-contained RateLimiter utility in isolation, without pulling
-         in the game-dependent Shared patches and their assembly references. -->
+    <!-- Link the shared implementation files used by the tests without building a client or server plugin. -->
     <Compile Include="..\Shared\Tools\RateLimiter.cs" Link="Shared\Tools\RateLimiter.cs" />
     <Compile Include="..\Shared\Config\IPluginConfig.cs" Link="Shared\Config\IPluginConfig.cs" />
     <!-- Its only game-dependent reference, Common.Logger, is stubbed in the test -->
     <Compile Include="..\Shared\Patches\OptionalPatch.cs" Link="Shared\Patches\OptionalPatch.cs" />
+    <Compile Include="..\Shared\Tools\CompilationQueue.cs" Link="Shared\Tools\CompilationQueue.cs" />
     <Compile Include="..\Shared\Tools\ScriptCacheKey.cs" Link="Shared\Tools\ScriptCacheKey.cs" />
     <Compile Include="..\Shared\Tools\RewriterIdentity.cs" Link="Shared\Tools\RewriterIdentity.cs" />
     <Compile Include="..\Shared\Tools\Hashing.cs" Link="Shared\Tools\Hashing.cs" />

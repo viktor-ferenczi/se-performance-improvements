@@ -1,0 +1,26 @@
+# `Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs`
+
+*Submits live programmable-block compiles without waiting on the simulation thread.*
+
+|  |  |
+| --- | --- |
+| **Module** | [World Loading Patches](../../../../modules/world-loading.md) |
+| **Source** | [`ProgrammableBlockCompilation.cs`](../../../../../Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs) (159 lines) |
+| **Kind** | Static Harmony patch class |
+| **Role** | Performance patch |
+
+## Purpose
+
+Each edit supersedes the pending result for that block. A successful result activates on the game thread after the block and session are checked again. Compilation failure writes the diagnostics into the terminal.
+
+## Key members
+
+`Compile` submits the current program and schedules completion. `Forget` and `Terminated` invalidate pending results when a block closes or terminates.
+
+## References
+
+[Compilation settings](../../../../PerformanceFixes.md#caching-compiled-mods-and-in-game-scripts)
+
+---
+
+*[Handbook](../../../../TOC.md) · [Module: World Loading Patches](../../../../modules/world-loading.md) · [Index](../../../../Index.md)*

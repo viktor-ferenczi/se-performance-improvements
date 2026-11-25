@@ -100,6 +100,31 @@ public class Config : IPluginConfig
     } = true;
 
     [Checkbox(
+        label: "Compile on worker threads",
+        description: "Run mod and programmable block compilation on worker threads"
+    )]
+    public bool CompileOnWorkerThreads
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
+    [Slider(
+        CompilationLimits.Min,
+        CompilationLimits.Max,
+        1f,
+        SliderAttribute.SliderType.Integer,
+        label: "Concurrent compilations",
+        description: "Maximum concurrent mod and programmable block compilations.",
+        enabledBy: nameof(CompileOnWorkerThreads)
+    )]
+    public int MaxConcurrentCompilations
+    {
+        get;
+        set => SetField(ref field, CompilationLimits.Clamp(value));
+    } = CompilationLimits.Default;
+
+    [Checkbox(
         label: "Disable Mod API statistics",
         description: "Disable the collection of Mod API call statistics to eliminate the overhead"
     )]
