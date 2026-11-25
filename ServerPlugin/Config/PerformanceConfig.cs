@@ -180,6 +180,53 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
 
     // ---- Simulation -----------------------------------------------------
 
+    [BoolOption("Put stopped, supported grids to sleep", Parent = "simulation")]
+    public bool SleepSupportedGrids
+    {
+        get;
+        set => SetField(ref field, value);
+    } =
+        PluginSdk.Clustering.PluginCluster.IsClusterProcess
+        && System.Environment.GetEnvironmentVariable("CLUSTER_FORCED_SLEEP") != "0";
+
+    [FloatOption(0.001f, 1000f, "Maximum linear speed for sleep (m/s)", Parent = "simulation")]
+    public float SleepLinearSpeed
+    {
+        get;
+        set => SetField(ref field, value);
+    } = LegacySleepSetting("LINEAR", 0.1f);
+
+    [FloatOption(0.001f, 1000f, "Maximum angular speed for sleep (rad/s)", Parent = "simulation")]
+    public float SleepAngularSpeed
+    {
+        get;
+        set => SetField(ref field, value);
+    } = LegacySleepSetting("ANGULAR", 0.05f);
+
+    [FloatOption(
+        0.001f,
+        1000f,
+        "Time the group must remain still (simulation seconds)",
+        Parent = "simulation"
+    )]
+    public float SleepHoldSeconds
+    {
+        get;
+        set => SetField(ref field, value);
+    } = LegacySleepSetting("SECONDS", 2f);
+
+    private static float LegacySleepSetting(string suffix, float fallback) =>
+        float.TryParse(
+            System.Environment.GetEnvironmentVariable("CLUSTER_FORCED_SLEEP_" + suffix),
+            System.Globalization.NumberStyles.Float,
+            System.Globalization.CultureInfo.InvariantCulture,
+            out var value
+        )
+        && value > 0
+        && !float.IsInfinity(value)
+            ? value
+            : fallback;
+
     [BoolOption("Cache frequent recalculations in safe zones", Parent = "simulation")]
     public bool FixSafeZone
     {

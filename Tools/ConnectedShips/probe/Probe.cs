@@ -154,6 +154,8 @@ public class Probe : IPlugin
             case "state":
                 State();
                 return Yield(1);
+            case "force-sleep-check":
+                return ForceSleepCheck(a[1], a[2]);
             case "kick":
                 Kick(a[1], V(a[2], a[3], a[4]), V(a[5], a[6], a[7]));
                 return Yield(1);
@@ -198,6 +200,111 @@ public class Probe : IPlugin
                 return Yield(30);
             default:
                 throw new ArgumentException(a[0]);
+        }
+    }
+
+    // Keep sending the managed activation that normally prevents a resting ship from sleeping.
+    private IEnumerator ForceSleepCheck(string shipName, string stationName)
+    {
+        var grid = Named(shipName);
+        var station = Named(stationName);
+        var free = Named("Free");
+        var service = AccessTools.TypeByName("ServerPlugin.Patches.ForcedSleepService");
+        var held =
+            (Func<MyCubeGrid, bool>)
+                Delegate.CreateDelegate(
+                    typeof(Func<MyCubeGrid, bool>),
+                    service.GetMethod("IsSlept")
+                );
+        // Supply a static member without welding the test body into a fixed Havok body.
+        long link = grid.EntityId;
+        var groups = MyCubeGridGroups.Static.Physical;
+        groups.CreateLink(link, station, grid);
+        try
+        {
+            for (int i = 0; i < 750 && !held(grid); i++)
+            {
+                free.ActivatePhysics();
+                grid.ActivatePhysics();
+                yield return 1;
+            }
+            Say($"unsupportedFree={!held(free)}");
+            Say($"supportedHeld={held(grid)} asleep={!grid.Physics.IsActive}");
+            grid.ActivatePhysics();
+            Say($"activationHeld={held(grid) && !grid.Physics.IsActive}");
+            var domain = AppDomain.CurrentDomain;
+            var release =
+                (Action<long>)domain.GetData("Performance.ForcedSleep.ReleaseForTransfer");
+            // When a matching ClusterNode build is supplied, exercise its real freeze/thaw path.
+            var clusterDll = Environment.GetEnvironmentVariable("SLEEP_TEST_CLUSTER_DLL");
+            var transfer = Guid.NewGuid();
+            if (clusterDll != null)
+            {
+                var runtime = System
+                    .Reflection.Assembly.LoadFrom(clusterDll)
+                    .GetType("ClusterPlugin.ClusterRuntime", true);
+                var isFrozen =
+                    (Func<long, bool>)
+                        Delegate.CreateDelegate(
+                            typeof(Func<long, bool>),
+                            runtime.GetMethod("IsFrozen")
+                        );
+                domain.SetData("CometWorks.Cluster.IsFrozen", isFrozen);
+                try
+                {
+                    AccessTools
+                        .Method(runtime, "MarkFrozen")
+                        .Invoke(null, new object[] { grid.EntityId, transfer });
+                    Say($"clusterReleased={!held(grid)} stillAsleep={!grid.Physics.IsActive}");
+                    for (int i = 0; i < 75; i++)
+                    {
+                        grid.ActivatePhysics();
+                        yield return 1;
+                    }
+                    Say($"transferExcluded={isFrozen(grid.EntityId) && !held(grid)}");
+                }
+                finally
+                {
+                    AccessTools
+                        .Method(runtime, "ClearFrozen", new[] { typeof(long), typeof(Guid) })
+                        .Invoke(null, new object[] { grid.EntityId, transfer });
+                    domain.SetData("CometWorks.Cluster.IsFrozen", null);
+                }
+            }
+            else
+            {
+                release(grid.EntityId);
+                Say($"transferReleased={!held(grid)} stillAsleep={!grid.Physics.IsActive}");
+            }
+            for (int i = 0; i < 180 && !held(grid); i++)
+            {
+                grid.ActivatePhysics();
+                yield return 1;
+            }
+            Say($"sleptAgain={held(grid)}");
+            AccessTools
+                .Method(typeof(MyCubeGrid), "EnableDampingInternal")
+                .Invoke(grid, new object[] { !grid.DampenersEnabled, false });
+            Say($"controlReleased={!held(grid)} awake={grid.Physics.IsActive}");
+            for (int i = 0; i < 180 && !held(grid); i++)
+            {
+                grid.ActivatePhysics();
+                yield return 1;
+            }
+            Say($"heldBeforeDisable={held(grid)}");
+            var plugin = service.Assembly.GetType("ServerPlugin.Plugin");
+            var instance = plugin.GetProperty("Instance").GetValue(null);
+            var config = plugin.GetProperty("PluginConfig").GetValue(instance);
+            config.GetType().GetProperty("SleepSupportedGrids").SetValue(config, false);
+            for (int i = 0; i < 30 && held(grid); i++)
+                yield return 1;
+            Say(
+                $"disabledReleased={!held(grid)} registered={domain.GetData("Performance.ForcedSleep.ReleaseForTransfer") != null}"
+            );
+        }
+        finally
+        {
+            groups.BreakLink(link, station, grid);
         }
     }
 

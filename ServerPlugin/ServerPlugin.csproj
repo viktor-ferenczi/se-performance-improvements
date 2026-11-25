@@ -337,6 +337,12 @@
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyEntities.OnEntityAdd"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyEntities.OnEntityRemove"/>
     <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyCubeGrid.OnStaticChanged"/>
+    <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.World.MySession.OnUnloading"/>
+    <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyCubeGrid.OnBlockAdded"/>
+    <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyCubeGrid.OnBlockRemoved"/>
+    <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyCubeGrid.OnBlockIntegrityChanged"/>
+    <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyCubeGrid.OnGridBlockDamaged"/>
+    <DoNotPublicize Include="Sandbox.Game:Sandbox.Game.Entities.MyCubeGrid.OnGridSplit"/>
   </ItemGroup>
 
   <Target Name="ValidateProps" BeforeTargets="PrepareForBuild">

@@ -50,6 +50,7 @@ the code that implements them is organized.
 - Optional PB time quota per player: turns off a player's most expensive PB when all their PBs together run too long in a frame (needs the per-thread PB instruction counter)
 - Optional PB time budget per frame: scheduled PB runs over it wait for later frames, the longest waiting first
 - Disable server-side character footprints and wheel trail tracking
+- Put stationary, supported grid groups to sleep on dedicated servers. Enable **Sleep supported grids** in the simulation settings. Cluster nodes enable it by default. Unsupported ships in space and hovering ships stay under normal game physics.
 - Push apart grids stuck inside each other after a collision, like a ship rammed into a station in a no-damage safe zone (server, offline games and hosted multiplayer games)
 - Push grids stuck inside a planet or an asteroid out of it (server, offline games and hosted multiplayer games)
 - Remove dynamic grids buried entirely inside a planet every 5 minutes (server, offline games and hosted multiplayer games)

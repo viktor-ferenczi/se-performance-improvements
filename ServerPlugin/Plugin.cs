@@ -272,6 +272,7 @@ public class Plugin : IPlugin, ICommonPlugin
     {
         try
         {
+            Patches.ForcedSleepService.Stop();
             if (config != null)
                 config.PropertyChanged -= OnConfigChanged;
         }
@@ -314,5 +315,7 @@ public class Plugin : IPlugin, ICommonPlugin
         StuckInVoxelPatch.Update();
         BuriedGridSweeper.Update();
         ConnectedShipsPatch.Update();
+        if (Tick % 15 == 0)
+            Patches.ForcedSleepService.Update(config);
     }
 }
