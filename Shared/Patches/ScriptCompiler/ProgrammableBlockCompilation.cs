@@ -23,7 +23,11 @@ namespace Shared.Patches;
 [HarmonyPatch(typeof(MyProgrammableBlock))]
 internal static class ProgrammableBlockCompilation
 {
-    private sealed class Request { }
+    private sealed class Request(string program, bool instantiate)
+    {
+        public readonly string Program = program;
+        public bool Instantiate = instantiate;
+    }
 
     private static readonly ConditionalWeakTable<MyProgrammableBlock, Request> Pending = new();
 
@@ -34,6 +38,40 @@ internal static class ProgrammableBlockCompilation
     [HarmonyPrefix]
     [HarmonyPatch("OnProgramTermination")]
     private static void Terminated(MyProgrammableBlock __instance) => Pending.Remove(__instance);
+
+    // The terminal button and the vanilla network event both call this server handler.
+    [HarmonyPrefix]
+    [HarmonyPatch("Recompile")]
+    private static bool Recompile(MyProgrammableBlock __instance, bool instantiate)
+    {
+        if (
+            !Sync.IsServer
+            || !CompilationWorkers.Enabled
+            || !Pending.TryGetValue(__instance, out var request)
+            || request.Program != __instance.m_programData
+        )
+            return true;
+
+        request.Instantiate |= instantiate;
+        return false;
+    }
+
+    [HarmonyPrefix]
+    [HarmonyPatch("ExecuteCode")]
+    private static bool ExecuteCode(
+        MyProgrammableBlock __instance,
+        ref string response,
+        ref MyProgrammableBlock.ScriptTerminationReason __result
+    )
+    {
+        if (__instance.CurrentAssembly != null || !Pending.TryGetValue(__instance, out _))
+            return true;
+
+        // A run before activation has no instance yet. Keep its transient state out of the terminal.
+        response = string.Empty;
+        __result = MyProgrammableBlock.ScriptTerminationReason.NoScript;
+        return false;
+    }
 
     [HarmonyPrefix]
     [HarmonyPatch("Compile")]
@@ -59,7 +97,7 @@ internal static class ProgrammableBlockCompilation
         )
             return false;
 
-        var request = new Request();
+        var request = new Request(program, instantiate);
         Pending.Add(block, request);
         // Init and the first physical simulation update both request a deferred instance.
         // The latter has already cleared m_needsInstantiation when it calls Recompile(false).
@@ -113,7 +151,7 @@ internal static class ProgrammableBlockCompilation
                                     block.SetDetailedInfo(
                                         string.Join(Environment.NewLine, block.m_compilerErrors)
                                     );
-                                else if (instantiate)
+                                else if (request.Instantiate)
                                     block.CreateInstance(
                                         block.CurrentAssembly,
                                         block.m_compilerErrors,
