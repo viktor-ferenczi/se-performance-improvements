@@ -242,7 +242,7 @@ public static class ScriptThreads
 public static class CompilationLimits
 {
     public const int Min = 1;
-    public const int Max = 32;
+    public const int Max = 16;
     public const int Default = 2;
 
     public static int Clamp(int value) => Math.Max(Min, Math.Min(Max, value));

@@ -19,8 +19,8 @@ public class CompilationQueueTest
     [InlineData(1, 1)]
     [InlineData(CompilationLimits.Default, 2)]
     [InlineData(4, 4)]
-    [InlineData(32, 32)]
-    [InlineData(33, 32)]
+    [InlineData(16, 16)]
+    [InlineData(17, 16)]
     public void ConfigurationUsesTheSameBoundsAsTheSettingsControls(int value, int expected)
     {
         Assert.Equal(expected, CompilationLimits.Clamp(value));

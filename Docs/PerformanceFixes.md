@@ -91,7 +91,7 @@ marks those resources for updating by a worker thread later.
 
 The plugin caches successful mod and programmable block compilations on disk.
 Both kinds of requests share a queue with two concurrent compilations by
-default. Set `MaxConcurrentCompilations` to a value from 1 to 32 to change the shared limit.
+default. Set `MaxConcurrentCompilations` to a value from 1 to 16 to change the shared limit.
 Turn off `CompileOnWorkerThreads` to compile on the game thread. Existing queued jobs finish. The worker queue also runs when either disk cache is disabled. The loader
 registers completed mods in their original order. In a running world, a PB
 can take several ticks to become ready after a paste or edit. An edit replaces

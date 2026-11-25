@@ -24,7 +24,7 @@ The options are grouped into seven sections mirroring the server config: *Core*,
 | Member | Kind | Description |
 | --- | --- | --- |
 | `CompileOnWorkerThreads` | Boolean property | Run mod and PB compilations on worker threads. Enabled by default. |
-| `MaxConcurrentCompilations` | Integer property | Shared worker limit for mod and PB compilation. Accepts 1–32 and defaults to 2. |
+| `MaxConcurrentCompilations` | Integer property | Shared worker limit for mod and PB compilation. Accepts 1–16 and defaults to 2. |
 | `Default` | `static Config` | Canonical defaults instance; used as fallback when no saved config exists. |
 | `Current` | `static Config` | Live singleton loaded by [`ConfigStorage.cs`](Settings/ConfigStorage.cs.md) at startup; shared with all Harmony patches via `IPluginConfig`. |
 | `Title` | `string` | Dialog caption (`"Performance"`), read by [`SettingsGenerator.cs`](Settings/SettingsGenerator.cs.md). |
