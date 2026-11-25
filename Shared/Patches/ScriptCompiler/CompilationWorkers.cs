@@ -18,8 +18,7 @@ internal static class CompilationWorkers
         Common.Config.MaxConcurrentCompilations
     );
 
-    internal static bool Enabled =>
-        Common.Config.Enabled && Common.Config.MaxConcurrentCompilations > 0;
+    internal static bool Enabled => Common.Config.Enabled && Common.Config.CompileOnWorkerThreads;
 
     internal static void WaitForIdle(bool cancelPending = false) =>
         Queue.WaitForIdle(cancelPending);

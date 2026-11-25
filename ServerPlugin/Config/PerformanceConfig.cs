@@ -105,10 +105,20 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [BoolOption(
+        "Run mod and programmable block compilation on worker threads",
+        Parent = "worldload"
+    )]
+    public bool CompileOnWorkerThreads
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [IntOption(
         CompilationLimits.Min,
         CompilationLimits.Max,
-        "Maximum concurrent mod and programmable block compilations. Set to zero to use the original game-thread compilation path",
+        "Maximum concurrent mod and programmable block compilations when worker threads are enabled",
         Parent = "worldload"
     )]
     public int MaxConcurrentCompilations

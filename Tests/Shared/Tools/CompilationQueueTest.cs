@@ -14,11 +14,13 @@ public class CompilationQueueTest
     private static bool submitting;
 
     [Theory]
-    [InlineData(-1, 0)]
-    [InlineData(0, 0)]
+    [InlineData(-1, 1)]
+    [InlineData(0, 1)]
+    [InlineData(1, 1)]
     [InlineData(CompilationLimits.Default, 2)]
     [InlineData(4, 4)]
-    [InlineData(100, CompilationLimits.Max)]
+    [InlineData(32, 32)]
+    [InlineData(33, 32)]
     public void ConfigurationUsesTheSameBoundsAsTheSettingsControls(int value, int expected)
     {
         Assert.Equal(expected, CompilationLimits.Clamp(value));

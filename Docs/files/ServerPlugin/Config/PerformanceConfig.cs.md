@@ -21,7 +21,8 @@ Each property uses a C# 13 field keyword (`set => SetField(ref field, value)`) t
 
 | Member | Kind | Description |
 | --- | --- | --- |
-| `MaxConcurrentCompilations` | Integer property | Shared limit for mod and PB compilation. Defaults to two workers and accepts 0–64. Zero uses the original compilation path. |
+| `CompileOnWorkerThreads` | Boolean property | Run mod and PB compilations on worker threads. Enabled by default. |
+| `MaxConcurrentCompilations` | Integer property | Shared worker limit for mod and PB compilation. Accepts 1–32 and defaults to 2. |
 | `Enabled` | Property | Master switch; disables all patches when `false`. Default: `true`. |
 | `FixGridMerge` / `FixGridPaste` | Properties | Suppress redundant conveyor/world updates during merge and paste. Default: `true`. |
 | `FixGridGroups` | Property | Suppresses resource updates while grids move between groups. Default: `true`. |

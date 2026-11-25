@@ -241,8 +241,8 @@ public static class ScriptThreads
 
 public static class CompilationLimits
 {
-    public const int Min = 0;
-    public const int Max = 64;
+    public const int Min = 1;
+    public const int Max = 32;
     public const int Default = 2;
 
     public static int Clamp(int value) => Math.Max(Min, Math.Min(Max, value));
@@ -270,6 +270,8 @@ public interface IPluginConfig : INotifyPropertyChanged
 
     // Disables resource updates while grids are being moved between groups
     bool FixGridGroups { get; set; }
+
+    bool CompileOnWorkerThreads { get; set; }
 
     // Mod and PB compilation requests share this many workers.
     int MaxConcurrentCompilations { get; set; }

@@ -99,13 +99,24 @@ public class Config : IPluginConfig
         set => SetField(ref field, value);
     } = true;
 
+    [Checkbox(
+        label: "Compile on worker threads",
+        description: "Run mod and programmable block compilation on worker threads"
+    )]
+    public bool CompileOnWorkerThreads
+    {
+        get;
+        set => SetField(ref field, value);
+    } = true;
+
     [Slider(
         CompilationLimits.Min,
         CompilationLimits.Max,
         1f,
         SliderAttribute.SliderType.Integer,
         label: "Concurrent compilations",
-        description: "Maximum concurrent mod and programmable block compilations. Set to zero to use the original game-thread compilation path."
+        description: "Maximum concurrent mod and programmable block compilations.",
+        enabledBy: nameof(CompileOnWorkerThreads)
     )]
     public int MaxConcurrentCompilations
     {
