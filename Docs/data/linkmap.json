@@ -576,6 +576,12 @@
       "toc": "../../../TOC.md",
       "index": "../../../Index.md"
     },
+    "Shared/Tools/PerformanceStorage.cs": {
+      "module": "../../../modules/tools.md",
+      "source": "../../../../Shared/Tools/PerformanceStorage.cs",
+      "toc": "../../../TOC.md",
+      "index": "../../../Index.md"
+    },
     "Shared/Tools/PreloaderHelpers.cs": {
       "module": "../../../modules/tools.md",
       "source": "../../../../Shared/Tools/PreloaderHelpers.cs",
@@ -636,6 +642,12 @@
       "toc": "../../../../TOC.md",
       "index": "../../../../Index.md"
     },
+    "Tests/Shared/Tools/PerformanceStorageTest.cs": {
+      "module": "../../../../modules/tests.md",
+      "source": "../../../../../Tests/Shared/Tools/PerformanceStorageTest.cs",
+      "toc": "../../../../TOC.md",
+      "index": "../../../../Index.md"
+    },
     "Tests/Shared/Tools/RateLimiterTest.cs": {
       "module": "../../../../modules/tests.md",
       "source": "../../../../../Tests/Shared/Tools/RateLimiterTest.cs",
@@ -655,7 +667,7 @@
           "doc_link": "../files/ClientPlugin/Config.cs.md",
           "source_link": "../../ClientPlugin/Config.cs",
           "tier": 1,
-          "lines": 756
+          "lines": 767
         },
         {
           "path": "ClientPlugin/Plugin.cs",
@@ -1149,7 +1161,7 @@
           "doc_link": "../files/ServerPlugin/Config/PerformanceConfig.cs.md",
           "source_link": "../../ServerPlugin/Config/PerformanceConfig.cs",
           "tier": 2,
-          "lines": 649
+          "lines": 660
         },
         {
           "path": "ServerPlugin/Plugin.cs",
@@ -1188,7 +1200,7 @@
           "doc_link": "../files/Shared/Config/IPluginConfig.cs.md",
           "source_link": "../../Shared/Config/IPluginConfig.cs",
           "tier": 2,
-          "lines": 476
+          "lines": 479
         },
         {
           "path": "Shared/Plugin/Common.cs",
@@ -1196,7 +1208,7 @@
           "doc_link": "../files/Shared/Plugin/Common.cs.md",
           "source_link": "../../Shared/Plugin/Common.cs",
           "tier": 1,
-          "lines": 99
+          "lines": 96
         },
         {
           "path": "Shared/Plugin/ICommonPlugin.cs",
@@ -1341,6 +1353,14 @@
           "lines": 132
         },
         {
+          "path": "Tests/Shared/Tools/PerformanceStorageTest.cs",
+          "name": "PerformanceStorageTest.cs",
+          "doc_link": "../files/Tests/Shared/Tools/PerformanceStorageTest.cs.md",
+          "source_link": "../../Tests/Shared/Tools/PerformanceStorageTest.cs",
+          "tier": 2,
+          "lines": 186
+        },
+        {
           "path": "Tests/Shared/Tools/RateLimiterTest.cs",
           "name": "RateLimiterTest.cs",
           "doc_link": "../files/Tests/Shared/Tools/RateLimiterTest.cs.md",
@@ -1458,6 +1478,14 @@
           "source_link": "../../Shared/Tools/ObjectPools.cs",
           "tier": 2,
           "lines": 50
+        },
+        {
+          "path": "Shared/Tools/PerformanceStorage.cs",
+          "name": "PerformanceStorage.cs",
+          "doc_link": "../files/Shared/Tools/PerformanceStorage.cs.md",
+          "source_link": "../../Shared/Tools/PerformanceStorage.cs",
+          "tier": 2,
+          "lines": 150
         },
         {
           "path": "Shared/Tools/PreloaderHelpers.cs",
@@ -1600,7 +1628,7 @@
           "doc_link": "../files/Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs.md",
           "source_link": "../../Shared/Patches/ScriptCompiler/MyScriptCompilerPatch.cs",
           "tier": 1,
-          "lines": 301
+          "lines": 367
         },
         {
           "path": "Shared/Patches/ScriptCompiler/ProgrammableBlockCompilation.cs",

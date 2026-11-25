@@ -1,5 +1,6 @@
 using PluginSdk.Config;
 using Shared.Config;
+using Shared.Tools;
 
 namespace ServerPlugin.Config;
 
@@ -104,6 +105,16 @@ public class PerformanceConfig : PluginConfig, IPluginConfig
         get;
         set => SetField(ref field, value);
     } = true;
+
+    [StringOption(
+        description: "Folder for compiled mods and programmable blocks. Use an absolute path or one relative to Storage. Takes effect on restart.",
+        Parent = "restart"
+    )]
+    public string CompilationCacheRoot
+    {
+        get;
+        set => SetField(ref field, value);
+    } = PerformanceStorage.DefaultRoot;
 
     [BoolOption(
         "Run mod and programmable block compilation on worker threads",

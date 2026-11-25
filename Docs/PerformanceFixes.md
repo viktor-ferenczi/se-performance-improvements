@@ -97,6 +97,23 @@ registers completed mods in their original order. In a running world, a PB
 can take several ticks to become ready after a paste or edit. An edit replaces
 the previous request for that block. Compile errors appear in its terminal.
 
+`CompilationCacheRoot` defaults to `Performance`. Relative paths start at the
+game instance’s `Storage` folder. An absolute path can point both caches at
+a shared volume. Restart the game or server after changing the setting.
+Compiled assemblies go in `Cache/CompiledMods` and `Cache/CompiledInGameScripts`
+under the configured root. Use the same compiler settings on nodes sharing a
+cache. Each node keeps its own compilation limit.
+
+On a standard Windows install the default root is
+`%AppData%/SpaceEngineers/Storage/Performance` on the client and
+`%AppData%/SpaceEngineersDedicated/Storage/Performance` on Magnetar.
+At startup the plugin creates `Storage` if needed and moves the old
+`Performance` folder into it if the destination is missing. If both folders
+exist, the plugin keeps the destination, removes recognized plugin files from
+the old folder, and prunes empty directories. Other files stay where they are.
+Debug output and ImageSharp files use the instance’s local `Storage/Performance`
+folder even when the compilation caches are shared.
+
 [Support ticket](https://support.keenswh.com/spaceengineers/pc/topic/23906-performance-cache-compiled-mods-and-in-game-scripts)
 
 ## MySafeZone caching and optimizations

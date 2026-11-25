@@ -23,7 +23,7 @@ The platform compiler queues both mod and PB requests, including cache lookups, 
 
 The queue runs when the plugin is enabled and `CompileOnWorkerThreads` is on. With the flag off, mods, live PBs and editor checks use the original compilation path. The two cache switches independently control disk reads and writes. A compile that fails has no assembly to store.
 
-Cache directories (`CompiledMods/`, `CompiledInGameScripts/`) live under `Common.CacheDir` and are created at `Configure()` time. The patch respects `CacheMods` and `CacheScripts` config flags independently, so operators can cache one type but not the other.
+`CompilationCacheRoot` chooses the root for both compilation caches. At startup the plugin creates `Cache/CompiledMods` and `Cache/CompiledInGameScripts` under that root. Relative roots start in the instance’s `Storage` folder.
 
 The image loading fix operates on a different part of world startup. `MyImagePatch` prefixes the one `MyImage.Load` overload every image load funnels into and hands the stream to `ImageLoader`, which decodes through `ImageSharpRuntime`. That class is the only place that knows about the newer ImageSharp: it renames the shipped library with Cecil (so it can be loaded beside the game's own copy on .NET, which allows one assembly per simple name), caches the renamed file under `Common.CacheDir/ImageSharp`, and binds the handful of members it needs by reflection. The pixel format selection is a mirror of `MyImage.Load`, which is what keeps the decoded arrays byte-identical to the game's; planet height maps are terrain, so this is a correctness requirement, not a nicety.
 

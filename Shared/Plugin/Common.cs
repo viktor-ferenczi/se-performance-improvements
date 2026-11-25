@@ -10,8 +10,6 @@ namespace Shared.Plugin;
 
 public static class Common
 {
-    private const int CacheExpirationDays = 90;
-
     public static ICommonPlugin Plugin { get; private set; }
     public static IPluginLogger Logger { get; private set; }
     public static IPluginConfig Config { get; private set; }
@@ -21,6 +19,7 @@ public static class Common
 
     public static string DataDir { get; private set; }
     public static string CacheDir { get; private set; }
+    public static string CompilationCacheDir { get; private set; }
     public static string DebugDir { get; private set; }
 
     private static string CacheGameVersionPath => Path.Combine(CacheDir, "GameVersion.txt");
@@ -30,13 +29,18 @@ public static class Common
     // patches. Called once per process — from the client's Init, or from the dedicated server's
     // early bootstrap (with a stand-in plugin; the live instance is attached later via
     // AttachPlugin). See ServerPlugin.Plugin.EarlyStartup.
-    public static void SetPlugin(ICommonPlugin plugin, string gameVersion, string storageDir)
+    public static void SetPlugin(ICommonPlugin plugin, string gameVersion, string userDataPath)
     {
         AttachPlugin(plugin);
 
         GameVersion = gameVersion;
 
-        DataDir = Path.Combine(storageDir, "Performance");
+        var storage = PerformanceStorage.Prepare(userDataPath, message => Logger.Warning(message));
+        DataDir = Path.Combine(storage, PerformanceStorage.DefaultRoot);
+        CompilationCacheDir = PerformanceStorage.CompilationCache(
+            storage,
+            Config.CompilationCacheRoot
+        );
         CacheDir = Path.Combine(DataDir, "Cache");
         DebugDir = Path.Combine(DataDir, "Debug");
 
@@ -46,7 +50,11 @@ public static class Common
         var hasPluginVersionChanged =
             !File.Exists(PluginVersionPath) || File.ReadAllText(PluginVersionPath) != PluginVersion;
 
-        CleanupCache(hasGameVersionChanged);
+        if (hasGameVersionChanged)
+        {
+            Directory.CreateDirectory(CacheDir);
+            File.WriteAllText(CacheGameVersionPath, GameVersion);
+        }
         CleanupDebug(hasGameVersionChanged || hasPluginVersionChanged);
 
         // Must run before any mod or script compilation, so the versions of the loaded
@@ -70,36 +78,6 @@ public static class Common
         Config = plugin.Config;
     }
 
-    private static void CleanupCache(bool clear)
-    {
-        Directory.CreateDirectory(CacheDir);
-
-        var now = DateTime.UtcNow;
-        foreach (
-            var path in Directory.EnumerateFiles(CacheDir, "*.cache", SearchOption.AllDirectories)
-        )
-        {
-            if (clear || (now - File.GetCreationTimeUtc(path)).TotalDays >= CacheExpirationDays)
-                File.Delete(path);
-        }
-
-        // Temp files left behind by a crash while storing a compiled script, see MyScriptCompilerPatch.StoreIntoCache
-        foreach (
-            var path in Directory.EnumerateFiles(
-                CacheDir,
-                "*.cache.*.tmp",
-                SearchOption.AllDirectories
-            )
-        )
-        {
-            if ((now - File.GetCreationTimeUtc(path)).TotalHours >= 1)
-                File.Delete(path);
-        }
-
-        if (clear)
-            File.WriteAllText(CacheGameVersionPath, GameVersion);
-    }
-
     private static void CleanupDebug(bool clear)
     {
         Directory.CreateDirectory(DebugDir);
@@ -107,11 +85,10 @@ public static class Common
         if (!clear)
             return;
 
-        foreach (
-            var path in Directory.EnumerateFiles(DebugDir, "*.il", SearchOption.AllDirectories)
-        )
+        foreach (var path in Directory.EnumerateFiles(DebugDir, "*.il"))
         {
-            File.Delete(path);
+            if (PerformanceStorage.IsDebugDump(Path.GetFileName(path)))
+                File.Delete(path);
         }
 
         File.WriteAllText(PluginVersionPath, PluginVersion);

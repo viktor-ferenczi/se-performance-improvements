@@ -112,6 +112,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Tools\WorkerPool.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RewriterIdentity.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\CompilationQueue.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Tools\PerformanceStorage.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\ScriptCacheKey.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLock.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Tools\RwLockDictionary.cs" />

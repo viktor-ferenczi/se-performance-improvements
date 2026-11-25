@@ -271,6 +271,9 @@ public interface IPluginConfig : INotifyPropertyChanged
     // Disables resource updates while grids are being moved between groups
     bool FixGridGroups { get; set; }
 
+    // Root shared by the two compilation caches. Relative values start at the instance's Storage folder.
+    string CompilationCacheRoot { get; set; }
+
     bool CompileOnWorkerThreads { get; set; }
 
     // Mod and PB compilation requests share this many workers.

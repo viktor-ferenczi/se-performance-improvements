@@ -2,7 +2,7 @@
 
 Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md) for the guided, top-down view.
 
-**109 files across 16 modules.**
+**111 files across 16 modules.**
 
 ## [Client Plugin Entry Point](modules/client-plugin.md)
 
@@ -79,6 +79,7 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | [`ModRewriterVersions.cs`](files/Shared/Tools/ModRewriterVersions.cs.md) | `Shared/Tools/ModRewriterVersions.cs` | Detects the loaded mod-rewriting plugins and hashes their content IDs, so the code of each rewriter contributes to the mod and in-game script compilation cache keys. |
 | [`MySessionExtensions.cs`](files/Shared/Tools/MySessionExtensions.cs.md) | `Shared/Tools/MySessionExtensions.cs` | Extension methods on `MySession` exposing the internal `m_updateAllowed` flag through publicized direct access. |
 | [`ObjectPools.cs`](files/Shared/Tools/ObjectPools.cs.md) | `Shared/Tools/ObjectPools.cs` | Shared `StringBuilder` pool backed by the game's `MyConcurrentBucketPool`, reducing GC pressure from frequent string formatting. |
+| [`PerformanceStorage.cs`](files/Shared/Tools/PerformanceStorage.cs.md) | `Shared/Tools/PerformanceStorage.cs` | Resolves the compilation cache folders and migrates plugin files from the previous layout. |
 | [`PreloaderHelpers.cs`](files/Shared/Tools/PreloaderHelpers.cs.md) | `Shared/Tools/PreloaderHelpers.cs` | Static helper class for Mono.Cecil-based preloader patches: IL index search, hash verification, and debug IL recording over `Collection<Instruction>`. |
 | [`RateLimiter.cs`](files/Shared/Tools/RateLimiter.cs.md) | `Shared/Tools/RateLimiter.cs` | Simple token-bucket rate limiter that caps the number of log messages (or any action) permitted per reporting period. |
 | [`RewriterIdentity.cs`](files/Shared/Tools/RewriterIdentity.cs.md) | `Shared/Tools/RewriterIdentity.cs` | Content ID of a rewriter plugin that survives a rebuild from unchanged source, and the redirect from older builds' random assembly names to the loaded build. |
@@ -190,5 +191,6 @@ Every documented source file, grouped by module. See the [Handbook (TOC)](TOC.md
 | File | Path | Summary |
 | --- | --- | --- |
 | [`CompilationQueueTest.cs`](files/Tests/Shared/Tools/CompilationQueueTest.cs.md) | `Tests/Shared/Tools/CompilationQueueTest.cs` | Exercises the shared worker limit, fault and cancellation handling, and session shutdown. |
+| [`PerformanceStorageTest.cs`](files/Tests/Shared/Tools/PerformanceStorageTest.cs.md) | `Tests/Shared/Tools/PerformanceStorageTest.cs` | Verifies cache paths and legacy migration in isolated filesystem fixtures. |
 | [`RateLimiterTest.cs`](files/Tests/Shared/Tools/RateLimiterTest.cs.md) | `Tests/Shared/Tools/RateLimiterTest.cs` | xUnit test verifying the core quota-and-reset behaviour of `RateLimiter.cs`. |
 
