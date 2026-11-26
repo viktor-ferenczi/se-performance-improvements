@@ -250,7 +250,7 @@ the grids, the clients see it through the normal position replication. It gives 
 
 The depth of a contact is `HkContactPoint.NormalAndDistance.W`, the value the game reads
 itself. `HkContactPoint.Distance` has the wrong field offset in `HavokWrapper.dll` and
-returns the Y component of the contact normal. Before 1.19.1 the plugin read that, so any
+returns the Y component of the contact normal. Before 1.19.2 the plugin read that, so any
 contact whose normal pointed down the world's Y axis counted as 0.5 m deep. A rover resting
 on a station whose up is the world's -Y was taken for stuck through each of its wheels and
 thrown sideways by all of them at once, 2 m per update (issue #162).
