@@ -89,3 +89,22 @@ took. Toggle the fix live and compare the lines.
 - `client_test.py <world> [--seconds 120]`: the same world offline on a headless Pulsar client
   with the client plugin, loaded through the Remote plugin. Needs httpx; `BIN64` names the game's
   `Bin64` on hosts where Pulsar can't find it.
+
+## AttachRace
+
+Regression rig for issue #161, the crash in `MyCubeGrid.MechanicalConnectionBlockAttachUpdateStatusChanged`
+fixed by `MyAttachableTopBlockBasePatch`. `probe-plugin` is a source-only plugin. Once the world is
+ready it builds a static grid of 64 stators, then for `--seconds` creates `--tops` rotor tops
+per frame with `CreateFromObjectBuilderParallel`, each naming one of the stators as its parent,
+so their `Init` runs on worker threads as for grids a client streams in. It counts the changes
+of the stators' `BlocksWaitingOnAttachUpdate` made off the main thread and the exceptions of the
+methods that change it (caught, so a torn set shows up in the numbers instead of ending the run),
+and checks at the end that the set holds exactly the stators waiting on an attach update.
+
+```bash
+ATTACH_SLOT=<slot> python3 Tools/AttachRace/rig.py "<DS>/Content/CustomWorlds/Empty World" [--vanilla]
+```
+
+`--vanilla` runs without Performance, the baseline. `PERFORMANCE_REPO` loads Performance from
+another checkout. The rig prints the probe lines and `PASS` when nothing changed the set off the
+main thread, nothing threw and the set is consistent.

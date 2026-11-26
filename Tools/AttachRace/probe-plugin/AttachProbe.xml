@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<PluginData
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:type="GitHubPlugin"
+>
+  <Id>attach-probe</Id>
+  <RepoId>local/attach-probe</RepoId>
+  <FriendlyName>Attach race probe (issue #161 regression test)</FriendlyName>
+  <Author>CometWorks</Author>
+  <Tooltip>Test only: creates rotor tops on worker threads while their stators are in the scene and counts the attach-state changes made off the main thread</Tooltip>
+  <SourceDirectories>
+    <Directory>Source</Directory>
+  </SourceDirectories>
+</PluginData>

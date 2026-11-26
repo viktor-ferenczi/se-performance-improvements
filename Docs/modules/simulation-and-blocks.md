@@ -10,6 +10,7 @@ Several patches (`MyCubeBlockPatch`, `MyTerminalBlockPatch`, `MyShipConnectorPat
 
 | File | Summary |
 | --- | --- |
+| [`MyAttachableTopBlockBasePatch.cs`](../files/Shared/Patches/Block/MyAttachableTopBlockBasePatch.cs.md) | Moves the stator reattach mark of a rotor, hinge or piston top made on a worker thread to the main thread, fixing a crash in the attach-state HashSet (issue #161). |
 | [`MyCubeBlockPatch.cs`](../files/Shared/Patches/Block/MyCubeBlockPatch.cs.md) | Caches `GetUserRelationToOwner` results per entity/identity pair to avoid repeated ownership lookups (UNTESTED). |
 | [`MyTerminalBlockPatch.cs`](../files/Shared/Patches/Block/MyTerminalBlockPatch.cs.md) | Caches `HasPlayerAccessReason` results per entity/identity pair to avoid repeated terminal-access checks (UNTESTED). |
 | [`MyCharacterPatch.cs`](../files/Shared/Patches/Character/MyCharacterPatch.cs.md) | Skips server-side footprint rendering and contact-sound dispatch on dedicated servers. |

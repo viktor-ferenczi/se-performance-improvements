@@ -13,6 +13,7 @@
     <Compile Include="$(MSBuildThisFileDirectory)Logging\IPluginLogger.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Logging\LogFormatter.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Logging\PluginLogger.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Patches\Block\MyAttachableTopBlockBasePatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Block\MyCubeBlockPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Block\MyTerminalBlockPatch.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Patches\Bullshit\GcCollectPatch.cs" />
