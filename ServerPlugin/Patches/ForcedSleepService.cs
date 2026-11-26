@@ -56,10 +56,10 @@ namespace ServerPlugin.Patches;
 /// Rotor/hinge/piston target changes do NOT wake (not in the rule); a script-driven turret on a
 /// sleeping ship turns again once something wakes the ship.
 ///
-/// On with PerformanceConfig.SleepSupportedGrids (default on for cluster nodes, off elsewhere), tuned by
-/// SleepLinearSpeed (m/s, 0.1), SleepAngularSpeed (rad/s, 0.05) and SleepHoldSeconds (2). The old
-/// CLUSTER_FORCED_SLEEP* variables supply the defaults. On a cluster node it waits for the cluster's
-/// IsFrozen callback, so a node still running the cluster's own copy of this service keeps that one.
+/// On with PerformanceConfig.SleepSupportedGrids (default off; a cluster stages it on in its profile),
+/// tuned by SleepLinearSpeed (m/s, 0.1), SleepAngularSpeed (rad/s, 0.05) and SleepHoldSeconds (2).
+/// On a cluster node it waits for the cluster's IsFrozen callback, so a node still running the
+/// cluster's own copy of this service keeps that one.
 /// Game thread only (Plugin.Update and the cluster's freeze, which calls <see cref="ReleaseForTransfer"/>),
 /// except <see cref="IsSlept"/> and <see cref="Wake"/>, which the patches may call from parallel updates.
 /// </summary>
