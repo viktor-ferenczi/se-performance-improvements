@@ -15,7 +15,10 @@ using Sandbox.Game.World;
 using Sandbox.ModAPI;
 using VRage;
 using VRage.Game;
+using VRage.Game.Components;
+using VRage.Game.ModAPI;
 using VRage.Game.ObjectBuilders.Components;
+using VRage.ModAPI;
 using VRage.ObjectBuilders;
 using VRage.Plugins;
 using VRageMath;
@@ -57,6 +60,23 @@ namespace StuckProbe;
 // like the debris seen on a live server. Once the window ends, probe.log gets one DEBRIS line per grid: the height
 // of its center above the surface at the end, the lowest and highest it was over the last
 // half of the window, and how far it moved in that half.
+//
+// Rover mode (issue #162): with STUCK_VOXEL=planet, STUCK_ROVER names a rover prefab, like
+// RespawnRover. The shot builds a static large grid platform of STUCK_PLATFORM_BLOCK
+// (LargeBlockArmorBlock), STUCK_PLATFORM blocks square and one thick, 20 m above the surface of
+// STUCK_PLANET (Moon, 0.25 g; Triton has 1 g), on the side STUCK_PLATFORM_UP=x,y,z points to
+// (the station's side), and drops the rover upright from STUCK_DROP meters above it.
+// STUCK_PLATFORM_UP=0,-1,0 reproduces the issue: the old code read the contact normal's Y as
+// the depth. STUCK_ROLL=<m/s> keeps the rover rolling forward. STUCK_INTRUDER=1 also places a
+// small grid cube of 3x3x3 armor blocks 10 m from the rover, its bottom STUCK_INTRUDER_DEPTH
+// (0.5) meters deep in the platform, to check that a small grid really stuck is pushed out.
+// The distance column is how far the rover moved sideways since it was dropped, the contact
+// columns count rover-platform contacts. probe.log gets the heights of the rover and its wheels
+// for 15 seconds after the drop, and once the window ends a ROVER line: the largest and last
+// sideways move, and the updates in which the rover moved more than 0.2 m further than its
+// velocity explains (teleports). Then one line per rover grid, an INTRUDER line, and NORMALS:
+// the deep rover-platform contacts by the direction of their normal, and the lowest value
+// HkContactPoint.Distance gave for a wheel.
 public class Plugin : IPlugin
 {
     public void Init(object gameInstance)
@@ -72,6 +92,11 @@ public class Plugin : IPlugin
 
 public static class Probe
 {
+    // HkContactPoint.Distance reads the Y component of the normal (its field offset is wrong in
+    // HavokWrapper), the distance is the W of NormalAndDistance, which the game itself reads
+    private static float TrueDepth(ref HkContactPointEvent value) =>
+        value.ContactPoint.NormalAndDistance.W;
+
     private const double LaunchDelay = 2;
     private const double Watch = 10;
     private const float EntangledDepth = -0.25f;
@@ -102,6 +127,36 @@ public static class Probe
     private static readonly bool Wake = Environment.GetEnvironmentVariable("STUCK_WAKE") == "1";
     private static readonly List<DebrisGrid> DebrisGrids = new List<DebrisGrid>();
     private static MyVoxelBase voxel;
+    private static readonly string Rover = Environment.GetEnvironmentVariable("STUCK_ROVER");
+    private static readonly string Planet =
+        Environment.GetEnvironmentVariable("STUCK_PLANET") ?? "Moon";
+    private static readonly int PlatformSize = (int)Number("STUCK_PLATFORM", 16);
+    private static readonly double Drop = Number("STUCK_DROP", 1);
+    private static readonly bool Intruder =
+        Environment.GetEnvironmentVariable("STUCK_INTRUDER") == "1";
+    private static readonly double IntruderDepth = Number("STUCK_INTRUDER_DEPTH", 0.5);
+    private static readonly List<MyCubeGrid> RoverGrids = new List<MyCubeGrid>();
+    private static MyCubeGrid platform;
+    private static MyCubeGrid rover;
+    private static volatile bool spawned;
+    private static int tiltLogs;
+    private static readonly double Roll = Number("STUCK_ROLL", 0);
+    private static Vector3D? lastCenter;
+    private static double maxJump;
+    private static int jumps;
+    private static readonly string PlatformBlock =
+        Environment.GetEnvironmentVariable("STUCK_PLATFORM_BLOCK") ?? "LargeBlockArmorBlock";
+    private static MyCubeGrid intruder;
+    private static Vector3D up;
+    private static Vector3D platformTop;
+    private static Vector3D roverFrom;
+    private static Vector3D intruderFrom;
+    private static double roverMax;
+    private static int normalsUp;
+    private static int normalsDown;
+    private static int wheelDeep;
+    private static float wheelDeepest;
+    private static float wheelNormalY;
     private static Vector3D placedCenter;
     private static readonly double Seconds = Number("STUCK_SECONDS", 180);
     private static readonly double[][] Shots = (
@@ -182,6 +237,9 @@ public static class Probe
         if (shot >= 0 && launchedAt < placedAt && now >= placedAt + LaunchDelay)
             Launch(now);
 
+        if (rover != null && !rover.Closed)
+            WatchJumps();
+
         if (now - windowStart < 1)
             return;
 
@@ -199,8 +257,11 @@ public static class Probe
 
         MyEntities.TryGetEntityById(ShipId, out MyCubeGrid ship);
         MyEntities.TryGetEntityById(StationId, out MyCubeGrid station);
+        if (Rover != null)
+            ship = TrackRover();
         var distance =
-            VoxelKind != null && ship != null
+            Rover != null ? (ship != null ? Sideways(ship, roverFrom) : -1)
+            : VoxelKind != null && ship != null
                 ? Vector3D.Distance(ship.PositionComp.WorldAABB.Center, placedCenter)
             : ship != null && station != null
                 ? Vector3D.Distance(
@@ -268,6 +329,7 @@ public static class Probe
         if (last && now - launchedAt >= Seconds)
         {
             ReportDebris();
+            ReportRover();
             done = true;
             table.Dispose();
             Log("DONE");
@@ -285,6 +347,12 @@ public static class Probe
         )
         {
             Log("ship or station not found");
+            return;
+        }
+
+        if (VoxelKind != null && Rover != null)
+        {
+            BuildPlatform(station);
             return;
         }
 
@@ -323,8 +391,8 @@ public static class Probe
     private static void Launch(double now)
     {
         launchedAt = now;
-        // The debris falls on its own
-        if (Debris.Length != 0)
+        // The debris and the rover fall on their own
+        if (Debris.Length != 0 || Rover != null)
             return;
 
         if (
@@ -387,7 +455,7 @@ public static class Probe
             + new Vector3D(0, 0, 60000);
         voxel =
             VoxelKind == "planet"
-                ? (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.SpawnPlanet("Moon", 19000, 770, at)
+                ? (MyVoxelBase)MyAPIGateway.Session.VoxelMaps.SpawnPlanet(Planet, 19000, 770, at)
                 : (MyVoxelBase)
                     MyAPIGateway.Session.VoxelMaps.CreateVoxelMapFromStorageName(
                         "SE770Asteroid",
@@ -592,8 +660,313 @@ public static class Probe
         }
     }
 
+    private static MyCubeGrid AddGrid(
+        string name,
+        MyCubeSize size,
+        bool isStatic,
+        MatrixD matrix,
+        IEnumerable<Vector3I> cells,
+        string subtype
+    )
+    {
+        var grid = new MyObjectBuilder_CubeGrid
+        {
+            GridSizeEnum = size,
+            IsStatic = isStatic,
+            PersistentFlags = MyPersistentEntityFlags2.InScene | MyPersistentEntityFlags2.Enabled,
+            PositionAndOrientation = new MyPositionAndOrientation(matrix),
+            CreatePhysics = true,
+            DisplayName = name,
+        };
+        foreach (var cell in cells)
+        {
+            grid.CubeBlocks.Add(
+                new MyObjectBuilder_CubeBlock
+                {
+                    SubtypeName = subtype,
+                    Min = cell,
+                    IntegrityPercent = 1,
+                    BuildPercent = 1,
+                }
+            );
+        }
+        MyEntities.RemapObjectBuilder(grid);
+        return (MyCubeGrid)MyEntities.CreateFromObjectBuilderAndAdd(grid, false);
+    }
+
+    private static IEnumerable<Vector3I> Box(int x, int y, int z)
+    {
+        for (var i = 0; i < x; i++)
+        for (var j = 0; j < y; j++)
+        for (var k = 0; k < z; k++)
+            yield return new Vector3I(i, j, k);
+    }
+
+    // A matrix with the grid's local up along the planet's up, its first cell at the corner
+    private static MatrixD Corner(Vector3D center, Vector3D size, double gridSize)
+    {
+        var right = Vector3D.Normalize(Vector3D.CalculatePerpendicularVector(up));
+        var backward = Vector3D.Cross(right, up);
+        var matrix = MatrixD.CreateWorld(Vector3D.Zero, -backward, up);
+        matrix.Translation =
+            center
+            - (right * (size.X - 1) + up * (size.Y - 1) + backward * (size.Z - 1)) * gridSize / 2;
+        return matrix;
+    }
+
+    private static void BuildPlatform(MyCubeGrid station)
+    {
+        var planet = (MyPlanet)voxel;
+        var center = planet.PositionComp.WorldAABB.Center;
+        up = Vector3D.Normalize(station.PositionComp.GetPosition() - center);
+        var given = Environment.GetEnvironmentVariable("STUCK_PLATFORM_UP");
+        if (given != null)
+        {
+            var v = given
+                .Split(',')
+                .Select(x => double.Parse(x, CultureInfo.InvariantCulture))
+                .ToArray();
+            up = Vector3D.Normalize(new Vector3D(v[0], v[1], v[2]));
+        }
+        var surface = planet.GetClosestSurfacePointGlobal(center + up * 30000);
+        var middle = surface + up * 20;
+        platformTop = middle + up * 1.25;
+        platform = AddGrid(
+            "Platform",
+            MyCubeSize.Large,
+            true,
+            Corner(middle, new Vector3D(PlatformSize, 1, PlatformSize), 2.5),
+            Box(PlatformSize, 1, PlatformSize),
+            PlatformBlock
+        );
+
+        var forward = Vector3D.Normalize(Vector3D.CalculatePerpendicularVector(up));
+        MyPrefabManager.Static.SpawnPrefab(
+            RoverGrids,
+            Rover,
+            platformTop + up * 10,
+            forward,
+            up,
+            // Like the respawn rovers: the prefab's own orientation is not upright
+            spawningOptions: SpawningOptions.RotateFirstCockpitTowardsDirection,
+            callbacks: new Stack<Action>(new Action[] { () => spawned = true })
+        );
+
+        if (Intruder)
+        {
+            // 1.5 m cube, its bottom IntruderDepth deep in the platform, 10 m to the side of the rover
+            var side = Vector3D.Cross(forward, up);
+            intruder = AddGrid(
+                "Intruder",
+                MyCubeSize.Small,
+                false,
+                Corner(
+                    platformTop + up * (0.75 - IntruderDepth) + side * 10,
+                    new Vector3D(3, 3, 3),
+                    0.5
+                ),
+                Box(3, 3, 3),
+                "SmallBlockArmorBlock"
+            );
+            intruderFrom = intruder.PositionComp.WorldAABB.Center;
+        }
+
+        Log(
+            $"shot {shot}: built a {PlatformSize}x{PlatformSize} platform {platform?.EntityId}, spawning {Rover}, intruder {intruder?.EntityId}"
+        );
+    }
+
+    // Puts the spawned rover Drop meters above the platform, then returns its main grid
+    private static MyCubeGrid TrackRover()
+    {
+        if (rover == null)
+        {
+            // Teleporting the rover before the prefab manager is done with it crashes the server
+            if (!spawned || RoverGrids.Count == 0 || RoverGrids.Any(g => g.Physics == null))
+                return null;
+
+            var main = RoverGrids.OrderByDescending(g => g.BlocksCount).First();
+            rover = main;
+            var lowest = double.MaxValue;
+            foreach (var grid in RoverGrids)
+            {
+                var corners = grid.PositionComp.WorldAABB.GetCorners();
+                foreach (var corner in corners)
+                    lowest = Math.Min(lowest, Vector3D.Dot(corner - platformTop, up));
+            }
+            var matrix = rover.WorldMatrix;
+            matrix.Translation += up * (Drop - lowest);
+            rover.Teleport(matrix);
+            Stop(rover);
+            roverFrom = rover.PositionComp.WorldAABB.Center;
+            Log(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "rover lowest point was {0:F2} m above the platform, its center now {1:F2} m",
+                    lowest,
+                    Height(rover, platformTop)
+                )
+            );
+            Log(
+                $"rover {RoverGrids.Count} grids, main {rover.DisplayName} {rover.EntityId}, wheels {string.Join(" ", RoverGrids.Where(g => g != rover && g.BlocksCount == 1).Select(g => g.EntityId))}, dropped from {Drop} m"
+            );
+        }
+
+        if (Wake)
+        {
+            foreach (var grid in RoverGrids)
+                grid.Physics?.ForceActivate();
+        }
+
+        if (!rover.Closed)
+            roverMax = Math.Max(roverMax, Sideways(rover, roverFrom));
+        if (!rover.Closed && tiltLogs < 15)
+        {
+            tiltLogs++;
+            var wheels = RoverGrids.Where(g => g != rover && !g.Closed).ToList();
+            Log(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "tilt: center {0:F2} m, wheels {1} m above the platform",
+                    Height(rover, platformTop),
+                    string.Join(
+                        " ",
+                        wheels.Select(g =>
+                            Height(g, platformTop).ToString("F2", CultureInfo.InvariantCulture)
+                        )
+                    )
+                )
+            );
+        }
+        return rover.Closed ? null : rover;
+    }
+
+    // A teleport moves the rover further in one update than its velocity does
+    private static void WatchJumps()
+    {
+        var center = rover.PositionComp.WorldAABB.Center;
+        if (lastCenter.HasValue)
+        {
+            var velocity = (Vector3D)rover.Physics.LinearVelocity;
+            var jump = (center - lastCenter.Value - velocity / 60).Length();
+            maxJump = Math.Max(maxJump, jump);
+            if (jump > 0.2)
+                jumps++;
+        }
+        lastCenter = center;
+
+        // Rolling wheels make new contact points on every update, resting ones only now and then
+        if (Roll > 0)
+        {
+            var forward = Vector3D.Normalize(Vector3D.CalculatePerpendicularVector(up));
+            foreach (var grid in RoverGrids)
+            {
+                if (grid.Physics == null)
+                    continue;
+
+                var v = (Vector3D)grid.Physics.LinearVelocity;
+                grid.Physics.LinearVelocity = v + forward * (Roll - Vector3D.Dot(v, forward));
+            }
+        }
+    }
+
+    private static double Sideways(MyCubeGrid grid, Vector3D from)
+    {
+        var move = grid.PositionComp.WorldAABB.Center - from;
+        return (move - up * Vector3D.Dot(move, up)).Length();
+    }
+
+    private static double Height(MyCubeGrid grid, Vector3D from) =>
+        Vector3D.Dot(grid.PositionComp.WorldAABB.Center - from, up);
+
+    private static void ReportRover()
+    {
+        if (Rover == null)
+            return;
+
+        if (rover != null)
+            Log(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "ROVER moved sideways max {0:F2} m, last {1:F2} m, its center {2:F2} m above the platform; jumps over 0.2 m in one update: {3}, largest {4:F2} m",
+                    roverMax,
+                    Sideways(rover, roverFrom),
+                    Height(rover, platformTop),
+                    jumps,
+                    maxJump
+                )
+            );
+        foreach (var grid in RoverGrids)
+            Log(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "ROVER grid {0} ({1} blocks): lowest point {2:F2} m above the platform, center {3:F2} m",
+                    grid.EntityId,
+                    grid.BlocksCount,
+                    grid.PositionComp.WorldAABB.GetCorners()
+                        .Min(c => Vector3D.Dot(c - platformTop, up)),
+                    Height(grid, platformTop)
+                )
+            );
+        if (intruder != null)
+            Log(
+                string.Format(
+                    CultureInfo.InvariantCulture,
+                    "INTRUDER moved up {0:F2} m, sideways {1:F2} m{2}",
+                    Height(intruder, intruderFrom),
+                    Sideways(intruder, intruderFrom),
+                    intruder.Closed ? ", GONE" : ""
+                )
+            );
+        Log(
+            $"NORMALS deep rover contacts with the normal pointing towards body 0: {normalsUp}, towards body 1: {normalsDown}; on wheel grids {wheelDeep}, deepest {wheelDeepest:F3} m, lowest HkContactPoint.Distance {wheelNormalY:F3}"
+        );
+    }
+
+    private static void RoverContact(ref HkContactPointEvent value)
+    {
+        var a = value.GetPhysicsBody(0)?.Entity as MyCubeGrid;
+        var b = value.GetPhysicsBody(1)?.Entity as MyCubeGrid;
+        if (a == null || b == null || platform == null || (a == platform) == (b == platform))
+            return;
+
+        var distance = TrueDepth(ref value);
+        if (a == intruder || b == intruder)
+            return;
+
+        // The rover is on top of the platform: a normal pointing up points away from the platform
+        var pointsUp = Vector3D.Dot(value.ContactPoint.Normal, up) > 0;
+        var towardsBody0 = a == platform ? !pointsUp : pointsUp;
+        lock (ContactLock)
+        {
+            contacts++;
+            if (distance < -0.1f)
+            {
+                deep++;
+                if (towardsBody0)
+                    normalsUp++;
+                else
+                    normalsDown++;
+            }
+            if ((a == platform ? b : a).BlocksCount == 1 && distance < -0.1f)
+            {
+                wheelDeep++;
+                wheelDeepest = Math.Min(wheelDeepest, distance);
+                wheelNormalY = Math.Min(wheelNormalY, value.ContactPoint.Distance);
+            }
+            if (distance < deepest)
+                deepest = distance;
+        }
+    }
+
     public static void Contact(ref HkContactPointEvent value)
     {
+        if (Rover != null)
+        {
+            RoverContact(ref value);
+            return;
+        }
+
         if (VoxelKind != null)
         {
             var e0 = value.GetPhysicsBody(0)?.Entity;
@@ -603,10 +976,10 @@ public static class Probe
             lock (ContactLock)
             {
                 contacts++;
-                if (value.ContactPoint.Distance < -0.1f)
+                if (TrueDepth(ref value) < -0.1f)
                     deep++;
-                if (value.ContactPoint.Distance < deepest)
-                    deepest = value.ContactPoint.Distance;
+                if (TrueDepth(ref value) < deepest)
+                    deepest = TrueDepth(ref value);
             }
             return;
         }
@@ -616,7 +989,7 @@ public static class Probe
         if (a == null || b == null || (a.EntityId == StationId) == (b.EntityId == StationId))
             return;
 
-        var distance = value.ContactPoint.Distance;
+        var distance = TrueDepth(ref value);
         lock (ContactLock)
         {
             contacts++;
