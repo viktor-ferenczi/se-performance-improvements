@@ -272,6 +272,20 @@ def main():
     for grid in sorted(grids):
         times = [line[11:19] for line in lines if grid in line]
         print(f"{len(times):5} {grid}, {times[0]} to {times[-1]}")
+    # The grid-grid separations of the Performance plugin
+    lines = [
+        line
+        for log in DATA.glob("*.log")
+        for line in log.read_text(errors="replace").splitlines()
+        if "Performance: Grids" in line
+        and "are stuck inside each other" in line
+        or "Performance: Separated grids" in line
+        or "Performance: Could not separate grids" in line
+    ]
+    starts = [line for line in lines if "are stuck inside each other" in line]
+    print(f"== grid separations: {len(starts)}")
+    for line in lines:
+        print(line.split("Performance: ", 1)[1])
     return 0 if result == "finished" else 1
 
 

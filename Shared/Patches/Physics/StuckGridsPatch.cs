@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -68,6 +69,7 @@ namespace Shared.Patches
             public MyCubeGrid A;
             public MyCubeGrid B;
             public Vector3D Sum;
+            public Vector3 Normals;
             public int Count;
             public float Deepest;
         }
@@ -80,6 +82,9 @@ namespace Shared.Patches
             public long LastDeep;
             public long LastTouch;
             public Vector3D Center;
+
+            // Mean of the contact normals, pointing from B towards A
+            public Vector3 Normal;
 
             // Separation: how far each grid moves per update, zero for one that stays
             public bool Separating;
@@ -111,7 +116,10 @@ namespace Shared.Patches
             ref HkContactPointEvent value
         )
         {
-            var distance = value.ContactPoint.Distance;
+            // HkContactPoint.Distance has the wrong field offset in HavokWrapper and returns the Y of
+            // the normal. The game reads the distance from NormalAndDistance.W (issue #162).
+            var normalAndDistance = value.ContactPoint.NormalAndDistance;
+            var distance = normalAndDistance.W;
             if (distance > -TouchDepth || !Sync.IsServer)
                 return;
 
@@ -124,6 +132,10 @@ namespace Shared.Patches
                 return;
 
             var position = __instance.ClusterToWorld(value.ContactPoint.Position);
+            // Havok's contact normal points from body 1 towards body 0
+            var normal = new Vector3(normalAndDistance.X, normalAndDistance.Y, normalAndDistance.Z);
+            if (a.EntityId > b.EntityId)
+                normal = -normal;
             var key = a.EntityId < b.EntityId ? (a.EntityId, b.EntityId) : (b.EntityId, a.EntityId);
             lock (TouchLock)
             {
@@ -131,6 +143,7 @@ namespace Shared.Patches
                 touch.A = a;
                 touch.B = b;
                 touch.Sum += position;
+                touch.Normals += normal;
                 touch.Count++;
                 if (distance < touch.Deepest)
                     touch.Deepest = distance;
@@ -171,6 +184,7 @@ namespace Shared.Patches
 
                 pair.LastTouch = tick;
                 pair.Center = touch.Sum / touch.Count;
+                pair.Normal = touch.Normals / touch.Count;
                 if (deep)
                 {
                     pair.DeepTicks++;
@@ -249,6 +263,13 @@ namespace Shared.Patches
             if (staysA && staysB)
                 return false;
 
+            // Moving a grid teleports its whole physical group, another pair may move it already
+            foreach (var other in Pairs.Values)
+            {
+                if (other.Separating && (!staysA && Moves(other, a) || !staysB && Moves(other, b)))
+                    return false;
+            }
+
             var massA = staysA
                 ? 0
                 : MyGridPhysicalGroupData.GetGroupSharedProperties(a, false).Mass;
@@ -260,8 +281,8 @@ namespace Shared.Patches
                 : staysB ? 1
                 : massA + massB > 0 ? massB / (massA + massB)
                 : 0.5f;
-            pair.StepA = Away(a, b, pair.Center) * (StepMeters * shareA);
-            pair.StepB = Away(b, a, pair.Center) * (StepMeters * (1 - shareA));
+            pair.StepA = Away(a, b, pair.Center, pair.Normal) * (StepMeters * shareA);
+            pair.StepB = Away(b, a, pair.Center, -pair.Normal) * (StepMeters * (1 - shareA));
             pair.Separating = true;
             Log.Info($"Grids {Name(a)} and {Name(b)} are stuck inside each other, separating them");
             return true;
@@ -276,14 +297,31 @@ namespace Shared.Patches
                     .Nodes.Any(node => node.NodeData.IsStatic);
         }
 
-        // From the center of the contact points towards the grid's own center. Falls back to the
-        // direction from the other grid's center when the contacts are centered on the grid.
-        private static Vector3D Away(MyCubeGrid grid, MyCubeGrid other, Vector3D center)
+        // The pair moves the physical group of the grid
+        private static bool Moves(Pair pair, MyCubeGrid grid) =>
+            pair.StepA != Vector3D.Zero
+                && MyCubeGridGroups.Static.Physical.HasSameGroup(pair.A, grid)
+            || pair.StepB != Vector3D.Zero
+                && MyCubeGridGroups.Static.Physical.HasSameGroup(pair.B, grid);
+
+        // From the center of the contact points towards the grid's own center. When the contacts
+        // are centered on the grid, which they always are on a small one, along the contact normal,
+        // then away from the other grid's center.
+        private static Vector3D Away(
+            MyCubeGrid grid,
+            MyCubeGrid other,
+            Vector3D center,
+            Vector3 normal
+        )
         {
             var own = grid.PositionComp.WorldAABB.Center;
             var direction = own - center;
-            if (direction.LengthSquared() < 1)
-                direction = own - other.PositionComp.WorldAABB.Center;
+            var near = Math.Min(1, 0.25 * grid.PositionComp.WorldVolume.Radius);
+            if (direction.LengthSquared() < near * near)
+                direction =
+                    normal.LengthSquared() > 0.25f
+                        ? (Vector3D)normal
+                        : own - other.PositionComp.WorldAABB.Center;
             if (direction.LengthSquared() < 1e-6)
                 direction = grid.WorldMatrix.Up;
             return Vector3D.Normalize(direction);

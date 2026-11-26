@@ -237,11 +237,23 @@ ship's side. A pair of grids with contact points deeper than 0.5 m on 60 updates
 gap longer than 30 updates, is stuck. The grids that may move are then teleported away
 from the center of their contact points, towards their own center, 0.5 m per update
 (30 m/s), until they have had no contact deeper than 5 cm for 5 updates. Then their
-velocity is zeroed and the physics takes over again. Static grids, and grids attached to
-a static grid by a connector or landing gear, never move. Of two ships the lighter one
-moves more, by the inverse of their masses. Grids in the same physical group (rotors,
-pistons, connectors) are left alone. The server moves the grids, the clients see it
-through the normal position replication. It gives up after 300 m.
+velocity is zeroed and the physics takes over again. A small grid's contact points are
+always near its center, so when their center is closer than a quarter of the grid's radius
+(at most 1 m) to the grid's center, the grid moves along the mean contact normal instead,
+and only when that has no clear direction away from the other grid's center. Static grids,
+and grids attached to a static grid by a connector or landing gear, never move. Of two
+ships the lighter one moves more, by the inverse of their masses. Grids in the same
+physical group (rotors, pistons, connectors) are left alone. Moving a grid teleports its
+whole physical group, so a group is moved for one stuck pair at a time. The server moves
+the grids, the clients see it through the normal position replication. It gives up after
+300 m.
+
+The depth of a contact is `HkContactPoint.NormalAndDistance.W`, the value the game reads
+itself. `HkContactPoint.Distance` has the wrong field offset in `HavokWrapper.dll` and
+returns the Y component of the contact normal. Before 1.19.1 the plugin read that, so any
+contact whose normal pointed down the world's Y axis counted as 0.5 m deep. A rover resting
+on a station whose up is the world's -Y was taken for stuck through each of its wheels and
+thrown sideways by all of them at once, 2 m per update (issue #162).
 
 Option `SeparateStuckGrids`, on by default in both plugins. The client plugin does it only
 where the game runs as the server: offline games and the multiplayer games the client
@@ -260,6 +272,18 @@ each, interleaved:
 
 With nothing stuck the update time was the same with and without the fix (5.2 - 5.5 ms
 with the Rhea and its subgrids touching each other).
+
+Those runs read the normal's Y as the depth (see above). Rerun with the true depth, one
+run each on the same host, 90 seconds from the placement: the old code separated the Rhea
+from the station after 9 seconds of deep contact (7.0 ms mean update time, simulation
+speed 0.90) and also "separated" four pairs of grids that were not stuck. The new code
+separated the Rhea after 4 seconds (5.4 ms, 0.97) and nothing else. The true depth of the
+Rhea's contacts was 0.9 - 2.6 m.
+
+The rover mode of the probe (`STUCK_ROVER`, issue #162) builds a static platform on a
+planet and drops a rover prefab onto it. With `STUCK_PLATFORM_UP=0,-1,0` the platform
+faces the world's -Y: the old code separated the 4 wheels from the platform 11 times and
+threw the rover 430 m in 40 seconds, the new code left it standing.
 
 ## Pushing grids out of planets and asteroids
 
